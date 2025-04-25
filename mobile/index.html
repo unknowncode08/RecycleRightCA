@@ -120,7 +120,7 @@
       let barcodeDetected = false;
 
       qr.start(
-        { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } },
+        { facingMode: "environment" },
         { fps: 10, qrbox: 250 },
         code => {
           barcodeDetected = true;
