@@ -150,7 +150,7 @@
     }
 
     function loadSitesFilteredByCity(userCity) {
-      fetch('../crv_centers_address_only.json')
+      fetch('data/crv_centers_address_only.json')
         .then(res => res.json())
         .then(data => {
           let matches = data.filter(site => site.city.toLowerCase() === userCity.toLowerCase());
