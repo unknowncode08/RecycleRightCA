@@ -181,9 +181,10 @@
         });
 
       // Attach button click
-      document.getElementById('continueToPhoto').addEventListener('click', () => {
+      document.getElementById('continueToPhoto').addEventListener('click', async () => {
         photoInstructions.classList.add('hidden');
         if (videoStream) {
+          await modelPromise;
           captureAndClassifyImage(videoPreview);
         }
       });
@@ -192,12 +193,15 @@
     document.getElementById('quickMapBtn').addEventListener('click', () => switchTab('map'));
 
     // TensorFlow model
-    let model, labels = ['plastic', 'glass', 'metal', 'paper', 'trash'];
+    let model;
+
     async function loadModel() {
       const URL = "https://teachablemachine.withgoogle.com/models/glTOyTZMK/";
       model = await tmImage.load(URL + "model.json", URL + "metadata.json");
     }
-    loadModel();
+
+    // Call loadModel() and wait fully before anything else happens
+    const modelPromise = loadModel();
 
     async function captureAndClassifyImage(videoElement) {
       document.getElementById('loadingSpinner').classList.remove('hidden');
