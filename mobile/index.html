@@ -91,7 +91,6 @@
   </div>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="https://unpkg.com/html5-qrcode"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.10.0/dist/tf.min.js"></script>
   <script>
     const tabs = document.querySelectorAll('.tab');
     const pages = {
@@ -201,21 +200,17 @@
     loadModel();
 
     async function captureAndClassifyImage(videoElement) {
-      document.getElementById('loadingSpinner').classList.remove('hidden'); // 👈 Show spinner
-
-      const canvas = document.createElement("canvas");
-      canvas.width = videoElement.videoWidth;
-      canvas.height = videoElement.videoHeight;
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(videoElement, 0, 0);
+      document.getElementById('loadingSpinner').classList.remove('hidden');
 
       const prediction = await model.predict(videoElement);
-      const best = prediction.reduce((prev, curr) => (curr.probability > prev.probability ? curr : prev));
-      showVerdict(labelToVerdict(best.className));
+      const best = prediction.reduce((prev, curr) =>
+        curr.probability > prev.probability ? curr : prev
+      );
 
+      showVerdict(labelToVerdict(best.className));
       videoStream.getTracks().forEach(track => track.stop());
 
-      document.getElementById('loadingSpinner').classList.add('hidden'); // 👈 Hide spinner
+      document.getElementById('loadingSpinner').classList.add('hidden');
     }
 
     function labelToVerdict(label) {
