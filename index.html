@@ -4,7 +4,6 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>RecycleRight CA – Install the App</title>
-  <!-- Tailwind via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="manifest" href="/manifest.webmanifest" />
   <meta name="theme-color" content="#16a34a" />
@@ -40,15 +39,12 @@
   </main>
 
   <script>
-    // Detect device/platform
     const ua = navigator.userAgent;
     const isIOS = /iPhone|iPad|iPod/i.test(ua);
     const isAndroid = /Android/i.test(ua);
     const isMobile = isIOS || isAndroid;
 
     const platformMsg = document.getElementById('platformMsg');
-
-    // Set instruction message regardless of platform
     if (isIOS) {
       platformMsg.textContent = 'iPhone/iPad: Tap the Share button (box with arrow) and choose “Add to Home Screen”.';
     } else if (isAndroid) {
@@ -61,28 +57,22 @@
       document.body.innerHTML = '<h2 class="text-xl font-semibold">Open this page on your mobile device to install the app.</h2>';
     }
 
-    // Redirect standalone users straight to /mobile
+    // Redirect standalone users straight to /mobile/
     if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
-      window.location.replace('/mobile');
+      window.location.replace('/mobile/');
     }
 
-    // Register Service Worker
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js');
     }
 
-    // --------- INSTALL FLOW ELEMENTS ---------
     const installBtn   = document.getElementById('installBtn');
     const androidHint  = document.getElementById('androidHint');
     const appleBtn     = document.getElementById('appleInstallBtn');
     const iosHint      = document.getElementById('iosHint');
 
-    // ---------- ANDROID / CHROME PWA INSTALL ----------
     let deferredPrompt;
-
-    if (isAndroid) {
-      installBtn.classList.remove('hidden');
-    }
+    if (isAndroid) installBtn.classList.remove('hidden');
 
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
@@ -100,18 +90,17 @@
         if (outcome === 'accepted') installBtn.textContent = 'Installed!';
         deferredPrompt = null;
       } else if (navigator.share) {
-        try { await navigator.share({ title: 'RecycleRight CA', url: '/mobile' }); } catch (_) {}
+        try { await navigator.share({ title: 'RecycleRight CA', url: '/mobile/' }); } catch (_) {}
       } else {
         androidHint.classList.remove('hidden');
       }
     });
 
-    // ----------- iOS / SAFARI INSTALL -----------
     if (isIOS && !window.navigator.standalone) {
       if (navigator.share) {
         appleBtn.classList.remove('hidden');
         appleBtn.addEventListener('click', async () => {
-          try { await navigator.share({ title: 'RecycleRight CA', url: '/mobile' }); } catch (_) { iosHint.classList.remove('hidden'); }
+          try { await navigator.share({ title: 'RecycleRight CA', url: '/mobile/' }); } catch (_) { iosHint.classList.remove('hidden'); }
         });
       } else {
         iosHint.classList.remove('hidden');
