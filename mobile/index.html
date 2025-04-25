@@ -124,7 +124,7 @@
         { fps: 10, qrbox: 250 },
         code => {
           barcodeDetected = true;
-          qr.stop().then(() => checkBarcode(code));
+          qr.stop().then(() => fetchFromOpenFoodFacts(code));
         },
         error => { }
       ).then(() => {
