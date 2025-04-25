@@ -38,6 +38,7 @@
       </div>
       <section id="result" class="hidden w-full max-w-md mx-auto bg-white p-4 rounded-lg shadow"></section>
     </section>
+    <div id="scanner" class="hidden w-full max-w-sm mx-auto mt-4"></div>
     <section id="page-map" class="hidden p-0">
       <div id="map" style="height: calc(100vh - 112px);" class="w-full"></div>
     </section>
@@ -79,6 +80,8 @@
     </div>
   </div>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.10.0/dist/tf.min.js"></script>
   <script>
     const tabs = document.querySelectorAll('.tab');
     const pages = {
@@ -90,6 +93,7 @@
     let map = null;
     let mapReady = false;
 
+    // Tab navigation
     function switchTab(tab) {
       tabs.forEach(t => {
         const active = t.dataset.tab === tab;
@@ -104,12 +108,117 @@
     switchTab('main');
 
     const resultDiv = document.getElementById('result');
+    const scannerDiv = document.getElementById('scanner');
+
+    // Scan button logic
     document.getElementById('scanBtn').addEventListener('click', () => {
-      resultDiv.textContent = '📷 Scanner coming soon…';
-      resultDiv.classList.remove('hidden');
+      resultDiv.classList.add('hidden');
+      scannerDiv.classList.remove('hidden');
+      scannerDiv.innerHTML = '';
+
+      const qr = new Html5Qrcode("scanner");
+      let barcodeDetected = false;
+
+      qr.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: 250 },
+        code => {
+          barcodeDetected = true;
+          qr.stop().then(() => checkBarcode(code));
+        },
+        error => { }
+      ).then(() => {
+        setTimeout(() => {
+          if (!barcodeDetected) {
+            qr.stop().then(() => captureAndClassifyImage());
+          }
+        }, 10000);
+      });
     });
+
     document.getElementById('quickMapBtn').addEventListener('click', () => switchTab('map'));
 
+    // Load TensorFlow model
+    let model, labels = ['plastic', 'glass', 'metal', 'paper', 'trash', 'crv'];
+    async function loadModel() {
+      model = await tf.loadLayersModel('../model/model.json');
+    }
+    loadModel();
+
+    // Image classification fallback
+    async function captureAndClassifyImage() {
+      const video = document.querySelector("video");
+      if (!video) return showVerdict("unknown");
+
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(video, 0, 0);
+
+      const img = tf.browser.fromPixels(canvas);
+      const resized = tf.image.resizeBilinear(img, [224, 224]);
+      const input = resized.expandDims(0).toFloat().div(255.0);
+      const prediction = await model.predict(input).data();
+      const label = labels[prediction.indexOf(Math.max(...prediction))];
+      showVerdict(labelToVerdict(label));
+    }
+
+    function labelToVerdict(label) {
+      switch (label) {
+        case 'plastic':
+        case 'glass':
+        case 'metal':
+        case 'paper': return 'recycle';
+        case 'crv': return 'crv';
+        default: return 'trash';
+      }
+    }
+
+    function showVerdict(type) {
+      scannerDiv.classList.add('hidden');
+      resultDiv.innerHTML = {
+        recycle: '✅ Recycle curbside',
+        trash: '❌ Trash — not recyclable here',
+        crv: '💵 CRV — cash back!'
+      }[type] || '🤔 Material unknown';
+      resultDiv.classList.remove('hidden');
+    }
+
+    function checkBarcode(code) {
+      fetch('../local_products.json')
+        .then(res => res.json())
+        .then(db => {
+          const item = db[code];
+          if (item) {
+            showVerdict(item.verdict);
+          } else {
+            fetchFromOpenFoodFacts(code);
+          }
+        });
+    }
+
+    function fetchFromOpenFoodFacts(code) {
+      fetch(`https://world.openfoodfacts.org/api/v0/product/${code}.json`)
+        .then(res => res.json())
+        .then(data => {
+          const material = data.product?.packaging || '';
+          const verdict = guessFromMaterial(material);
+          showVerdict(verdict);
+        })
+        .catch(() => showVerdict("unknown"));
+    }
+
+    function guessFromMaterial(material) {
+      material = material.toLowerCase();
+      if (material.includes('plastic')) return 'recycle';
+      if (material.includes('glass')) return 'recycle';
+      if (material.includes('aluminum') || material.includes('metal')) return 'recycle';
+      if (material.includes('crv')) return 'crv';
+      return 'trash';
+    }
+
+    // Map logic with filtered sites
     function initMap() {
       const mapContainer = document.getElementById('map');
       mapContainer.innerHTML = '<p class="text-center p-4">📍 Getting your location…</p>';
@@ -134,7 +243,6 @@
             iconAnchor: [16, 32],
             popupAnchor: [0, -32]
           });
-
           L.marker([lat, lon], { icon: userIcon }).addTo(map).bindPopup('You are here');
 
           fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`)
@@ -160,7 +268,6 @@
         .then(res => res.json())
         .then(data => {
           let matches = data.filter(site => site.city.toLowerCase() === userCity.toLowerCase());
-
           if (matches.length === 0 && userCity) {
             const grouped = data.reduce((acc, site) => {
               acc[site.city] = acc[site.city] || [];
