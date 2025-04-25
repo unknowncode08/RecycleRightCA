@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>RecycleRight CA – Install the App</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Relative paths work in any sub‑directory (GitHub Pages) -->
   <link rel="manifest" href="manifest.webmanifest" />
   <meta name="theme-color" content="#16a34a" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
@@ -15,53 +14,52 @@
     <h1 class="text-4xl font-bold text-green-700 mb-4">RecycleRight&nbsp;CA</h1>
     <p class="text-lg mb-6">Snap &amp; learn where to toss – then earn cash for cans and bottles! Add this web app to your phone in seconds.</p>
 
+    <!-- Platform‑specific quick tip -->
     <p id="platformMsg" class="text-sm text-gray-700 mb-4"></p>
 
-    <button id="installBtn" class="hidden px-6 py-3 rounded-lg bg-green-600 text-white font-semibold shadow-lg hover:bg-green-700 transition mb-2">
-      Install App (Android)
-    </button>
-    <div id="androidHint" class="hidden text-sm text-gray-600 mb-4">
-      <p>In Chrome, tap <span class="font-semibold">⋮ Menu</span> → <span class="font-semibold">Add to Home screen</span>.</p>
-    </div>
+    <!-- Android Install Button -->
+    <button id="installBtn" class="hidden px-6 py-3 rounded-lg bg-green-600 text-white font-semibold shadow-lg hover:bg-green-700 transition mb-2">Install App</button>
+    <div id="androidHint" class="hidden text-sm text-gray-600 mb-4"><p>In Chrome, tap <span class="font-semibold">⋮ Menu</span> → <span class="font-semibold">Add to Home screen</span>.</p></div>
 
-    <button id="appleInstallBtn" class="hidden px-6 py-3 rounded-lg bg-green-600 text-white font-semibold shadow-lg hover:bg-green-700 transition mb-2">
-      Share &amp; Add to Home Screen (iOS)
-    </button>
-    <div id="iosHint" class="hidden text-sm text-gray-600">
-      <p>In Safari, tap <span class="inline-block align-baseline text-xl">&#x1f5d2;</span> <span class="font-semibold">Share</span> → <span class="font-semibold">Add to Home Screen</span>.</p>
+    <!-- iOS manual hint (always visible on iOS) -->
+    <div id="iosHint" class="hidden text-sm text-gray-600 max-w-xs mx-auto border border-green-300 rounded-lg p-3 bg-green-50">
+      <p><strong>iPhone/iPad:</strong> Tap the <span class="inline-block align-baseline text-xl">&#x1f5d2;</span> Share icon&nbsp;in Safari, then choose <strong>Add to Home&nbsp;Screen</strong>. Launch the new icon to use the app.</p>
     </div>
   </main>
 
   <script>
+    // --- Platform detection ---
     const ua = navigator.userAgent;
     const isIOS = /iPhone|iPad|iPod/i.test(ua);
     const isAndroid = /Android/i.test(ua);
     const isMobile = isIOS || isAndroid;
 
     const platformMsg = document.getElementById('platformMsg');
-    if (isIOS) platformMsg.textContent = 'iPhone/iPad: Tap the Share button (box with arrow) and choose “Add to Home Screen”.';
-    else if (isAndroid) platformMsg.textContent = 'Android: Tap the Install button below or use ⋮ Menu → Add to Home screen.';
-    else platformMsg.textContent = 'Tap your browser menu and choose “Add to Home screen”.';
+    if (isIOS) platformMsg.textContent = 'Tap the Share icon and pick “Add to Home Screen” to install.';
+    else if (isAndroid) platformMsg.textContent = 'Tap Install below or ⋮ Menu → Add to Home screen.';
+    else platformMsg.textContent = 'Open this page on your phone to install the app.';
 
-    if (!isMobile) document.body.innerHTML = '<h2 class="text-xl font-semibold">Open this page on your mobile device to install the app.</h2>';
+    if (!isMobile) {
+      document.body.innerHTML = '<h2 class="text-xl font-semibold">Open this page on your mobile device to install the app.</h2>';
+    }
 
-    // Derive base path (e.g., /RecycleRightCA/)
     const BASE = location.pathname.replace(/\/[^/]*$/, '/');
-
-    // Redirect standalone users straight to mobile/
+    // Auto‑redirect standalone users
     if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
       window.location.replace(BASE + 'mobile/');
     }
 
+    // Service‑worker registration
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
 
-    const installBtn = document.getElementById('installBtn');
+    // --- Android install flow ---
+    const installBtn  = document.getElementById('installBtn');
     const androidHint = document.getElementById('androidHint');
-    const appleBtn = document.getElementById('appleInstallBtn');
-    const iosHint = document.getElementById('iosHint');
-
+    const iosHint     = document.getElementById('iosHint');
     let deferredPrompt;
+
     if (isAndroid) installBtn.classList.remove('hidden');
+    if (isIOS) iosHint.classList.remove('hidden');
 
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
@@ -73,26 +71,16 @@
     });
 
     installBtn.addEventListener('click', async () => {
+      if (!isAndroid) return; // guard
       if (deferredPrompt) {
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
         if (outcome === 'accepted') installBtn.textContent = 'Installed!';
         deferredPrompt = null;
-      } else if (navigator.share) {
-        try { await navigator.share({ title: 'RecycleRight CA', url: BASE + 'mobile/' }); } catch (_) {}
       } else {
         androidHint.classList.remove('hidden');
       }
     });
-
-    if (isIOS && !window.navigator.standalone) {
-      if (navigator.share) {
-        appleBtn.classList.remove('hidden');
-        appleBtn.addEventListener('click', async () => {
-          try { await navigator.share({ title: 'RecycleRight CA', url: BASE + 'mobile/' }); } catch (_) { iosHint.classList.remove('hidden'); }
-        });
-      } else iosHint.classList.remove('hidden');
-    }
   </script>
 </body>
 </html>

@@ -17,13 +17,11 @@
 
   <!-- Main Content -->
   <main class="flex-1 flex flex-col items-center justify-start p-6 space-y-6">
-    <!-- Hero -->
     <div class="text-center max-w-md">
       <h2 class="text-xl font-bold text-gray-800 mb-2">Your Pocket Recycling Coach</h2>
       <p class="text-gray-600">Scan any item to see if it’s recycle, trash, or cash‑back and find the nearest redemption center.</p>
     </div>
 
-    <!-- Action Buttons -->
     <div class="w-full max-w-sm space-y-4">
       <button id="scanBtn" class="w-full flex items-center justify-center gap-2 px-6 py-4 bg-green-600 text-white rounded-xl shadow hover:bg-green-700 transition text-lg">
         <span class="material-icons-outlined">photo_camera</span> Scan Item
@@ -33,31 +31,18 @@
       </button>
     </div>
 
-    <!-- Result Area -->
     <section id="result" class="hidden w-full max-w-md bg-white p-4 rounded-lg shadow"></section>
   </main>
 
-  <!-- Bottom Nav Placeholder -->
-  <footer class="bg-white shadow-inner py-2 text-center text-sm text-gray-500">
-    Made with ♻️ in California
-  </footer>
+  <footer class="bg-white shadow-inner py-2 text-center text-sm text-gray-500">Made with ♻️ in California</footer>
 
-  <!-- Icons (Material) -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
-
-  <!-- App Logic Placeholder -->
   <script>
     const scanBtn=document.getElementById('scanBtn');
     const mapBtn=document.getElementById('mapBtn');
     const result=document.getElementById('result');
-    scanBtn.addEventListener('click',()=>{
-      result.classList.remove('hidden');
-      result.textContent='📷 Scanner coming soon…';
-    });
-    mapBtn.addEventListener('click',()=>{
-      result.classList.remove('hidden');
-      result.textContent='🗺️ Map of nearby centers coming soon…';
-    });
+    scanBtn.addEventListener('click',()=>{result.classList.remove('hidden');result.textContent='📷 Scanner coming soon…';});
+    mapBtn.addEventListener('click',()=>{result.classList.remove('hidden');result.textContent='🗺️ Map of nearby centers coming soon…';});
   </script>
 </body>
 </html>
