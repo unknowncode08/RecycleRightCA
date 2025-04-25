@@ -11,12 +11,18 @@
   <link rel="apple-touch-icon" href="../icons/icon-192.png" />
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
 </head>
 
 <body class="h-full bg-gray-100 flex flex-col">
   <header class="bg-green-600 text-white text-center py-3 shadow-md">
     <h1 class="text-xl font-semibold">RecycleRight&nbsp;CA</h1>
   </header>
+  <div id="photoInstructions" class="hidden p-4 text-center space-y-4 bg-yellow-100 border border-yellow-300 rounded-lg">
+    <p>🖼 Couldn’t scan the barcode.</p>
+    <p>Please take a clear photo of the front of the item, making sure the label is visible.</p>
+    <button id="continueToPhoto" class="px-4 py-2 bg-green-600 text-white rounded-md">Continue</button>
+  </div>  
   <main id="pages" class="flex-1 overflow-auto">
     <section id="page-main" class="p-6 space-y-6">
       <div class="text-center max-w-md mx-auto">
@@ -110,6 +116,11 @@
     const resultDiv = document.getElementById('result');
     const scannerDiv = document.getElementById('scanner');
 
+    document.getElementById('continueToPhoto').addEventListener('click', () => {
+      document.getElementById('photoInstructions').classList.add('hidden');
+      captureAndClassifyImage();
+    });
+
     // Scan button logic
     document.getElementById('scanBtn').addEventListener('click', () => {
       resultDiv.classList.add('hidden');
@@ -130,7 +141,9 @@
       ).then(() => {
         setTimeout(() => {
           if (!barcodeDetected) {
-            qr.stop().then(() => captureAndClassifyImage());
+            qr.stop().then(() => {
+              document.getElementById('photoInstructions').classList.remove('hidden');
+            });
           }
         }, 10000);
       });
@@ -141,8 +154,12 @@
     // Load TensorFlow model
     let model, labels = ['plastic', 'glass', 'metal', 'paper', 'trash', 'crv'];
     async function loadModel() {
-      model = await tf.loadLayersModel('../model/model.json');
+      model = await tmImage.load(
+        'https://teachablemachine.withgoogle.com/models/glTOyTZMK/model.json',
+        'https://teachablemachine.withgoogle.com/models/glTOyTZMK/metadata.json'
+      );
     }
+
     loadModel();
 
     // Image classification fallback
@@ -150,18 +167,9 @@
       const video = document.querySelector("video");
       if (!video) return showVerdict("unknown");
 
-      const canvas = document.createElement("canvas");
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(video, 0, 0);
-
-      const img = tf.browser.fromPixels(canvas);
-      const resized = tf.image.resizeBilinear(img, [224, 224]);
-      const input = resized.expandDims(0).toFloat().div(255.0);
-      const prediction = await model.predict(input).data();
-      const label = labels[prediction.indexOf(Math.max(...prediction))];
-      showVerdict(labelToVerdict(label));
+      const prediction = await model.predict(video);
+      const best = prediction.reduce((prev, curr) => (curr.probability > prev.probability ? curr : prev));
+      showVerdict(labelToVerdict(best.className));
     }
 
     function labelToVerdict(label) {
@@ -169,21 +177,33 @@
         case 'plastic':
         case 'glass':
         case 'metal':
-        case 'paper': return 'recycle';
-        case 'crv': return 'crv';
-        default: return 'trash';
+        case 'paper':
+          return 'recycle';
+        case 'crv':
+          return { type: 'crv', refund: '$0.05 or $0.10' };
+        default:
+          return 'trash';
       }
     }
 
-    function showVerdict(type) {
+
+    function showVerdict(verdict) {
       scannerDiv.classList.add('hidden');
-      resultDiv.innerHTML = {
+
+      let html = {
         recycle: '✅ Recycle curbside',
         trash: '❌ Trash — not recyclable here',
-        crv: '💵 CRV — cash back!'
-      }[type] || '🤔 Material unknown';
+        unknown: '🤔 Material unknown'
+      }[verdict?.type || verdict] || '🤔 Material unknown';
+
+      if (typeof verdict === 'object' && verdict.type === 'crv') {
+        html = `💵 CRV — cash back!<br><span class="text-sm text-gray-700">Estimated refund: ${verdict.refund}</span>`;
+      }
+
+      resultDiv.innerHTML = html;
       resultDiv.classList.remove('hidden');
     }
+
 
     function checkBarcode(code) {
       fetch('../local_products.json')
