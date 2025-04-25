@@ -18,10 +18,14 @@
   <header class="bg-green-600 text-white text-center py-3 shadow-md">
     <h1 class="text-xl font-semibold">RecycleRight&nbsp;CA</h1>
   </header>
-  <div id="photoInstructions" class="hidden p-4 text-center space-y-4 bg-yellow-100 border border-yellow-300 rounded-lg">
+  <div id="photoInstructions"
+    class="hidden p-4 text-center space-y-4 bg-yellow-100 border border-yellow-300 rounded-lg">
     <p>🖼 Couldn’t scan the barcode.</p>
     <p>Please take a clear photo of the front of the item, making sure the label is visible.</p>
     <button id="continueToPhoto" class="px-4 py-2 bg-green-600 text-white rounded-md">Continue</button>
+  </div>
+  <div id="loadingSpinner" class="hidden text-center p-4">
+    <p>🔍 Analyzing image...</p>
   </div>  
   <main id="pages" class="flex-1 overflow-auto">
     <section id="page-main" class="p-6 space-y-6">
@@ -99,6 +103,9 @@
     let map = null;
     let mapReady = false;
 
+    let videoStream = null;
+    let videoPreview = null;
+
     // Tab navigation
     function switchTab(tab) {
       tabs.forEach(t => {
@@ -109,17 +116,12 @@
       });
       if (tab === 'map' && !mapReady) initMap();
     }
-
     tabs.forEach(t => t.addEventListener('click', () => switchTab(t.dataset.tab)));
     switchTab('main');
 
     const resultDiv = document.getElementById('result');
     const scannerDiv = document.getElementById('scanner');
-
-    document.getElementById('continueToPhoto').addEventListener('click', () => {
-      document.getElementById('photoInstructions').classList.add('hidden');
-      captureAndClassifyImage();
-    });
+    const photoInstructions = document.getElementById('photoInstructions');
 
     // Scan button logic
     document.getElementById('scanBtn').addEventListener('click', () => {
@@ -135,41 +137,85 @@
         { fps: 10, qrbox: 250 },
         code => {
           barcodeDetected = true;
-          qr.stop().then(() => fetchFromOpenFoodFacts(code));
+          qr.stop().then(() => {
+            fetchFromOpenFoodFacts(code);
+          });
         },
         error => { }
       ).then(() => {
         setTimeout(() => {
           if (!barcodeDetected) {
             qr.stop().then(() => {
-              document.getElementById('photoInstructions').classList.remove('hidden');
+              showPhotoInstructions();
             });
           }
         }, 10000);
       });
     });
 
-    document.getElementById('quickMapBtn').addEventListener('click', () => switchTab('map'));
+    function showPhotoInstructions() {
+      scannerDiv.classList.add('hidden');
+      photoInstructions.classList.remove('hidden');
+      photoInstructions.innerHTML = `
+      <p>🖼 Couldn’t scan the barcode.</p>
+      <p>Please take a clear photo of the front of the item, making sure the label is visible.</p>
+      <button id="continueToPhoto" class="px-4 py-2 bg-green-600 text-white rounded-md">Continue</button>
+    `;
 
-    // Load TensorFlow model
-    let model, labels = ['plastic', 'glass', 'metal', 'paper', 'trash', 'crv'];
-    async function loadModel() {
-      model = await tmImage.load(
-        'https://teachablemachine.withgoogle.com/models/glTOyTZMK/model.json',
-        'https://teachablemachine.withgoogle.com/models/glTOyTZMK/metadata.json'
-      );
+      // Create new video preview
+      videoPreview = document.createElement('video');
+      videoPreview.setAttribute('autoplay', '');
+      videoPreview.setAttribute('playsinline', '');
+      videoPreview.style.width = "100%";
+      videoPreview.style.maxWidth = "320px";
+      videoPreview.style.margin = "auto";
+      videoPreview.style.display = "block";
+      photoInstructions.appendChild(videoPreview);
+
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+        .then(stream => {
+          videoStream = stream;
+          videoPreview.srcObject = stream;
+        })
+        .catch(err => {
+          console.error('Camera access error', err);
+        });
+
+      // Attach button click
+      document.getElementById('continueToPhoto').addEventListener('click', () => {
+        photoInstructions.classList.add('hidden');
+        if (videoStream) {
+          captureAndClassifyImage(videoPreview);
+        }
+      });
     }
 
+    document.getElementById('quickMapBtn').addEventListener('click', () => switchTab('map'));
+
+    // TensorFlow model
+    let model, labels = ['plastic', 'glass', 'metal', 'paper', 'trash'];
+    async function loadModel() {
+      const URL = "https://teachablemachine.withgoogle.com/models/glTOyTZMK/";
+      model = await tmImage.load(URL + "model.json", URL + "metadata.json");
+    }
     loadModel();
 
-    // Image classification fallback
-    async function captureAndClassifyImage() {
-      const video = document.querySelector("video");
-      if (!video) return showVerdict("unknown");
+    async function captureAndClassifyImage(videoElement) {
+      document.getElementById('loadingSpinner').classList.remove('hidden'); // 👈 Show spinner
 
-      const prediction = await model.predict(video);
+      const canvas = document.createElement("canvas");
+      canvas.width = videoElement.videoWidth;
+      canvas.height = videoElement.videoHeight;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(videoElement, 0, 0);
+
+      const prediction = await model.predict(videoElement);
       const best = prediction.reduce((prev, curr) => (curr.probability > prev.probability ? curr : prev));
       showVerdict(labelToVerdict(best.className));
+
+      videoStream.getTracks().forEach(track => track.stop());
+
+      document.getElementById('loadingSpinner').classList.add('hidden'); // 👈 Hide spinner
     }
 
     function labelToVerdict(label) {
@@ -177,33 +223,23 @@
         case 'plastic':
         case 'glass':
         case 'metal':
-        case 'paper':
-          return 'recycle';
-        case 'crv':
-          return { type: 'crv', refund: '$0.05 or $0.10' };
-        default:
-          return 'trash';
+        case 'paper': return 'recycle';
+        default: return 'trash';
       }
     }
 
-
-    function showVerdict(verdict) {
+    function showVerdict(type) {
       scannerDiv.classList.add('hidden');
 
       let html = {
         recycle: '✅ Recycle curbside',
         trash: '❌ Trash — not recyclable here',
         unknown: '🤔 Material unknown'
-      }[verdict?.type || verdict] || '🤔 Material unknown';
-
-      if (typeof verdict === 'object' && verdict.type === 'crv') {
-        html = `💵 CRV — cash back!<br><span class="text-sm text-gray-700">Estimated refund: ${verdict.refund}</span>`;
-      }
+      }[type] || '🤔 Material unknown';
 
       resultDiv.innerHTML = html;
       resultDiv.classList.remove('hidden');
     }
-
 
     function checkBarcode(code) {
       fetch('../local_products.json')
@@ -211,7 +247,11 @@
         .then(db => {
           const item = db[code];
           if (item) {
-            showVerdict(item.verdict);
+            if (item.verdict === 'crv') {
+              showCRVVerdict(item.refund || '$0.05–$0.10');
+            } else {
+              showVerdict(item.verdict);
+            }
           } else {
             fetchFromOpenFoodFacts(code);
           }
@@ -234,8 +274,13 @@
       if (material.includes('plastic')) return 'recycle';
       if (material.includes('glass')) return 'recycle';
       if (material.includes('aluminum') || material.includes('metal')) return 'recycle';
-      if (material.includes('crv')) return 'crv';
       return 'trash';
+    }
+
+    function showCRVVerdict(refund) {
+      scannerDiv.classList.add('hidden');
+      resultDiv.innerHTML = `💵 CRV — cash back!<br><span class="text-sm text-gray-700">Estimated refund: ${refund}</span>`;
+      resultDiv.classList.remove('hidden');
     }
 
     // Map logic with filtered sites
