@@ -4,16 +4,23 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>RecycleRight CA</title>
+
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- PWA -->
   <meta name="theme-color" content="#16a34a" />
   <link rel="manifest" href="../manifest.webmanifest" />
   <link rel="apple-touch-icon" href="../icons/icon-192.png" />
+
+  <!-- Icons / Map -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 </head>
 <body class="h-full bg-gray-100 flex flex-col">
   <!-- Top Bar -->
   <header class="bg-green-600 text-white text-center py-3 shadow-md">
-    <h1 class="text-xl font-semibold">RecycleRight CA</h1>
+    <h1 class="text-xl font-semibold">RecycleRight&nbsp;CA</h1>
   </header>
 
   <!-- Tab Pages -->
@@ -22,25 +29,40 @@
     <section id="page-main" class="p-6 space-y-6">
       <div class="text-center max-w-md mx-auto">
         <h2 class="text-xl font-bold text-gray-800 mb-2">Your Pocket Recycling Coach</h2>
-        <p class="text-gray-600">Scan any item to see if it’s recycle, trash, or cash-back and find the nearest redemption center.</p>
+        <p class="text-gray-600">
+          Scan any item to see if it’s recycle, trash, or cash-back and find the nearest redemption
+          center.
+        </p>
       </div>
+
       <div class="w-full max-w-sm mx-auto space-y-4">
-        <button id="scanBtn" class="w-full flex items-center justify-center gap-2 px-6 py-4 bg-green-600 text-white rounded-xl shadow hover:bg-green-700 transition text-lg"><span class="material-icons-outlined">photo_camera</span> Scan Item</button>
-        <button id="quickMapBtn" class="w-full flex items-center justify-center gap-2 px-6 py-4 bg-blue-600 text-white rounded-xl shadow hover:bg-blue-700 transition text-lg"><span class="material-icons-outlined">map</span> Nearest Buy-Back Center</button>
+        <button id="scanBtn"
+                class="w-full flex items-center justify-center gap-2 px-6 py-4 bg-green-600 text-white rounded-xl shadow hover:bg-green-700 transition text-lg">
+          <span class="material-icons-outlined">photo_camera</span>
+          Scan Item
+        </button>
+
+        <button id="quickMapBtn"
+                class="w-full flex items-center justify-center gap-2 px-6 py-4 bg-blue-600 text-white rounded-xl shadow hover:bg-blue-700 transition text-lg">
+          <span class="material-icons-outlined">map</span>
+          Nearest Buy-Back Center
+        </button>
       </div>
-      <section id="result" class="hidden w-full max-w-md mx-auto bg-white p-4 rounded-lg shadow"></section>
+
+      <section id="result"
+               class="hidden w-full max-w-md mx-auto bg-white p-4 rounded-lg shadow"></section>
     </section>
 
     <!-- MAP TAB -->
-    <section id="page-map" class="hidden p-6 text-center">
-      <h2 class="text-xl font-bold mb-4">Map</h2>
-      <p>🗺️ Map feature coming soon…</p>
+    <section id="page-map" class="hidden p-0">
+      <div id="map" style="height: calc(100vh - 112px);" class="w-full"></div>
     </section>
 
     <!-- PROFILE TAB -->
     <section id="page-profile" class="hidden p-6 space-y-4">
       <h2 class="text-xl font-bold">Profile</h2>
-      <div id="profileContent" class="bg-white p-4 rounded-lg shadow text-center space-y-2"></div>
+      <div id="profileContent"
+           class="bg-white p-4 rounded-lg shadow text-center space-y-2"></div>
     </section>
 
     <!-- SETTINGS TAB -->
@@ -52,60 +74,203 @@
 
   <!-- Bottom Tab Bar -->
   <nav class="bg-white shadow-inner border-t border-gray-200 flex justify-around py-2 text-sm">
-    <button data-tab="main" class="tab flex flex-col items-center text-green-600">
-      <span class="material-icons-outlined text-xl">home</span><span>Main</span>
+    <button data-tab="main"
+            class="tab flex flex-col items-center text-green-600">
+      <span class="material-icons-outlined text-xl">home</span>
+      <span>Main</span>
     </button>
-    <button data-tab="map" class="tab flex flex-col items-center text-gray-500">
-      <span class="material-icons-outlined text-xl">map</span><span>Map</span>
+    <button data-tab="map"
+            class="tab flex flex-col items-center text-gray-500">
+      <span class="material-icons-outlined text-xl">map</span>
+      <span>Map</span>
     </button>
-    <button data-tab="profile" class="tab flex flex-col items-center text-gray-500">
-      <span class="material-icons-outlined text-xl">person</span><span>Profile</span>
+    <button data-tab="profile"
+            class="tab flex flex-col items-center text-gray-500">
+      <span class="material-icons-outlined text-xl">person</span>
+      <span>Profile</span>
     </button>
-    <button data-tab="settings" class="tab flex flex-col items-center text-gray-500">
-      <span class="material-icons-outlined text-xl">settings</span><span>Settings</span>
+    <button data-tab="settings"
+            class="tab flex flex-col items-center text-gray-500">
+      <span class="material-icons-outlined text-xl">settings</span>
+      <span>Settings</span>
     </button>
   </nav>
 
-  <!-- Simple Sign‑In Modal -->
-  <div id="signinModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center hidden">
+  <!-- Sign-In Modal -->
+  <div id="signinModal"
+       class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center hidden">
     <div class="bg-white rounded-lg shadow-xl w-80 p-6 space-y-4 text-center">
       <h3 class="text-lg font-semibold">Sign In</h3>
-      <p class="text-sm text-gray-600">Sign in to save history, earn points, and rise in rank.</p>
-      <input id="usernameInput" class="w-full border border-gray-300 rounded p-2" placeholder="Enter a nickname" />
-      <button id="signinConfirm" class="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">Continue</button>
-      <button id="signinCancel" class="w-full px-4 py-2 text-sm text-gray-500">Maybe later</button>
+      <p class="text-sm text-gray-600">
+        Sign in to save history, earn points, and rise in rank.
+      </p>
+      <input id="usernameInput"
+             class="w-full border border-gray-300 rounded p-2"
+             placeholder="Enter a nickname" />
+      <button id="signinConfirm"
+              class="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+        Continue
+      </button>
+      <button id="signinCancel"
+              class="w-full px-4 py-2 text-sm text-gray-500">
+        Maybe later
+      </button>
     </div>
   </div>
 
+  <!-- Libraries -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
   <script>
-    // ----- Tab switching -----
-    const tabs=document.querySelectorAll('.tab');
-    const pages={main:'page-main',map:'page-map',profile:'page-profile',settings:'page-settings'};
-    function switchTab(tab){tabs.forEach(t=>{const active=t.dataset.tab===tab; t.classList.toggle('text-green-600',active); t.classList.toggle('text-gray-500',!active); document.getElementById(pages[t.dataset.tab]).classList.toggle('hidden',!active);});}
-    tabs.forEach(t=>t.addEventListener('click',()=>switchTab(t.dataset.tab)));
+    /* ----------------- Tab Navigation ----------------- */
+    const tabs   = document.querySelectorAll('.tab');
+    const pages  = {main:'page-main', map:'page-map', profile:'page-profile', settings:'page-settings'};
+    let map      = null;
+    let mapReady = false;
+
+    function switchTab(tab) {
+      tabs.forEach(t => {
+        const active = t.dataset.tab === tab;
+        t.classList.toggle('text-green-600', active);
+        t.classList.toggle('text-gray-500', !active);
+        document.getElementById(pages[t.dataset.tab])
+                .classList.toggle('hidden', !active);
+      });
+      if (tab === 'map' && !mapReady) initMap();
+    }
+    tabs.forEach(t => t.addEventListener('click', () => switchTab(t.dataset.tab)));
     switchTab('main');
 
-    // ----- Placeholder main buttons -----
-    const result=document.getElementById('result');
-    document.getElementById('scanBtn').addEventListener('click',()=>{result.textContent='📷 Scanner coming soon…';result.classList.remove('hidden');});
-    document.getElementById('quickMapBtn').addEventListener('click',()=>{result.textContent='🗺️ Map of nearby centers coming soon…';result.classList.remove('hidden');});
+    /* ----------------- Main Buttons ----------------- */
+    const resultDiv = document.getElementById('result');
+    document.getElementById('scanBtn')
+            .addEventListener('click', () => {
+              resultDiv.textContent = '📷 Scanner coming soon…';
+              resultDiv.classList.remove('hidden');
+            });
+    document.getElementById('quickMapBtn')
+            .addEventListener('click', () => switchTab('map'));
 
-    // ----- Simple sign‑in state -----
-    const profileContent=document.getElementById('profileContent');
-    const signinModal=document.getElementById('signinModal');
-    const usernameKey='rr_username', pointsKey='rr_points';
-    function loadState(){const user=localStorage.getItem(usernameKey);const pts=parseInt(localStorage.getItem(pointsKey)||'0');return {user,pts};}
-    function saveState(user,pts){localStorage.setItem(usernameKey,user||'');localStorage.setItem(pointsKey,pts.toString());}
-    function refreshProfile(){const {user,pts}=loadState();profileContent.innerHTML=user?`<p class="text-gray-700">Welcome, <strong>${user}</strong>!</p><p>Your Points: <strong>${pts}</strong></p><p>Rank: <strong>${getRank(pts)}</strong></p><button id="signOutBtn" class="mt-3 px-4 py-2 bg-gray-200 rounded-md">Sign Out</button>`:`<p class="text-gray-600">You’re browsing anonymously.</p><button id="signInBtn" class="mt-3 px-4 py-2 bg-green-600 text-white rounded-md">Sign In</button>`;
-      if(user){document.getElementById('signOutBtn').addEventListener('click',()=>{saveState('',0);refreshProfile();});}
-      else{document.getElementById('signInBtn').addEventListener('click',()=>signinModal.classList.remove('hidden'));}
+    /* ----------------- Map Setup ----------------- */
+    function initMap() {
+      const mapContainer = document.getElementById('map');
+      mapContainer.innerHTML = '<p class="text-center p-4">📍 Getting your location…</p>';
+
+      if (!navigator.geolocation) {
+        mapContainer.innerHTML =
+          '<p class="text-center p-4 text-red-600">Geolocation not supported.</p>';
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          const { latitude: lat, longitude: lon } = pos.coords;
+          mapContainer.innerHTML = '';
+          map = L.map('map').setView([lat, lon], 13);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+          }).addTo(map);
+
+          L.marker([lat, lon]).addTo(map).bindPopup('You are here').openPopup();
+          loadRecyclingSites(lat, lon);
+        },
+        () => {
+          mapContainer.innerHTML =
+            '<p class="text-center p-4 text-red-600">Location error. Allow access and try again.</p>';
+        }
+      );
+
+      mapReady = true;
     }
-    function getRank(pts){return pts>100?'Master Recycler':pts>50?'Expert Recycler':pts>20?'Senior Recycler':'Rookie';}
+
+    function loadRecyclingSites(lat, lon) {
+      const radius = 5000; // 5 km
+      const query  = `[out:json][timeout:25];
+                      node(around:${radius},${lat},${lon})[amenity=recycling];
+                      out center;`;
+      fetch('https://overpass-api.de/api/interpreter?data=' +
+            encodeURIComponent(query))
+        .then(r => r.json())
+        .then(data => {
+          data.elements.forEach(({ lat, lon }) => {
+            if (lat && lon) {
+              L.marker([lat, lon]).addTo(map).bindPopup('Recycling Centre');
+            }
+          });
+        })
+        .catch(console.error);
+    }
+
+    /* ----------------- Profile & Sign-In ----------------- */
+    const profileContent = document.getElementById('profileContent');
+    const signinModal   = document.getElementById('signinModal');
+    const USER_KEY      = 'rr_username';
+    const POINTS_KEY    = 'rr_points';
+
+    function getState() {
+      return {
+        user  : localStorage.getItem(USER_KEY)  || '',
+        points: parseInt(localStorage.getItem(POINTS_KEY) || '0', 10)
+      };
+    }
+    function setState(user, points) {
+      localStorage.setItem(USER_KEY,  user   || '');
+      localStorage.setItem(POINTS_KEY, points.toString());
+    }
+    function rankFor(points) {
+      return points > 100 ? 'Master Recycler' :
+             points >  50 ? 'Expert Recycler' :
+             points >  20 ? 'Senior Recycler' :
+                            'Rookie';
+    }
+    function refreshProfile() {
+      const { user, points } = getState();
+      profileContent.innerHTML = user
+        ? `
+          <p class="text-gray-700">
+            Welcome, <strong>${user}</strong>!
+          </p>
+          <p>Your Points: <strong>${points}</strong></p>
+          <p>Rank: <strong>${rankFor(points)}</strong></p>
+          <button id="signOutBtn"
+                  class="mt-3 px-4 py-2 bg-gray-200 rounded-md">
+            Sign Out
+          </button>`
+        : `
+          <p class="text-gray-600">You’re browsing anonymously.</p>
+          <button id="signInBtn"
+                  class="mt-3 px-4 py-2 bg-green-600 text-white rounded-md">
+            Sign In
+          </button>`;
+
+      if (user) {
+        document.getElementById('signOutBtn')
+                .addEventListener('click', () => {
+                  setState('', 0);
+                  refreshProfile();
+                });
+      } else {
+        document.getElementById('signInBtn')
+                .addEventListener('click', () =>
+                  signinModal.classList.remove('hidden'));
+      }
+    }
     refreshProfile();
 
-    // ----- Sign‑in modal -----
-    document.getElementById('signinConfirm').addEventListener('click',()=>{const name=document.getElementById('usernameInput').value.trim();if(name){saveState(name,0);signinModal.classList.add('hidden');refreshProfile();switchTab('profile');}});
-    document.getElementById('signinCancel').addEventListener('click',()=>signinModal.classList.add('hidden'));
+    /* Sign-In Modal actions */
+    document.getElementById('signinConfirm')
+            .addEventListener('click', () => {
+              const name = document.getElementById('usernameInput').value.trim();
+              if (name) {
+                setState(name, 0);
+                signinModal.classList.add('hidden');
+                refreshProfile();
+                switchTab('profile');
+              }
+            });
+    document.getElementById('signinCancel')
+            .addEventListener('click', () =>
+              signinModal.classList.add('hidden'));
   </script>
 </body>
 </html>
