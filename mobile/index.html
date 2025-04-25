@@ -39,6 +39,7 @@
       <section id="result" class="hidden w-full max-w-md mx-auto bg-white p-4 rounded-lg shadow"></section>
     </section>
     <div id="scanner" class="hidden w-full max-w-sm mx-auto mt-4"></div>
+    <button id="focusBtn" class="hidden mt-4 px-4 py-2 bg-blue-600 text-white rounded-md">Focus</button>
     <div id="photoInstructions"
       class="hidden p-4 text-center space-y-4 bg-yellow-100 border border-yellow-300 rounded-lg">
       <p>🖼 Couldn’t scan the barcode.</p>
@@ -132,26 +133,47 @@
       const qr = new Html5Qrcode("scanner");
       let barcodeDetected = false;
 
+      document.getElementById('focusBtn').classList.remove('hidden'); // Show Focus button
+
       qr.start(
         { facingMode: "environment" },
         { fps: 10, qrbox: 250 },
         code => {
           barcodeDetected = true;
-          qr.stop().then(() => {
-            fetchFromOpenFoodFacts(code);
-          });
+          document.getElementById('focusBtn').classList.add('hidden'); // Hide Focus after success
+          qr.stop().then(() => fetchFromOpenFoodFacts(code));
         },
         error => { }
       ).then(() => {
         setTimeout(() => {
           if (!barcodeDetected) {
             qr.stop().then(() => {
+              document.getElementById('focusBtn').classList.add('hidden'); // Hide Focus on fallback
               showPhotoInstructions();
             });
           }
         }, 10000);
       });
     });
+
+    document.getElementById('focusBtn').addEventListener('click', async () => {
+      try {
+        await qr.stop(); // Stop scanner
+        await qr.start(
+          { facingMode: "environment" },
+          { fps: 10, qrbox: 250 },
+          code => {
+            barcodeDetected = true;
+            document.getElementById('focusBtn').classList.add('hidden');
+            qr.stop().then(() => fetchFromOpenFoodFacts(code));
+          },
+          error => { }
+        );
+      } catch (e) {
+        console.error('Focus restart error', e);
+      }
+    });
+
 
     function showPhotoInstructions() {
       scannerDiv.classList.add('hidden');
@@ -213,10 +235,21 @@
         curr.probability > prev.probability ? curr : prev
       );
 
-      showVerdict(labelToVerdict(best.className));
+      const detectedMaterial = best.className.toLowerCase(); // plastic, paper, trash, etc.
+
+      if (detectedMaterial === 'trash') {
+        showVerdict('trash', 'Trash');
+      } else {
+        showVerdict('recycle', capitalizeFirstLetter(detectedMaterial));
+      }
+
       videoStream.getTracks().forEach(track => track.stop());
 
       document.getElementById('loadingSpinner').classList.add('hidden');
+    }
+
+    function capitalizeFirstLetter(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
     }
 
     function labelToVerdict(label) {
@@ -229,14 +262,18 @@
       }
     }
 
-    function showVerdict(type) {
+    function showVerdict(type, material = '') {
       scannerDiv.classList.add('hidden');
 
-      let html = {
-        recycle: '✅ Recycle curbside',
-        trash: '❌ Trash — not recyclable here',
-        unknown: '🤔 Material unknown'
-      }[type] || '🤔 Material unknown';
+      let html = '';
+
+      if (type === 'recycle') {
+        html = `♻️ Material Detected: <strong>${material}</strong><br>✅ Recyclable curbside.`;
+      } else if (type === 'trash') {
+        html = `🗑️ Material Detected: <strong>${material}</strong><br>❌ Not recyclable curbside.`;
+      } else {
+        html = '🤔 Material unknown';
+      }
 
       resultDiv.innerHTML = html;
       resultDiv.classList.remove('hidden');
