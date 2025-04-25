@@ -17,16 +17,7 @@
 <body class="h-full bg-gray-100 flex flex-col">
   <header class="bg-green-600 text-white text-center py-3 shadow-md">
     <h1 class="text-xl font-semibold">RecycleRight&nbsp;CA</h1>
-  </header>
-  <div id="photoInstructions"
-    class="hidden p-4 text-center space-y-4 bg-yellow-100 border border-yellow-300 rounded-lg">
-    <p>🖼 Couldn’t scan the barcode.</p>
-    <p>Please take a clear photo of the front of the item, making sure the label is visible.</p>
-    <button id="continueToPhoto" class="px-4 py-2 bg-green-600 text-white rounded-md">Continue</button>
-  </div>
-  <div id="loadingSpinner" class="hidden text-center p-4">
-    <p>🔍 Analyzing image...</p>
-  </div>  
+  </header> 
   <main id="pages" class="flex-1 overflow-auto">
     <section id="page-main" class="p-6 space-y-6">
       <div class="text-center max-w-md mx-auto">
@@ -49,6 +40,15 @@
       <section id="result" class="hidden w-full max-w-md mx-auto bg-white p-4 rounded-lg shadow"></section>
     </section>
     <div id="scanner" class="hidden w-full max-w-sm mx-auto mt-4"></div>
+    <div id="photoInstructions"
+      class="hidden p-4 text-center space-y-4 bg-yellow-100 border border-yellow-300 rounded-lg">
+      <p>🖼 Couldn’t scan the barcode.</p>
+      <p>Please take a clear photo of the front of the item, making sure the label is visible.</p>
+      <button id="continueToPhoto" class="px-4 py-2 bg-green-600 text-white rounded-md">Continue</button>
+    </div>
+    <div id="loadingSpinner" class="hidden text-center p-4">
+      <p>🔍 Analyzing image...</p>
+    </div> 
     <section id="page-map" class="hidden p-0">
       <div id="map" style="height: calc(100vh - 112px);" class="w-full"></div>
     </section>
@@ -184,6 +184,7 @@
       document.getElementById('continueToPhoto').addEventListener('click', async () => {
         photoInstructions.classList.add('hidden');
         if (videoStream) {
+          document.getElementById('loadingSpinner').classList.remove('hidden');
           await modelPromise;
           captureAndClassifyImage(videoPreview);
         }
