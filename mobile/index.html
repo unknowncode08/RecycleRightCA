@@ -129,13 +129,13 @@
           }).addTo(map);
 
           const userIcon = L.icon({
-            iconUrl: 'https://cdn-icons-png.flaticon.com/512/64/64113.png',
+            iconUrl: 'https://cdn-icons-png.flaticon.com/512/727/727634.png',
             iconSize: [32, 32],
             iconAnchor: [16, 32],
             popupAnchor: [0, -32]
           });
 
-          L.marker([lat, lon], { icon: userIcon }).addTo(map).bindPopup('You are here').openPopup();
+          L.marker([lat, lon], { icon: userIcon }).addTo(map).bindPopup('You are here');
 
           fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`)
             .then(res => res.json())
