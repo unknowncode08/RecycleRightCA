@@ -11,6 +11,17 @@
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 </head>
+<style>
+  .animate-fade-in { animation: fadeIn 0.8s ease-in-out; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  @keyframes bounce {
+    0% { transform: translateY(-20%); }
+    50% { transform: translateY(0%); }
+    70% { transform: translateY(-10%); }
+    100% { transform: translateY(0); }
+  }
+</style>
 <body class="h-full bg-gray-100 flex flex-col">
   <header class="bg-green-600 text-white text-center py-3 shadow-md">
     <h1 class="text-xl font-semibold animate-fade-in">RecycleRight&nbsp;CA</h1>
@@ -195,15 +206,71 @@
       navigator.geolocation.getCurrentPosition(pos => {
         const { latitude: lat, longitude: lon } = pos.coords;
         mapContainer.innerHTML = '';
-        map = L.map('map').setView([lat, lon], 10);
+        map = L.map('map').setView([lat, lon], 11);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap contributors' }).addTo(map);
 
-        L.marker([lat, lon]).addTo(map).bindPopup('You are here');
+        const userIcon = L.icon({
+          iconUrl: 'https://cdn-icons-png.flaticon.com/512/727/727634.png',
+          iconSize: [32, 32],
+          iconAnchor: [16, 32],
+          popupAnchor: [0, -32]
+        });
+        L.marker([lat, lon], { icon: userIcon }).addTo(map).bindPopup('You are here');
+
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`)
+          .then(res => res.json())
+          .then(data => {
+            const userCity = data.address.city || data.address.town || data.address.village || '';
+            loadSitesFilteredByCity(userCity);
+          })
+          .catch(() => {
+            loadSitesFilteredByCity('');
+          });
+
       }, () => {
         mapContainer.innerHTML = '<p class="text-center p-4 text-red-600">Location error. Allow access and try again.</p>';
       });
 
       mapReady = true;
+    }
+
+    function loadSitesFilteredByCity(userCity) {
+      fetch('data/crv_centers_address_only.json') // Make sure your JSON is inside /data/
+        .then(res => res.json())
+        .then(data => {
+          let matches = data.filter(site => site.city.toLowerCase() === userCity.toLowerCase());
+          
+          if (matches.length === 0 && userCity) {
+            const grouped = data.reduce((acc, site) => {
+              acc[site.city] = acc[site.city] || [];
+              acc[site.city].push(site);
+              return acc;
+            }, {});
+            const fallbackCity = Object.keys(grouped).find(c => c.toLowerCase().includes(userCity.toLowerCase().slice(0, 3)));
+            matches = grouped[fallbackCity] || [];
+          }
+
+          const recycleIcon = L.icon({
+            iconUrl: 'https://cdn-icons-png.flaticon.com/512/1327/1327264.png',
+            iconSize: [28, 28],
+            iconAnchor: [14, 28],
+            popupAnchor: [0, -28]
+          });
+
+          matches.forEach(site => {
+            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(site.full_address)}`)
+              .then(res => res.json())
+              .then(loc => {
+                if (loc && loc.length > 0) {
+                  const lat = parseFloat(loc[0].lat);
+                  const lon = parseFloat(loc[0].lon);
+                  const marker = L.marker([lat, lon], { icon: recycleIcon }).addTo(map);
+                  marker.bindPopup(`<strong>${site.name}</strong><br>${site.address}<br><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(site.full_address)}" target="_blank">Open in Maps</a>`);
+                  marker._icon.style.animation = "bounce 0.8s"; // ✨ Animate when added
+                }
+              });
+          });
+        });
     }
   </script>
   <style>
