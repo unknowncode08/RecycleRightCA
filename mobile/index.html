@@ -139,6 +139,8 @@
     tabs.forEach(t => t.addEventListener('click', () => switchTab(t.dataset.tab)));
     switchTab('main');
 
+    const nearestBtn = document.getElementById('nearestBtn');
+
     const resultDiv = document.getElementById('result');
     const cameraDiv = document.getElementById('camera');
     const loadingSpinner = document.getElementById('loadingSpinner');
@@ -265,7 +267,7 @@
       <div class="text-7xl mb-6 animate-bounce">💵</div>
       <div class="text-3xl font-bold mb-2">CRV Eligible</div>
       <div class="text-lg">Refund: <strong>${refund}</strong></div>
-      <button onclick="closeResult()" class="mt-6 px-6 py-3 bg-white text-yellow-700 font-semibold rounded-xl">Find Nearest Center</button>
+      <button id="nearestBtn" class="mt-6 px-6 py-3 bg-white text-yellow-700 font-semibold rounded-xl">Find Nearest Center</button>
     `;
       } else {
         resultDiv.style.backgroundColor = '#6b7280'; // Gray fallback
@@ -285,44 +287,66 @@
       resultDiv.innerHTML = '';
     }
 
-    function initMap() {
-      const mapContainer = document.getElementById('map');
-      mapContainer.innerHTML = '<p class="text-center p-4">📍 Getting your location…</p>';
+    nearestBtn.onclick = () => {
+      resultPage.classList.add('hidden');
+      switchTab('map');
 
-      if (!navigator.geolocation) {
-        mapContainer.innerHTML = '<p class="text-center p-4 text-red-600">Geolocation not supported.</p>';
-        return;
-      }
-
-      navigator.geolocation.getCurrentPosition(pos => {
-        const { latitude: lat, longitude: lon } = pos.coords;
-        mapContainer.innerHTML = '';
-        map = L.map('map').setView([lat, lon], 11);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap contributors' }).addTo(map);
-
-        const userIcon = L.icon({
-          iconUrl: 'https://cdn-icons-png.flaticon.com/512/727/727634.png',
-          iconSize: [32, 32],
-          iconAnchor: [16, 32],
-          popupAnchor: [0, -32]
+      if (!mapReady) {
+        initMap().then(() => {
+          highlightNearestRecycleCenter();
         });
-        L.marker([lat, lon], { icon: userIcon }).addTo(map).bindPopup('You are here');
+      } else {
+        highlightNearestRecycleCenter();
+      }
+    };
 
-        fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`)
-          .then(res => res.json())
-          .then(data => {
-            const userCity = data.address.city || data.address.town || data.address.village || '';
-            loadSitesFilteredByCity(userCity);
-          })
-          .catch(() => {
-            loadSitesFilteredByCity('');
+    function initMap() {
+      return new Promise((resolve) => {
+        const mapContainer = document.getElementById('map');
+        mapContainer.innerHTML = '<p class="text-center p-4">📍 Getting your location…</p>';
+
+        if (!navigator.geolocation) {
+          mapContainer.innerHTML = '<p class="text-center p-4 text-red-600">Geolocation not supported.</p>';
+          resolve(); // Still resolve to not freeze
+          return;
+        }
+
+        navigator.geolocation.getCurrentPosition(pos => {
+          const { latitude: lat, longitude: lon } = pos.coords;
+          mapContainer.innerHTML = '';
+          map = L.map('map').setView([lat, lon], 11);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap contributors' }).addTo(map);
+
+          const userIcon = L.icon({
+            iconUrl: 'https://cdn-icons-png.flaticon.com/512/727/727634.png',
+            iconSize: [32, 32],
+            iconAnchor: [16, 32],
+            popupAnchor: [0, -32]
           });
 
-      }, () => {
-        mapContainer.innerHTML = '<p class="text-center p-4 text-red-600">Location error. Allow access and try again.</p>';
-      });
+          L.marker([lat, lon], { icon: userIcon }).addTo(map).bindPopup('You are here');
 
-      mapReady = true;
+          fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`)
+            .then(res => res.json())
+            .then(data => {
+              const userCity = data.address.city || data.address.town || data.address.village || '';
+              loadSitesFilteredByCity(userCity).then(() => {
+                resolve(); // ✅ Only resolve after loading city centers
+              });
+            })
+            .catch(() => {
+              loadSitesFilteredByCity('').then(() => {
+                resolve(); // Even if error, still resolve
+              });
+            });
+
+        }, () => {
+          mapContainer.innerHTML = '<p class="text-center p-4 text-red-600">Location error. Allow access and try again.</p>';
+          resolve(); // Also resolve if location failed
+        });
+
+        mapReady = true;
+      });
     }
 
     function loadSitesFilteredByCity(userCity) {
@@ -363,6 +387,49 @@
           });
         });
     }
+
+    async function highlightNearestRecycleCenter() {
+      const res = await fetch('data/crv_centers_address_only.json');
+      const centers = await res.json();
+
+      navigator.geolocation.getCurrentPosition(async pos => {
+        const userLat = pos.coords.latitude;
+        const userLon = pos.coords.longitude;
+
+        let nearest = null;
+        let nearestDist = Infinity;
+
+        for (const site of centers) {
+          const geo = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(site.full_address)}`)
+            .then(r => r.json());
+
+          if (geo.length > 0) {
+            const lat = parseFloat(geo[0].lat);
+            const lon = parseFloat(geo[0].lon);
+            const dist = Math.sqrt((lat - userLat) ** 2 + (lon - userLon) ** 2);
+
+            if (dist < nearestDist) {
+              nearestDist = dist;
+              nearest = { lat, lon, name: site.name, address: site.address, full_address: site.full_address };
+            }
+          }
+        }
+
+        if (nearest) {
+          const recycleIcon = L.icon({
+            iconUrl: 'https://cdn-icons-png.flaticon.com/512/1327/1327264.png',
+            iconSize: [32, 32],
+            iconAnchor: [16, 32],
+            popupAnchor: [0, -28]
+          });
+
+          const marker = L.marker([nearest.lat, nearest.lon], { icon: recycleIcon }).addTo(map);
+          map.setView([nearest.lat, nearest.lon], 15);
+          marker.bindPopup(`<strong>${nearest.name}</strong><br>${nearest.address}<br><a href='https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(nearest.full_address)}' target='_blank'>Open in Maps</a>`).openPopup();
+        }
+      });
+    }
+
   </script>
   <style>
     .animate-fade-in {
