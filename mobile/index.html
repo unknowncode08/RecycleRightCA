@@ -8,10 +8,12 @@
   <meta name="theme-color" content="#16a34a" />
   <link rel="manifest" href="../manifest.webmanifest" />
   <link rel="apple-touch-icon" href="../icons/icon-192.png" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 </head>
 <body class="h-full bg-gray-100 flex flex-col">
   <header class="bg-green-600 text-white text-center py-3 shadow-md">
-    <h1 class="text-xl font-semibold">RecycleRight&nbsp;CA</h1>
+    <h1 class="text-xl font-semibold animate-fade-in">RecycleRight&nbsp;CA</h1>
   </header>
 
   <main id="pages" class="flex-1 overflow-auto">
@@ -22,24 +24,87 @@
       </div>
       <div class="w-full max-w-sm mx-auto space-y-4">
         <button id="scanBtn"
-          class="w-full flex items-center justify-center gap-2 px-6 py-4 bg-green-600 text-white rounded-xl shadow hover:bg-green-700 transition text-lg">
-          <span>📸</span> Snap Item
+          class="w-full flex items-center justify-center gap-2 px-6 py-4 bg-green-600 text-white rounded-xl shadow hover:bg-green-700 transition-all text-lg">
+          <span class="material-icons-outlined">photo_camera</span>
+          Snap Item
+        </button>
+        <button id="quickMapBtn"
+          class="w-full flex items-center justify-center gap-2 px-6 py-4 bg-blue-600 text-white rounded-xl shadow hover:bg-blue-700 transition-all text-lg">
+          <span class="material-icons-outlined">map</span>
+          Nearest Buy-Back Center
         </button>
       </div>
-      <section id="result" class="hidden w-full max-w-md mx-auto bg-white p-4 rounded-lg shadow"></section>
+      <section id="result" class="hidden w-full max-w-md mx-auto bg-white p-4 rounded-lg shadow animate-fade-in"></section>
     </section>
-    <div id="camera" class="hidden p-4 text-center"></div>
-    <div id="loadingSpinner" class="hidden text-center p-4">
+    <div id="camera" class="hidden p-4 text-center animate-fade-in"></div>
+    <div id="loadingSpinner" class="hidden text-center p-4 animate-pulse">
       <p>🔍 Analyzing image...</p>
     </div>
+    <section id="page-map" class="hidden p-0">
+      <div id="map" style="height: calc(100vh - 112px);" class="w-full"></div>
+    </section>
+    <section id="page-profile" class="hidden p-6 space-y-4">
+      <h2 class="text-xl font-bold">Profile</h2>
+      <div id="profileContent" class="bg-white p-4 rounded-lg shadow text-center space-y-2"></div>
+    </section>
+    <section id="page-settings" class="hidden p-6 space-y-4">
+      <h2 class="text-xl font-bold">Settings</h2>
+      <p>🔧 Settings coming soon…</p>
+    </section>
   </main>
 
+  <nav class="bg-white shadow-inner border-t border-gray-200 flex justify-around py-2 text-sm">
+    <button data-tab="main" class="tab flex flex-col items-center text-green-600">
+      <span class="material-icons-outlined text-xl">home</span>
+      <span>Main</span>
+    </button>
+    <button data-tab="map" class="tab flex flex-col items-center text-gray-500">
+      <span class="material-icons-outlined text-xl">map</span>
+      <span>Map</span>
+    </button>
+    <button data-tab="profile" class="tab flex flex-col items-center text-gray-500">
+      <span class="material-icons-outlined text-xl">person</span>
+      <span>Profile</span>
+    </button>
+    <button data-tab="settings" class="tab flex flex-col items-center text-gray-500">
+      <span class="material-icons-outlined text-xl">settings</span>
+      <span>Settings</span>
+    </button>
+  </nav>
+
+  <div id="signinModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center hidden">
+    <div class="bg-white rounded-lg shadow-xl w-80 p-6 space-y-4 text-center animate-fade-in">
+      <h3 class="text-lg font-semibold">Sign In</h3>
+      <p class="text-sm text-gray-600">Sign in to save history, earn points, and rise in rank.</p>
+      <input id="usernameInput" class="w-full border border-gray-300 rounded p-2" placeholder="Enter a nickname" />
+      <button id="signinConfirm" class="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">Continue</button>
+      <button id="signinCancel" class="w-full px-4 py-2 text-sm text-gray-500">Maybe later</button>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
+    const tabs = document.querySelectorAll('.tab');
+    const pages = { main: 'page-main', map: 'page-map', profile: 'page-profile', settings: 'page-settings' };
+    let map = null;
+    let mapReady = false;
+    const GEMINI_API_KEY = "YOUR_GEMINI_API_KEY_HERE";
+
+    function switchTab(tab) {
+      tabs.forEach(t => {
+        const active = t.dataset.tab === tab;
+        t.classList.toggle('text-green-600', active);
+        t.classList.toggle('text-gray-500', !active);
+        document.getElementById(pages[t.dataset.tab]).classList.toggle('hidden', !active);
+      });
+      if (tab === 'map' && !mapReady) initMap();
+    }
+    tabs.forEach(t => t.addEventListener('click', () => switchTab(t.dataset.tab)));
+    switchTab('main');
+
     const resultDiv = document.getElementById('result');
     const cameraDiv = document.getElementById('camera');
     const loadingSpinner = document.getElementById('loadingSpinner');
-
-    const GEMINI_API_KEY = "AIzaSyCteI1RtEohJ7bMCNcJt3sUdROp_ZlVx4E";
 
     document.getElementById('scanBtn').addEventListener('click', async () => {
       resultDiv.classList.add('hidden');
@@ -49,6 +114,7 @@
       const video = document.createElement('video');
       video.setAttribute('autoplay', '');
       video.setAttribute('playsinline', '');
+      video.className = 'rounded shadow-md';
       video.style.width = '100%';
       cameraDiv.appendChild(video);
 
@@ -57,7 +123,7 @@
 
       const snapBtn = document.createElement('button');
       snapBtn.textContent = '📸 Take Photo';
-      snapBtn.className = 'mt-4 px-4 py-2 bg-green-600 text-white rounded-md';
+      snapBtn.className = 'mt-4 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700';
       cameraDiv.appendChild(snapBtn);
 
       snapBtn.addEventListener('click', async () => {
@@ -76,18 +142,10 @@
     });
 
     async function sendToGemini(base64img) {
-      const body = {
-        contents: [{
-          parts: [
-            { inline_data: { mime_type: 'image/jpeg', data: base64img } },
-            { text: `Analyze this item. Reply ONLY with one of:
+      const body = { contents: [{ parts: [ { inline_data: { mime_type: 'image/jpeg', data: base64img } }, { text: `Analyze this item. Return one:
 [RECYCABLE, TYPE]
 [NON-R, TYPE]
-[CRV, ESTIMATED-MONEY]
-where TYPE = material like Plastic, Glass, etc, and MONEY = $0.05 or $0.10.`}
-          ]
-        }]
-      };
+[CRV, ESTIMATED-MONEY]` } ] }]};
 
       try {
         const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-vision:generateContent?key=${GEMINI_API_KEY}`, {
@@ -99,7 +157,6 @@ where TYPE = material like Plastic, Glass, etc, and MONEY = $0.05 or $0.10.`}
         const data = await res.json();
         const text = data.candidates[0]?.content?.parts[0]?.text.trim();
         showResult(text);
-
       } catch (err) {
         console.error('Gemini error:', err);
         resultDiv.innerHTML = '⚠️ Error analyzing image.';
@@ -125,6 +182,33 @@ where TYPE = material like Plastic, Glass, etc, and MONEY = $0.05 or $0.10.`}
         resultDiv.innerHTML = '🤔 Could not recognize item clearly.';
       }
     }
+
+    function initMap() {
+      const mapContainer = document.getElementById('map');
+      mapContainer.innerHTML = '<p class="text-center p-4">📍 Getting your location…</p>';
+
+      if (!navigator.geolocation) {
+        mapContainer.innerHTML = '<p class="text-center p-4 text-red-600">Geolocation not supported.</p>';
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(pos => {
+        const { latitude: lat, longitude: lon } = pos.coords;
+        mapContainer.innerHTML = '';
+        map = L.map('map').setView([lat, lon], 10);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap contributors' }).addTo(map);
+
+        L.marker([lat, lon]).addTo(map).bindPopup('You are here');
+      }, () => {
+        mapContainer.innerHTML = '<p class="text-center p-4 text-red-600">Location error. Allow access and try again.</p>';
+      });
+
+      mapReady = true;
+    }
   </script>
+  <style>
+    .animate-fade-in { animation: fadeIn 0.8s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  </style>
 </body>
 </html>
