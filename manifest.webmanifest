@@ -1,6 +1,6 @@
 {
   "name": "RecycleRight CA",
-  "short_name": "RecycleRight",
+  "short_name": "RecycleRight CA",
   "start_url": "mobile/",
   "display": "standalone",
   "scope": "./",
