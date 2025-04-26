@@ -1,6 +1,5 @@
 <!doctype html>
 <html lang="en" class="h-full">
-
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -9,401 +8,123 @@
   <meta name="theme-color" content="#16a34a" />
   <link rel="manifest" href="../manifest.webmanifest" />
   <link rel="apple-touch-icon" href="../icons/icon-192.png" />
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 </head>
-
 <body class="h-full bg-gray-100 flex flex-col">
   <header class="bg-green-600 text-white text-center py-3 shadow-md">
     <h1 class="text-xl font-semibold">RecycleRight&nbsp;CA</h1>
-  </header> 
+  </header>
+
   <main id="pages" class="flex-1 overflow-auto">
     <section id="page-main" class="p-6 space-y-6">
       <div class="text-center max-w-md mx-auto">
         <h2 class="text-xl font-bold text-gray-800 mb-2">Your Pocket Recycling Coach</h2>
-        <p class="text-gray-600">Scan any item to see if it’s recycle, trash, or cash-back and find the nearest
-          redemption center.</p>
+        <p class="text-gray-600">Snap a product and find out if it’s recyclable or refundable!</p>
       </div>
       <div class="w-full max-w-sm mx-auto space-y-4">
         <button id="scanBtn"
           class="w-full flex items-center justify-center gap-2 px-6 py-4 bg-green-600 text-white rounded-xl shadow hover:bg-green-700 transition text-lg">
-          <span class="material-icons-outlined">photo_camera</span>
-          Scan Item
-        </button>
-        <button id="quickMapBtn"
-          class="w-full flex items-center justify-center gap-2 px-6 py-4 bg-blue-600 text-white rounded-xl shadow hover:bg-blue-700 transition text-lg">
-          <span class="material-icons-outlined">map</span>
-          Nearest Buy-Back Center
+          <span>📸</span> Snap Item
         </button>
       </div>
       <section id="result" class="hidden w-full max-w-md mx-auto bg-white p-4 rounded-lg shadow"></section>
     </section>
-    <div id="scanner" class="hidden w-full max-w-sm mx-auto mt-4"></div>
-    <button id="focusBtn" class="hidden mt-4 px-4 py-2 bg-blue-600 text-white rounded-md">Focus</button>
-    <div id="photoInstructions"
-      class="hidden p-4 text-center space-y-4 bg-yellow-100 border border-yellow-300 rounded-lg">
-      <p>🖼 Couldn’t scan the barcode.</p>
-      <p>Please take a clear photo of the front of the item, making sure the label is visible.</p>
-      <button id="continueToPhoto" class="px-4 py-2 bg-green-600 text-white rounded-md">Continue</button>
-    </div>
+    <div id="camera" class="hidden p-4 text-center"></div>
     <div id="loadingSpinner" class="hidden text-center p-4">
       <p>🔍 Analyzing image...</p>
-    </div> 
-    <section id="page-map" class="hidden p-0">
-      <div id="map" style="height: calc(100vh - 112px);" class="w-full"></div>
-    </section>
-    <section id="page-profile" class="hidden p-6 space-y-4">
-      <h2 class="text-xl font-bold">Profile</h2>
-      <div id="profileContent" class="bg-white p-4 rounded-lg shadow text-center space-y-2"></div>
-    </section>
-    <section id="page-settings" class="hidden p-6 space-y-4">
-      <h2 class="text-xl font-bold">Settings</h2>
-      <p>🔧 Settings coming soon…</p>
-    </section>
-  </main>
-  <nav class="bg-white shadow-inner border-t border-gray-200 flex justify-around py-2 text-sm">
-    <button data-tab="main" class="tab flex flex-col items-center text-green-600">
-      <span class="material-icons-outlined text-xl">home</span>
-      <span>Main</span>
-    </button>
-    <button data-tab="map" class="tab flex flex-col items-center text-gray-500">
-      <span class="material-icons-outlined text-xl">map</span>
-      <span>Map</span>
-    </button>
-    <button data-tab="profile" class="tab flex flex-col items-center text-gray-500">
-      <span class="material-icons-outlined text-xl">person</span>
-      <span>Profile</span>
-    </button>
-    <button data-tab="settings" class="tab flex flex-col items-center text-gray-500">
-      <span class="material-icons-outlined text-xl">settings</span>
-      <span>Settings</span>
-    </button>
-  </nav>
-  <div id="signinModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center hidden">
-    <div class="bg-white rounded-lg shadow-xl w-80 p-6 space-y-4 text-center">
-      <h3 class="text-lg font-semibold">Sign In</h3>
-      <p class="text-sm text-gray-600">Sign in to save history, earn points, and rise in rank.</p>
-      <input id="usernameInput" class="w-full border border-gray-300 rounded p-2" placeholder="Enter a nickname" />
-      <button id="signinConfirm"
-        class="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">Continue</button>
-      <button id="signinCancel" class="w-full px-4 py-2 text-sm text-gray-500">Maybe later</button>
     </div>
-  </div>
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script src="https://unpkg.com/html5-qrcode"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.10.0/dist/tf.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
+  </main>
+
   <script>
-    const tabs = document.querySelectorAll('.tab');
-    const pages = {
-      main: 'page-main',
-      map: 'page-map',
-      profile: 'page-profile',
-      settings: 'page-settings'
-    };
-    let map = null;
-    let mapReady = false;
-
-    let videoStream = null;
-    let videoPreview = null;
-
-    // Tab navigation
-    function switchTab(tab) {
-      tabs.forEach(t => {
-        const active = t.dataset.tab === tab;
-        t.classList.toggle('text-green-600', active);
-        t.classList.toggle('text-gray-500', !active);
-        document.getElementById(pages[t.dataset.tab]).classList.toggle('hidden', !active);
-      });
-      if (tab === 'map' && !mapReady) initMap();
-    }
-    tabs.forEach(t => t.addEventListener('click', () => switchTab(t.dataset.tab)));
-    switchTab('main');
-
     const resultDiv = document.getElementById('result');
-    const scannerDiv = document.getElementById('scanner');
-    const photoInstructions = document.getElementById('photoInstructions');
+    const cameraDiv = document.getElementById('camera');
+    const loadingSpinner = document.getElementById('loadingSpinner');
 
-    // Scan button logic
-    document.getElementById('scanBtn').addEventListener('click', () => {
+    const GEMINI_API_KEY = "AIzaSyCteI1RtEohJ7bMCNcJt3sUdROp_ZlVx4E";
+
+    document.getElementById('scanBtn').addEventListener('click', async () => {
       resultDiv.classList.add('hidden');
-      scannerDiv.classList.remove('hidden');
-      scannerDiv.innerHTML = '';
+      cameraDiv.innerHTML = '';
+      cameraDiv.classList.remove('hidden');
 
-      const qr = new Html5Qrcode("scanner");
-      let barcodeDetected = false;
+      const video = document.createElement('video');
+      video.setAttribute('autoplay', '');
+      video.setAttribute('playsinline', '');
+      video.style.width = '100%';
+      cameraDiv.appendChild(video);
 
-      document.getElementById('focusBtn').classList.remove('hidden'); // Show Focus button
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      video.srcObject = stream;
 
-      qr.start(
-        { facingMode: "environment" },
-        { fps: 10, qrbox: 250 },
-        code => {
-          barcodeDetected = true;
-          document.getElementById('focusBtn').classList.add('hidden'); // Hide Focus after success
-          qr.stop().then(() => fetchFromOpenFoodFacts(code));
-        },
-        error => { }
-      ).then(() => {
-        setTimeout(() => {
-          if (!barcodeDetected) {
-            qr.stop().then(() => {
-              document.getElementById('focusBtn').classList.add('hidden'); // Hide Focus on fallback
-              showPhotoInstructions();
-            });
-          }
-        }, 10000);
+      const snapBtn = document.createElement('button');
+      snapBtn.textContent = '📸 Take Photo';
+      snapBtn.className = 'mt-4 px-4 py-2 bg-green-600 text-white rounded-md';
+      cameraDiv.appendChild(snapBtn);
+
+      snapBtn.addEventListener('click', async () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0);
+
+        stream.getTracks().forEach(track => track.stop());
+        cameraDiv.classList.add('hidden');
+        loadingSpinner.classList.remove('hidden');
+
+        const base64 = canvas.toDataURL('image/jpeg').split(',')[1];
+        sendToGemini(base64);
       });
     });
 
-    document.getElementById('focusBtn').addEventListener('click', async () => {
+    async function sendToGemini(base64img) {
+      const body = {
+        contents: [{
+          parts: [
+            { inline_data: { mime_type: 'image/jpeg', data: base64img } },
+            { text: `Analyze this item. Reply ONLY with one of:
+[RECYCABLE, TYPE]
+[NON-R, TYPE]
+[CRV, ESTIMATED-MONEY]
+where TYPE = material like Plastic, Glass, etc, and MONEY = $0.05 or $0.10.`}
+          ]
+        }]
+      };
+
       try {
-        await qr.stop(); // Stop scanner
-        await qr.start(
-          { facingMode: "environment" },
-          { fps: 10, qrbox: 250 },
-          code => {
-            barcodeDetected = true;
-            document.getElementById('focusBtn').classList.add('hidden');
-            qr.stop().then(() => fetchFromOpenFoodFacts(code));
-          },
-          error => { }
-        );
-      } catch (e) {
-        console.error('Focus restart error', e);
-      }
-    });
-
-
-    function showPhotoInstructions() {
-      scannerDiv.classList.add('hidden');
-      photoInstructions.classList.remove('hidden');
-      photoInstructions.innerHTML = `
-      <p>🖼 Couldn’t scan the barcode.</p>
-      <p>Please take a clear photo of the front of the item, making sure the label is visible.</p>
-      <button id="continueToPhoto" class="px-4 py-2 bg-green-600 text-white rounded-md">Continue</button>
-    `;
-
-      // Create new video preview
-      videoPreview = document.createElement('video');
-      videoPreview.setAttribute('autoplay', '');
-      videoPreview.setAttribute('playsinline', '');
-      videoPreview.style.width = "100%";
-      videoPreview.style.maxWidth = "320px";
-      videoPreview.style.margin = "auto";
-      videoPreview.style.display = "block";
-      photoInstructions.appendChild(videoPreview);
-
-      navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
-        .then(stream => {
-          videoStream = stream;
-          videoPreview.srcObject = stream;
-        })
-        .catch(err => {
-          console.error('Camera access error', err);
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-vision:generateContent?key=${GEMINI_API_KEY}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
         });
 
-      // Attach button click
-      document.getElementById('continueToPhoto').addEventListener('click', async () => {
-        photoInstructions.classList.add('hidden');
-        if (videoStream) {
-          document.getElementById('loadingSpinner').classList.remove('hidden');
-          await modelPromise;
-          captureAndClassifyImage(videoPreview);
-        }
-      });
-    }
+        const data = await res.json();
+        const text = data.candidates[0]?.content?.parts[0]?.text.trim();
+        showResult(text);
 
-    document.getElementById('quickMapBtn').addEventListener('click', () => switchTab('map'));
-
-    // TensorFlow model
-    let model;
-
-    async function loadModel() {
-      const URL = "https://teachablemachine.withgoogle.com/models/glTOyTZMK/";
-      model = await tmImage.load(URL + "model.json", URL + "metadata.json");
-    }
-
-    // Call loadModel() and wait fully before anything else happens
-    const modelPromise = loadModel();
-
-    async function captureAndClassifyImage(videoElement) {
-      document.getElementById('loadingSpinner').classList.remove('hidden');
-
-      const prediction = await model.predict(videoElement);
-      const best = prediction.reduce((prev, curr) =>
-        curr.probability > prev.probability ? curr : prev
-      );
-
-      const detectedMaterial = best.className.toLowerCase(); // plastic, paper, trash, etc.
-
-      if (detectedMaterial === 'trash') {
-        showVerdict('trash', 'Trash');
-      } else {
-        showVerdict('recycle', capitalizeFirstLetter(detectedMaterial));
-      }
-
-      videoStream.getTracks().forEach(track => track.stop());
-
-      document.getElementById('loadingSpinner').classList.add('hidden');
-    }
-
-    function capitalizeFirstLetter(str) {
-      return str.charAt(0).toUpperCase() + str.slice(1);
-    }
-
-    function labelToVerdict(label) {
-      switch (label) {
-        case 'plastic':
-        case 'glass':
-        case 'metal':
-        case 'paper': return 'recycle';
-        default: return 'trash';
+      } catch (err) {
+        console.error('Gemini error:', err);
+        resultDiv.innerHTML = '⚠️ Error analyzing image.';
+        resultDiv.classList.remove('hidden');
+      } finally {
+        loadingSpinner.classList.add('hidden');
       }
     }
 
-    function showVerdict(type, material = '') {
-      scannerDiv.classList.add('hidden');
-
-      let html = '';
-
-      if (type === 'recycle') {
-        html = `♻️ Material Detected: <strong>${material}</strong><br>✅ Recyclable curbside.`;
-      } else if (type === 'trash') {
-        html = `🗑️ Material Detected: <strong>${material}</strong><br>❌ Not recyclable curbside.`;
-      } else {
-        html = '🤔 Material unknown';
-      }
-
-      resultDiv.innerHTML = html;
+    function showResult(text) {
       resultDiv.classList.remove('hidden');
-    }
 
-    function checkBarcode(code) {
-      fetch('../local_products.json')
-        .then(res => res.json())
-        .then(db => {
-          const item = db[code];
-          if (item) {
-            if (item.verdict === 'crv') {
-              showCRVVerdict(item.refund || '$0.05–$0.10');
-            } else {
-              showVerdict(item.verdict);
-            }
-          } else {
-            fetchFromOpenFoodFacts(code);
-          }
-        });
-    }
-
-    function fetchFromOpenFoodFacts(code) {
-      fetch(`https://world.openfoodfacts.org/api/v0/product/${code}.json`)
-        .then(res => res.json())
-        .then(data => {
-          const material = data.product?.packaging || '';
-          const verdict = guessFromMaterial(material);
-          showVerdict(verdict);
-        })
-        .catch(() => showVerdict("unknown"));
-    }
-
-    function guessFromMaterial(material) {
-      material = material.toLowerCase();
-      if (material.includes('plastic')) return 'recycle';
-      if (material.includes('glass')) return 'recycle';
-      if (material.includes('aluminum') || material.includes('metal')) return 'recycle';
-      return 'trash';
-    }
-
-    function showCRVVerdict(refund) {
-      scannerDiv.classList.add('hidden');
-      resultDiv.innerHTML = `💵 CRV — cash back!<br><span class="text-sm text-gray-700">Estimated refund: ${refund}</span>`;
-      resultDiv.classList.remove('hidden');
-    }
-
-    // Map logic with filtered sites
-    function initMap() {
-      const mapContainer = document.getElementById('map');
-      mapContainer.innerHTML = '<p class="text-center p-4">📍 Getting your location…</p>';
-
-      if (!navigator.geolocation) {
-        mapContainer.innerHTML = '<p class="text-center p-4 text-red-600">Geolocation not supported.</p>';
-        return;
+      if (text.startsWith('[RECYCABLE')) {
+        const material = text.split(',')[1].replace(']', '').trim();
+        resultDiv.innerHTML = `♻️ Detected: <strong>${material}</strong><br>✅ Recyclable curbside.`;
+      } else if (text.startsWith('[NON-R')) {
+        const item = text.split(',')[1].replace(']', '').trim();
+        resultDiv.innerHTML = `🗑️ Detected: <strong>${item}</strong><br>❌ Not recyclable curbside.`;
+      } else if (text.startsWith('[CRV')) {
+        const refund = text.split(',')[1].replace(']', '').trim();
+        resultDiv.innerHTML = `💵 CRV Item<br>Estimated refund: <strong>${refund}</strong>`;
+      } else {
+        resultDiv.innerHTML = '🤔 Could not recognize item clearly.';
       }
-
-      navigator.geolocation.getCurrentPosition(
-        pos => {
-          const { latitude: lat, longitude: lon } = pos.coords;
-          mapContainer.innerHTML = '';
-          map = L.map('map').setView([lat, lon], 10);
-          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-          }).addTo(map);
-
-          const userIcon = L.icon({
-            iconUrl: 'https://cdn-icons-png.flaticon.com/512/727/727634.png',
-            iconSize: [32, 32],
-            iconAnchor: [16, 32],
-            popupAnchor: [0, -32]
-          });
-          L.marker([lat, lon], { icon: userIcon }).addTo(map).bindPopup('You are here');
-
-          fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`)
-            .then(res => res.json())
-            .then(data => {
-              const userCity = data.address.city || data.address.town || data.address.village || '';
-              loadSitesFilteredByCity(userCity);
-            })
-            .catch(() => {
-              loadSitesFilteredByCity('');
-            });
-        },
-        () => {
-          mapContainer.innerHTML = '<p class="text-center p-4 text-red-600">Location error. Allow access and try again.</p>';
-        }
-      );
-
-      mapReady = true;
-    }
-
-    function loadSitesFilteredByCity(userCity) {
-      fetch('data/crv_centers_address_only.json')
-        .then(res => res.json())
-        .then(data => {
-          let matches = data.filter(site => site.city.toLowerCase() === userCity.toLowerCase());
-          if (matches.length === 0 && userCity) {
-            const grouped = data.reduce((acc, site) => {
-              acc[site.city] = acc[site.city] || [];
-              acc[site.city].push(site);
-              return acc;
-            }, {});
-            const fallbackCity = Object.keys(grouped).find(c => c.toLowerCase().includes(userCity.toLowerCase().slice(0, 3)));
-            matches = grouped[fallbackCity] || [];
-          }
-
-          const recycleIcon = L.icon({
-            iconUrl: 'https://cdn-icons-png.flaticon.com/512/1327/1327264.png',
-            iconSize: [28, 28],
-            iconAnchor: [14, 28],
-            popupAnchor: [0, -28]
-          });
-
-          matches.forEach(site => {
-            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(site.full_address)}`)
-              .then(res => res.json())
-              .then(loc => {
-                if (loc && loc.length > 0) {
-                  const lat = parseFloat(loc[0].lat);
-                  const lon = parseFloat(loc[0].lon);
-                  L.marker([lat, lon], { icon: recycleIcon })
-                    .addTo(map)
-                    .bindPopup(`<strong>${site.name}</strong><br>${site.address}<br><a href='https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(site.full_address)}' target='_blank'>Open in Maps</a>`);
-                }
-              });
-          });
-        });
     }
   </script>
 </body>
-
 </html>
