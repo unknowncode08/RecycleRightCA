@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en" class="h-full">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -12,16 +13,39 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 </head>
 <style>
-  .animate-fade-in { animation: fadeIn 0.8s ease-in-out; }
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .animate-fade-in {
+    animation: fadeIn 0.8s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
 
   @keyframes bounce {
-    0% { transform: translateY(-20%); }
-    50% { transform: translateY(0%); }
-    70% { transform: translateY(-10%); }
-    100% { transform: translateY(0); }
+    0% {
+      transform: translateY(-20%);
+    }
+
+    50% {
+      transform: translateY(0%);
+    }
+
+    70% {
+      transform: translateY(-10%);
+    }
+
+    100% {
+      transform: translateY(0);
+    }
   }
 </style>
+
 <body class="h-full bg-gray-100 flex flex-col">
   <header class="bg-green-600 text-white text-center py-3 shadow-md">
     <h1 class="text-xl font-semibold animate-fade-in">RecycleRight&nbsp;CA</h1>
@@ -45,7 +69,8 @@
           Nearest Buy-Back Center
         </button>
       </div>
-      <section id="result" class="hidden w-full max-w-md mx-auto bg-white p-4 rounded-lg shadow animate-fade-in"></section>
+      <section id="result" class="hidden w-full max-w-md mx-auto bg-white p-4 rounded-lg shadow animate-fade-in">
+      </section>
     </section>
     <div id="camera" class="hidden p-4 text-center animate-fade-in"></div>
     <div id="loadingSpinner" class="hidden text-center p-4 animate-pulse">
@@ -88,7 +113,8 @@
       <h3 class="text-lg font-semibold">Sign In</h3>
       <p class="text-sm text-gray-600">Sign in to save history, earn points, and rise in rank.</p>
       <input id="usernameInput" class="w-full border border-gray-300 rounded p-2" placeholder="Enter a nickname" />
-      <button id="signinConfirm" class="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">Continue</button>
+      <button id="signinConfirm"
+        class="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">Continue</button>
       <button id="signinCancel" class="w-full px-4 py-2 text-sm text-gray-500">Maybe later</button>
     </div>
   </div>
@@ -202,19 +228,52 @@
 
     function showResult(text) {
       resultDiv.classList.remove('hidden');
+      resultDiv.classList.add('fixed', 'inset-0', 'flex', 'flex-col', 'items-center', 'justify-center', 'text-white', 'text-center', 'p-6', 'z-50');
+      resultDiv.classList.remove('bg-white');
 
       if (text.startsWith('[RECYCABLE')) {
         const material = text.split(',')[1].replace(']', '').trim();
-        resultDiv.innerHTML = `♻️ Detected: <strong>${material}</strong><br>✅ Recyclable curbside.`;
+        resultDiv.style.backgroundColor = '#16a34a'; // Green
+        resultDiv.innerHTML = `
+      <div class="text-7xl mb-6 animate-bounce">♻️</div>
+      <div class="text-3xl font-bold mb-2">Recyclable</div>
+      <div class="text-lg">Detected: <strong>${material}</strong></div>
+      <button onclick="closeResult()" class="mt-6 px-6 py-3 bg-white text-green-700 font-semibold rounded-xl">Close</button>
+    `;
       } else if (text.startsWith('[NON-R')) {
         const item = text.split(',')[1].replace(']', '').trim();
-        resultDiv.innerHTML = `🗑️ Detected: <strong>${item}</strong><br>❌ Not recyclable curbside.`;
+        resultDiv.style.backgroundColor = '#dc2626'; // Red
+        resultDiv.innerHTML = `
+      <div class="text-7xl mb-6 animate-bounce">❌</div>
+      <div class="text-3xl font-bold mb-2">Not Recyclable</div>
+      <div class="text-lg">Detected: <strong>${item}</strong></div>
+      <button onclick="closeResult()" class="mt-6 px-6 py-3 bg-white text-red-700 font-semibold rounded-xl">Close</button>
+    `;
       } else if (text.startsWith('[CRV')) {
         const refund = text.split(',')[1].replace(']', '').trim();
-        resultDiv.innerHTML = `💵 CRV Item<br>Estimated refund: <strong>${refund}</strong>`;
+        resultDiv.style.backgroundColor = '#facc15'; // Yellow
+        resultDiv.innerHTML = `
+      <div class="text-7xl mb-6 animate-bounce">💵</div>
+      <div class="text-3xl font-bold mb-2">CRV Eligible</div>
+      <div class="text-lg">Refund: <strong>${refund}</strong></div>
+      <button onclick="closeResult()" class="mt-6 px-6 py-3 bg-white text-yellow-700 font-semibold rounded-xl">Find Nearest Center</button>
+    `;
       } else {
-        resultDiv.innerHTML = '🤔 Could not recognize item clearly.';
+        resultDiv.style.backgroundColor = '#6b7280'; // Gray fallback
+        resultDiv.innerHTML = `
+      <div class="text-7xl mb-6">❓</div>
+      <div class="text-3xl font-bold mb-2">Unknown</div>
+      <div class="text-lg">Could not recognize clearly.</div>
+      <button onclick="closeResult()" class="mt-6 px-6 py-3 bg-white text-gray-700 font-semibold rounded-xl">Close</button>
+    `;
       }
+    }
+
+    function closeResult() {
+      resultDiv.classList.add('hidden');
+      resultDiv.classList.remove('fixed', 'inset-0', 'flex', 'flex-col', 'items-center', 'justify-center', 'text-white', 'z-50');
+      resultDiv.style.backgroundColor = '';
+      resultDiv.innerHTML = '';
     }
 
     function initMap() {
@@ -262,7 +321,7 @@
         .then(res => res.json())
         .then(data => {
           let matches = data.filter(site => site.city.toLowerCase() === userCity.toLowerCase());
-          
+
           if (matches.length === 0 && userCity) {
             const grouped = data.reduce((acc, site) => {
               acc[site.city] = acc[site.city] || [];
@@ -297,8 +356,20 @@
     }
   </script>
   <style>
-    .animate-fade-in { animation: fadeIn 0.8s ease-in-out; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .animate-fade-in {
+      animation: fadeIn 0.8s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
   </style>
 </body>
+
 </html>
