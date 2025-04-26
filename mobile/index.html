@@ -99,7 +99,7 @@
     const pages = { main: 'page-main', map: 'page-map', profile: 'page-profile', settings: 'page-settings' };
     let map = null;
     let mapReady = false;
-    const GEMINI_API_KEY = "YOUR_GEMINI_API_KEY_HERE";
+    const GEMINI_API_KEY = "AIzaSyCteI1RtEohJ7bMCNcJt3sUdROp_ZlVx4E";
 
     function switchTab(tab) {
       tabs.forEach(t => {
@@ -153,13 +153,35 @@
     });
 
     async function sendToGemini(base64img) {
-      const body = { contents: [{ parts: [ { inline_data: { mime_type: 'image/jpeg', data: base64img } }, { text: `Analyze this item. Return one:
-[RECYCABLE, TYPE]
-[NON-R, TYPE]
-[CRV, ESTIMATED-MONEY]` } ] }]};
+      const body = {
+        contents: [{
+          parts: [
+            {
+              inline_data: {
+                mime_type: 'image/jpeg',
+                data: base64img
+              }
+            },
+            {
+              text: `Analyze this item. Detect the item, detect whether it is recyclable or not.
+    If the item is recyclable, determine if it most likely is CRV. If it is, estimate return amount money.
+
+    PLEASE ONLY RESPOND WITH ONE OF THESE:
+    [RECYCABLE, (ITEM NAME)]
+    [NON-R, (ITEM NAME)]
+    [CRV, (ESTIMATED-MONEY)]
+
+    Example:
+    [RECYCABLE, Plastic Lid]
+    [NON-R, Metal Water Bottle]
+    [CRV, $0.20]`
+            }
+          ]
+        }]
+      };
 
       try {
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-vision:generateContent?key=${GEMINI_API_KEY}`, {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body)
@@ -168,6 +190,7 @@
         const data = await res.json();
         const text = data.candidates[0]?.content?.parts[0]?.text.trim();
         showResult(text);
+
       } catch (err) {
         console.error('Gemini error:', err);
         resultDiv.innerHTML = '⚠️ Error analyzing image.';
