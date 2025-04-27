@@ -418,6 +418,10 @@
       <button onclick="askWhyExplanation('${material}', 'RECYCABLE')" class="mt-4 px-4 py-2 bg-white text-gray-800 font-semibold rounded-xl">Learn Why</button>
       <button onclick="closeResult()" class="mt-6 px-6 py-3 bg-white text-green-700 font-semibold rounded-xl">Close</button>
     `;
+        // +5 points for every successful scan
+        let currentPoints = parseInt(localStorage.getItem('user_points') || '0', 10);
+        localStorage.setItem('user_points', (currentPoints + 5).toString());
+        refreshProfile();
       } else if (text.startsWith('[NON-R')) {
         const item = text.split(',')[1].replace(']', '').trim();
         resultDiv.style.backgroundColor = '#dc2626'; // Red
@@ -437,6 +441,10 @@
       <div class="text-lg">Refund: <strong>${refund}</strong></div>
       <button onclick="closeResult();switchTab('map');" class="mt-6 px-6 py-3 bg-white text-yellow-700 font-semibold rounded-xl">Find Nearest Center</button>
     `;
+        // +5 points for every successful scan
+        let currentPoints = parseInt(localStorage.getItem('user_points') || '0', 10);
+        localStorage.setItem('user_points', (currentPoints + 5).toString());
+        refreshProfile();
       } else {
         resultDiv.style.backgroundColor = '#6b7280'; // Gray fallback
         resultDiv.innerHTML = `
@@ -446,11 +454,6 @@
       <button onclick="closeResult()" class="mt-6 px-6 py-3 bg-white text-gray-700 font-semibold rounded-xl">Close</button>
     `;
       }
-
-      // +5 points for every successful scan
-      let currentPoints = parseInt(localStorage.getItem('user_points') || '0', 10);
-      localStorage.setItem('user_points', (currentPoints + 5).toString());
-      refreshProfile();
     }
 
     function closeResult() {
