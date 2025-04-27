@@ -69,7 +69,7 @@
           Nearest Buy-Back Center
         </button>
       </div>
-      <section id="result" class="hidden w-full max-w-md mx-auto bg-white p-4 rounded-lg shadow animate-fade-in">
+      <section id="result" class="hidden w-full max-w-md mx-auto bg-white p-4 rounded-lg shadow animate-fade-in" style="margin: 0;">
       </section>
     </section>
     <div id="camera" class="hidden p-4 text-center animate-fade-in"></div>
@@ -239,7 +239,7 @@
 
     function showResult(text) {
       resultDiv.classList.remove('hidden');
-      resultDiv.classList.add('fixed', 'inset-0', 'flex', 'flex-col', 'items-center', 'justify-center', 'text-white', 'text-center', 'p-6', 'z-50');
+      resultDiv.classList.add('fixed', 'top-0', 'left-0', 'w-full', 'h-full', 'flex', 'flex-col', 'items-center', 'justify-center', 'text-white', 'text-center', 'p-6', 'z-50');
       resultDiv.classList.remove('bg-white');
 
       if (text.startsWith('[RECYCABLE')) {
@@ -249,6 +249,7 @@
       <div class="text-7xl mb-6 animate-bounce">♻️</div>
       <div class="text-3xl font-bold mb-2">Recyclable</div>
       <div class="text-lg">Detected: <strong>${material}</strong></div>
+      <button onclick="askWhyExplanation('${material}', 'RECYCABLE')" class="mt-4 px-4 py-2 bg-white text-gray-800 font-semibold rounded-xl">Learn Why</button>
       <button onclick="closeResult()" class="mt-6 px-6 py-3 bg-white text-green-700 font-semibold rounded-xl">Close</button>
     `;
       } else if (text.startsWith('[NON-R')) {
@@ -258,6 +259,7 @@
       <div class="text-7xl mb-6 animate-bounce">❌</div>
       <div class="text-3xl font-bold mb-2">Not Recyclable</div>
       <div class="text-lg">Detected: <strong>${item}</strong></div>
+      <button onclick="askWhyExplanation('${item}', 'NON-R')" class="mt-4 px-4 py-2 bg-white text-gray-800 font-semibold rounded-xl">Learn Why</button>
       <button onclick="closeResult()" class="mt-6 px-6 py-3 bg-white text-red-700 font-semibold rounded-xl">Close</button>
     `;
       } else if (text.startsWith('[CRV')) {
@@ -267,7 +269,7 @@
       <div class="text-7xl mb-6 animate-bounce">💵</div>
       <div class="text-3xl font-bold mb-2">CRV Eligible</div>
       <div class="text-lg">Refund: <strong>${refund}</strong></div>
-      <button onclick="closeResult();switchTab('map');" class="mt-6 px-6 py-3 bg-white text-yellow-700 font-semibold rounded-xl">Find Nearest Center</button>
+      <button onclick="nearestBtnFunc()" class="mt-6 px-6 py-3 bg-white text-yellow-700 font-semibold rounded-xl">Find Nearest Center</button>
     `;
       } else {
         resultDiv.style.backgroundColor = '#6b7280'; // Gray fallback
@@ -287,7 +289,7 @@
       resultDiv.innerHTML = '';
     }
 
-    nearestBtn.onclick = () => {
+    function nearestBtnFunc() {
       resultPage.classList.add('hidden');
       switchTab('map');
 
@@ -299,6 +301,35 @@
         highlightNearestRecycleCenter();
       }
     };
+
+    async function askWhyExplanation(itemName, type) {
+      const reason = (type === 'RECYCABLE') ? 'can' : 'cannot';
+
+      const prompt = `Explain to the user: Explain in 3 short sentences of why ${itemName} ${reason} be recyclable.
+Answer in this format:
+
+[2 SENTENCE RESPONSE]`;
+
+      const body = {
+        contents: [{ parts: [{ text: prompt }] }]
+      };
+
+      try {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        const explanation = data.candidates[0]?.content?.parts[0]?.text.trim() || 'Could not fetch explanation.';
+
+        document.getElementById('whyText').textContent = explanation;
+        document.getElementById('whyPopup').classList.remove('hidden');
+      } catch (err) {
+        document.getElementById('whyText').textContent = '⚠️ Failed to load explanation.';
+        document.getElementById('whyPopup').classList.remove('hidden');
+      }
+    }
 
     function initMap() {
       return new Promise((resolve) => {
@@ -432,6 +463,14 @@
 
   </script>
   <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow-x: hidden;
+    }
+
     .animate-fade-in {
       animation: fadeIn 0.8s ease-in-out;
     }
@@ -446,6 +485,18 @@
       }
     }
   </style>
+  <div id="whyPopup" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-80 relative animate-fade-in">
+      <button id="closeWhy" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl">&times;</button>
+      <h2 class="text-xl font-bold text-green-700 mb-4">Why?</h2>
+      <p id="whyText" class="text-gray-700"></p>
+    </div>
+  </div>
+  <script>
+    document.getElementById('closeWhy').onclick = () => {
+      document.getElementById('whyPopup').classList.add('hidden');
+    };
+  </script>
 </body>
 
 </html>
