@@ -158,24 +158,7 @@
     let mapReady = false;
     const GEMINI_API_KEY = "AIzaSyCteI1RtEohJ7bMCNcJt3sUdROp_ZlVx4E";
 
-    function switchTab(tab) {
-      tabs.forEach(t => {
-        const active = t.dataset.tab === tab;
-        t.classList.toggle('text-green-600', active);
-        t.classList.toggle('text-gray-500', !active);
-        document.getElementById(pages[t.dataset.tab]).classList.toggle('hidden', !active);
-      });
-      if (tab === 'map' && !mapReady) initMap();
-    }
-    tabs.forEach(t => t.addEventListener('click', () => switchTab(t.dataset.tab)));
-    switchTab('main');
-
     let signupMode = false;
-
-    document.getElementById('profileTab').onclick = () => {
-      switchTab('profile');
-      refreshProfile();
-    };
 
     function refreshProfile() {
       const profileContent = document.getElementById('profileContent');
@@ -194,7 +177,18 @@
       }
     }
 
-    refreshProfile();
+    function switchTab(tab) {
+      tabs.forEach(t => {
+        const active = t.dataset.tab === tab;
+        t.classList.toggle('text-green-600', active);
+        t.classList.toggle('text-gray-500', !active);
+        document.getElementById(pages[t.dataset.tab]).classList.toggle('hidden', !active);
+      });
+      if (tab === 'map' && !mapReady) initMap();
+      if (tab === 'profile') refreshProfile();
+    }
+    tabs.forEach(t => t.addEventListener('click', () => switchTab(t.dataset.tab)));
+    switchTab('main');
 
     function openAuthPopup() {
       signupMode = false;
