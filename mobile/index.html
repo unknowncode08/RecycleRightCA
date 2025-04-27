@@ -266,6 +266,19 @@
       });
     }
 
+    document.getElementById('googleBtn').onclick = async () => {
+      const provider = new firebase.auth.GoogleAuthProvider();
+
+      try {
+        await auth.signInWithPopup(provider);
+        document.getElementById('authPopup').classList.add('hidden');
+        refreshProfile();
+      } catch (error) {
+        console.error('Google Sign-in error:', error.message);
+        alert('Failed to login with Google: ' + error.message);
+      }
+    };
+
     const nearestBtn = document.getElementById('nearestBtn');
 
     const resultDiv = document.getElementById('result');
