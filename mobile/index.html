@@ -517,6 +517,11 @@ Answer in this format:
         navigator.geolocation.getCurrentPosition(pos => {
           const { latitude: lat, longitude: lon } = pos.coords;
           mapContainer.innerHTML = '';
+          const loadingMessage = document.createElement('div');
+          loadingMessage.id = 'mapLoading';
+          loadingMessage.className = 'absolute top-4 left-1/2 transform -translate-x-1/2 bg-white text-gray-700 py-2 px-4 rounded-lg shadow-lg';
+          loadingMessage.innerHTML = '🔄 Loading nearby centers...';
+          mapContainer.appendChild(loadingMessage);
           map = L.map('map').setView([lat, lon], 11);
           L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap contributors' }).addTo(map);
 
@@ -588,6 +593,8 @@ Answer in this format:
                 }
               });
           });
+          const loadingElement = document.getElementById('mapLoading');
+          if (loadingElement) loadingElement.remove();
         });
     }
 
