@@ -238,27 +238,19 @@
       const user = auth.currentUser;
 
       if (user) {
-        // Placeholder points and level
         const points = localStorage.getItem('user_points') || 0;
-        const level = calculateLevel(points);
+        const { name: levelName, badge } = calculateLevel(points);
 
         profileContent.innerHTML = `
-      <div class="space-y-6 flex flex-col items-center">
-        
-        <div class="rounded-full bg-green-100 w-32 h-32 flex items-center justify-center text-5xl shadow-inner animate-bounce">
-          🏆
-        </div>
+      <div class="rounded-full bg-green-100 w-32 h-32 flex items-center justify-center text-5xl shadow-inner animate-bounce">
+  ${badge}
+</div>
 
-        <div class="text-gray-700 text-center">
-          <p class="text-2xl font-bold mb-2">${user.email}</p>
-          <p class="text-lg">Points: <span class="text-green-700 font-semibold">${points}</span></p>
-          <p class="text-lg">Level: <span class="text-blue-700 font-semibold">${level}</span></p>
-        </div>
-
-        <button onclick="logout()" class="px-6 py-2 bg-gray-300 rounded-md hover:bg-gray-400">
-          Sign Out
-        </button>
-      </div>
+<div class="text-gray-700 text-center">
+  <p class="text-2xl font-bold mb-2">${user.email}</p>
+  <p class="text-lg">Points: <span class="text-green-700 font-semibold">${points}</span></p>
+  <p class="text-lg">Level: <span class="text-blue-700 font-semibold">${levelName}</span></p>
+</div>
     `;
       } else {
         profileContent.innerHTML = `
@@ -298,11 +290,11 @@
     };
 
     function calculateLevel(points) {
-      if (points >= 200) return 'Master Recycler';
-      if (points >= 100) return 'Expert Recycler';
-      if (points >= 50) return 'Advanced Recycler';
-      if (points >= 20) return 'Rookie Recycler';
-      return 'Beginner';
+      if (points >= 200) return { name: 'Master Recycler', badge: '🏆' };
+      if (points >= 100) return { name: 'Expert Recycler', badge: '🥇' };
+      if (points >= 50) return { name: 'Advanced Recycler', badge: '🥈' };
+      if (points >= 20) return { name: 'Rookie Recycler', badge: '🥉' };
+      return { name: 'Beginner', badge: '🎯' };
     }
 
     const nearestBtn = document.getElementById('nearestBtn');
