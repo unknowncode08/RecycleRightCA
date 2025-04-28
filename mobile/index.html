@@ -139,6 +139,14 @@
     </div>
   </div>
 
+  <div id="howToPopup" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-80 max-w-sm text-center relative animate-fade-in">
+      <button id="closeHowTo" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl">&times;</button>
+      <h2 class="text-xl font-bold text-blue-700 mb-4">How To Recycle</h2>
+      <p id="howToText" class="text-gray-700"></p>
+    </div>
+  </div>
+
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
     const firebaseConfig = {
@@ -370,12 +378,12 @@
     PLEASE ONLY RESPOND WITH ONE OF THESE:
     [RECYCABLE, (ITEM NAME)]
     [NON-R, (ITEM NAME)]
-    [CRV, (ESTIMATED-MONEY)]
+    [CRV, (ESTIMATED-MONEY), (ITEM NAME)]
 
     Example:
     [RECYCABLE, Plastic Lid]
     [NON-R, Metal Water Bottle]
-    [CRV, $0.20]`
+    [CRV, $0.20, Plastic Water Bottle]`
             }
           ]
         }]
@@ -413,7 +421,8 @@
       <div class="text-7xl mb-6 animate-bounce">♻️</div>
       <div class="text-3xl font-bold mb-2">Recyclable</div>
       <div class="text-lg">Detected: <strong>${material}</strong></div>
-      <button onclick="askWhyExplanation('${material}', 'RECYCABLE')" class="mt-4 px-4 py-2 bg-white text-gray-800 font-semibold rounded-xl">Learn Why</button>
+      <button onclick="askWhyExplanation('${material}', 'RECYCABLE')" class="mt-6 px-4 py-2 bg-yellow-400 text-white rounded-md hover:bg-yellow-500">Learn Why</button>
+      <button onclick="askHowToRecycle('${material}', 'RECYCABLE')" class="mt-3 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">How To</button>
       <button onclick="closeResult()" class="mt-6 px-6 py-3 bg-white text-green-700 font-semibold rounded-xl">Close</button>
     `;
         // +5 points for every successful scan
@@ -427,16 +436,19 @@
       <div class="text-7xl mb-6 animate-bounce">❌</div>
       <div class="text-3xl font-bold mb-2">Not Recyclable</div>
       <div class="text-lg">Detected: <strong>${item}</strong></div>
-      <button onclick="askWhyExplanation('${item}', 'NON-R')" class="mt-4 px-4 py-2 bg-white text-gray-800 font-semibold rounded-xl">Learn Why</button>
+      <button onclick="askWhyExplanation('${item}', 'NON-R')" class="px-4 py-2 bg-yellow-400 text-white rounded-md hover:bg-yellow-500">Learn Why</button>
       <button onclick="closeResult()" class="mt-6 px-6 py-3 bg-white text-red-700 font-semibold rounded-xl">Close</button>
     `;
       } else if (text.startsWith('[CRV')) {
-        const refund = text.split(',')[1].replace(']', '').trim();
+        const refund = text.split(',')[1]
+        const itemName = text.split(',')[2].replace(']', '').trim();
         resultDiv.style.backgroundColor = '#facc15'; // Yellow
         resultDiv.innerHTML = `
       <div class="text-7xl mb-6 animate-bounce">💵</div>
       <div class="text-3xl font-bold mb-2">CRV Eligible</div>
       <div class="text-lg">Refund: <strong>${refund}</strong></div>
+      <button onclick="askWhyExplanation('${item}', 'CRV')" class="mt-6 px-4 py-2 bg-yellow-400 text-white rounded-md hover:bg-yellow-500">Learn Why</button>
+      <button onclick="askHowToRecycle('${item}', 'CRV')" class="mt-3 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">How To</button>
       <button onclick="closeResult();switchTab('map');" class="mt-6 px-6 py-3 bg-white text-yellow-700 font-semibold rounded-xl">Find Nearest Center</button>
     `;
         // +5 points for every successful scan
@@ -475,9 +487,13 @@
     };
 
     async function askWhyExplanation(itemName, type) {
-      const reason = (type === 'RECYCABLE') ? 'can' : 'cannot';
+      const reason = (type === 'RECYCABLE') ? 'can be recyclable' : 'cannot be recyclable';
 
-      const prompt = `Explain to the user: Explain in 3 short sentences of why ${itemName} ${reason} be recyclable.
+      if (type === 'CRV') {
+        reason = 'can be recycled with CRV refund.';
+      }
+
+      const prompt = `Explain to the user: Explain in 3 short sentences of why ${itemName} ${reason}.
 Answer in this format:
 
 [2 SENTENCE RESPONSE]`;
@@ -501,6 +517,37 @@ Answer in this format:
         document.getElementById('whyText').textContent = '⚠️ Failed to load explanation.';
         document.getElementById('whyPopup').classList.remove('hidden');
       }
+    }
+
+    document.getElementById('closeHowTo').onclick = () => {
+      document.getElementById('howToPopup').classList.add('hidden');
+    };
+
+    function askHowToRecycle(itemName, type) {
+      const style = (type === 'CRV') ? 'how to recycle AND get refund at centers' : 'how to properly recycle curbside or center';
+
+      const prompt = `Explain to a normal user in 2 short sentences: How to recycle ${itemName} (${style}).`;
+
+      const body = {
+        contents: [{ parts: [{ text: prompt }] }]
+      };
+
+      fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      })
+        .then(res => res.json())
+        .then(data => {
+          const explanation = data.candidates[0]?.content?.parts[0]?.text.trim() || 'Could not load instructions.';
+          document.getElementById('howToText').textContent = explanation;
+          document.getElementById('howToPopup').classList.remove('hidden');
+        })
+        .catch(err => {
+          console.error('How To popup error:', err.message);
+          document.getElementById('howToText').textContent = 'Failed to load instructions.';
+          document.getElementById('howToPopup').classList.remove('hidden');
+        });
     }
 
     function initMap() {
