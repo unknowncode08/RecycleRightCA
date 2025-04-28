@@ -1,40 +1,200 @@
 <!doctype html>
 <html lang="en" class="h-full">
+
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>RecycleRight CA – Install the App</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="manifest" href="manifest.webmanifest" />
-  <meta name="theme-color" content="#16a34a" />
-  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>RecycleRight CA — Smarter Recycling Starts Here</title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<link rel="manifest" href="manifest.webmanifest" />
+	<link rel="apple-touch-icon" href="icons/icon-192.png" />
+	<meta name="theme-color" content="#16a34a" />
 </head>
-<body class="h-full bg-gray-50 flex flex-col items-center justify-center text-center p-6">
-  <main class="max-w-md">
-    <h1 class="text-4xl font-bold text-green-700 mb-4">RecycleRight&nbsp;CA</h1>
-    <p class="text-lg mb-6">Snap &amp; learn where to toss – then earn cash for cans and bottles! Add this web app to your phone in seconds.</p>
 
-    <p id="platformMsg" class="text-sm text-gray-700 mb-4"></p>
+<body class="h-full bg-gray-50 flex flex-col">
 
-    <button id="installBtn" class="hidden px-6 py-3 rounded-lg bg-green-600 text-white font-semibold shadow-lg hover:bg-green-700 transition mb-2">Install App</button>
-    <div id="androidHint" class="hidden text-sm text-gray-600 mb-4"><p>In Chrome, tap <span class="font-semibold">⋮ Menu</span> → <span class="font-semibold">Add to Home screen</span>.</p></div>
-    <div id="iosHint" class="hidden text-sm text-gray-600 max-w-xs mx-auto border border-green-300 rounded-lg p-3 bg-green-50"><p><strong>iPhone/iPad:</strong> Tap the Share icon in Safari, then choose <strong>Add to Home&nbsp;Screen</strong>.</p></div>
-  </main>
+	<header class="bg-green-600 text-white text-center py-6 shadow animate-fade-in">
+		<h1 class="text-3xl font-bold">♻️ RecycleRight CA</h1>
+		<p class="text-sm mt-1">Smarter Recycling Starts Here</p>
+	</header>
 
-  <script>
-    const ua=navigator.userAgent, isIOS=/iPhone|iPad|iPod/i.test(ua), isAndroid=/Android/i.test(ua), isMobile=isIOS||isAndroid;
-    const platformMsg=document.getElementById('platformMsg');
-    platformMsg.textContent=isIOS?'Tap the Share icon and pick “Add to Home Screen” to install.':isAndroid?'Tap Install below or ⋮ Menu → Add to Home screen.':'Open this page on your phone to install the app.';
-    if(!isMobile){document.body.innerHTML='<h2 class="text-xl font-semibold">Open this page on your mobile device to install the app.</h2>';}
-    const BASE=location.pathname.replace(/\/[^/]*$/, '/');
-    if(window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone){window.location.replace(BASE+'mobile/');}
-    if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
-    const installBtn=document.getElementById('installBtn'),androidHint=document.getElementById('androidHint'),iosHint=document.getElementById('iosHint');
-    let deferredPrompt;
-    if(isAndroid) installBtn.classList.remove('hidden');
-    if(isIOS) iosHint.classList.remove('hidden');
-    window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;if(isAndroid){installBtn.classList.remove('hidden');androidHint.classList.add('hidden');}});
-    installBtn.addEventListener('click',async()=>{if(!isAndroid) return;if(deferredPrompt){deferredPrompt.prompt();const {outcome}=await deferredPrompt.userChoice;if(outcome==='accepted') installBtn.textContent='Installed!';deferredPrompt=null;}else{androidHint.classList.remove('hidden');}});
-  </script>
+	<main class="flex-1 overflow-auto p-6">
+		<section class="max-w-6xl mx-auto grid md:grid-cols-2 gap-8 items-center mt-10 animate-fade-in">
+			<div class="space-y-4">
+				<h2 class="text-4xl font-bold text-green-700">Instantly Know What to Toss or Cash In</h2>
+				<p class="text-gray-600">Snap a photo — get a verdict. Recycle smarter, earn rewards, and help
+					California stay green.</p>
+				<div class="flex gap-4 mt-4">
+					<button id="installBtn"
+						class="hidden px-6 py-3 bg-green-600 text-white rounded shadow hover:bg-green-700">Install
+						App</button>
+					<a href="#learn"
+						class="px-6 py-3 bg-white text-green-600 border border-green-600 rounded hover:bg-green-100">Learn
+						More</a>
+				</div>
+				<p id="platformMsg" class="text-gray-500 text-sm"></p>
+			</div>
+			<img src="https://images.unsplash.com/photo-1615486362114-26d6b65004b3" alt="Recycling bins"
+				class="rounded-xl shadow-lg" />
+		</section>
+
+		<section id="learn" class="max-w-6xl mx-auto mt-20 space-y-12">
+			<div class="text-center">
+				<h3 class="text-2xl font-bold text-green-700">Key Features</h3>
+				<p class="text-gray-600">Everything you need to recycle smarter and make a positive impact.</p>
+			</div>
+			<div class="grid md:grid-cols-4 gap-6">
+				<div class="bg-white p-6 rounded-xl shadow hover:scale-105 transition">
+					<h4 class="font-semibold mb-2">♻️ Instant Recycling Guidance</h4>
+					<p class="text-gray-600 text-sm">Snap a photo and find out immediately if it's recyclable or
+						refundable.</p>
+				</div>
+				<div class="bg-white p-6 rounded-xl shadow hover:scale-105 transition">
+					<h4 class="font-semibold mb-2">📍 Nearby Redemption Centers</h4>
+					<p class="text-gray-600 text-sm">Locate CRV cash-back centers easily with our map feature.</p>
+				</div>
+				<div class="bg-white p-6 rounded-xl shadow hover:scale-105 transition">
+					<h4 class="font-semibold mb-2">🏆 Points & Badges</h4>
+					<p class="text-gray-600 text-sm">Gamify your eco-actions and level up your recycling skills.</p>
+				</div>
+				<div class="bg-white p-6 rounded-xl shadow hover:scale-105 transition">
+					<h4 class="font-semibold mb-2">🎓 Learn "Why" & "How To"</h4>
+					<p class="text-gray-600 text-sm">Understand why items are recyclable and how to recycle correctly.
+					</p>
+				</div>
+			</div>
+		</section>
+
+		<section class="max-w-6xl mx-auto mt-20 space-y-12">
+			<div class="text-center">
+				<h3 class="text-2xl font-bold text-green-700">See RecycleRight CA in Action</h3>
+				<p class="text-gray-600">A beautiful, intuitive interface that makes recycling easy for everyone.</p>
+			</div>
+			<div class="grid md:grid-cols-3 gap-6">
+				<img src="https://images.unsplash.com/photo-1612639425936-c47c5c092fa1"
+					class="rounded-xl shadow hover:scale-105 transition" alt="Scan Items">
+				<img src="https://images.unsplash.com/photo-1605281041267-f60d5e9bd3bb"
+					class="rounded-xl shadow hover:scale-105 transition" alt="Get Results">
+				<img src="https://images.unsplash.com/photo-1578916171725-2f49d3d6b239"
+					class="rounded-xl shadow hover:scale-105 transition" alt="Find Centers">
+			</div>
+		</section>
+
+		<section class="max-w-6xl mx-auto mt-20 space-y-12">
+			<div class="text-center">
+				<h3 class="text-2xl font-bold text-green-700">How It Works</h3>
+				<div class="grid md:grid-cols-3 gap-6 mt-6">
+					<div class="bg-white p-6 rounded-xl shadow">
+						<h4 class="text-lg font-semibold mb-2">1. Snap A Photo</h4>
+						<p class="text-gray-600 text-sm">Capture the item you want to recycle.</p>
+					</div>
+					<div class="bg-white p-6 rounded-xl shadow">
+						<h4 class="text-lg font-semibold mb-2">2. Get Instant Results</h4>
+						<p class="text-gray-600 text-sm">AI tells you if it's recyclable, refundable, or trash.</p>
+					</div>
+					<div class="bg-white p-6 rounded-xl shadow">
+						<h4 class="text-lg font-semibold mb-2">3. Recycle & Earn</h4>
+						<p class="text-gray-600 text-sm">Follow the guidance to recycle right and earn points.</p>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="max-w-4xl mx-auto mt-20">
+			<blockquote class="bg-green-100 text-green-900 p-6 rounded-xl shadow text-center italic">
+				"This app finally made recycling make sense! Now I know exactly what can be recycled and where to go for
+				CRV refunds."<br>
+				— Sarah T., Beta Tester
+			</blockquote>
+		</section>
+
+		<section class="max-w-6xl mx-auto mt-20">
+			<div class="text-center space-y-4">
+				<h3 class="text-2xl font-bold text-green-700">Install RecycleRight CA</h3>
+				<p class="text-gray-600">Get started in seconds — no app store needed.</p>
+				<div id="installMsg" class="mt-4"></div>
+			</div>
+		</section>
+
+		<section class="max-w-6xl mx-auto mt-20 grid md:grid-cols-2 gap-6 items-center">
+			<div class="space-y-4">
+				<h3 class="text-2xl font-bold text-green-700">About RecycleRight CA</h3>
+				<p class="text-gray-600">RecycleRight CA is built to solve California’s recycling confusion using
+					AI-powered guidance and local CRV information. Know instantly how to recycle smarter.</p>
+				<div class="flex flex-wrap gap-3 mt-4">
+					<span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">California-specific</span>
+					<span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">Offline capable</span>
+					<span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">AI-powered</span>
+					<span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">Privacy-focused</span>
+				</div>
+			</div>
+			<img src="https://images.unsplash.com/photo-1593622582952-11d1e6e0584d" class="rounded-xl shadow"
+				alt="Recycling bottles" />
+		</section>
+		<footer class="bg-green-600 text-white text-center p-4 text-sm mt-20">
+			<p>&copy; 2025 RecycleRight CA. Built for the Congressional App Challenge.</p>
+		</footer>
+	</main>
+
+	<script>
+		const ua = navigator.userAgent;
+		const isIOS = /iPhone|iPad|iPod/i.test(ua);
+		const isAndroid = /Android/i.test(ua);
+		const isMobile = isIOS || isAndroid;
+		const platformMsg = document.getElementById('platformMsg');
+		const installBtn = document.getElementById('installBtn');
+		const BASE = location.pathname.replace(/\/[^/]*$/, '/');
+
+		if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+			window.location.replace(BASE + 'mobile/');
+		}
+
+		if ('serviceWorker' in navigator) {
+			navigator.serviceWorker.register('sw.js');
+		}
+
+		let deferredPrompt;
+
+		if (isMobile) {
+			platformMsg.textContent = isIOS ? 'Tap the Share icon → Add to Home Screen.' : 'Tap Install or ⋮ Menu → Add to Home screen.';
+		} else {
+			document.getElementById('installMsg').innerHTML = '<p>📱 Open this page on your mobile device to install RecycleRight CA!</p>';
+		}
+
+		window.addEventListener('beforeinstallprompt', (e) => {
+			e.preventDefault();
+			deferredPrompt = e;
+			if (isAndroid) installBtn.classList.remove('hidden');
+		});
+
+		installBtn.addEventListener('click', async () => {
+			if (deferredPrompt) {
+				deferredPrompt.prompt();
+				const { outcome } = await deferredPrompt.userChoice;
+				if (outcome === 'accepted') installBtn.textContent = '✅ Installed!';
+				deferredPrompt = null;
+			}
+		});
+	</script>
+
+	<style>
+		.animate-fade-in {
+			animation: fadeIn 1s ease-in-out;
+		}
+
+		@keyframes fadeIn {
+			from {
+				opacity: 0;
+				transform: translateY(20px);
+			}
+
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+	</style>
+
 </body>
+
 </html>
