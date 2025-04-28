@@ -159,7 +159,7 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
 
-
+    let stream = null;
     const tabs = document.querySelectorAll('.tab');
     const pages = { main: 'page-main', map: 'page-map', profile: 'page-profile', settings: 'page-settings' };
     let map = null;
@@ -186,6 +186,16 @@
     }
 
     function switchTab(tab) {
+      if (tab !== 'main') {
+        document.getElementById('camera').classList.add('hidden');
+      }
+      // Stop camera if leaving scanner
+      if (stream && tab !== 'main') {
+        stream.getTracks().forEach(track => track.stop());
+        stream = null;
+        const videoElement = document.getElementById('videoPreview');
+        if (videoElement) videoElement.srcObject = null;
+      }
       tabs.forEach(t => {
         const active = t.dataset.tab === tab;
         t.classList.toggle('text-green-600', active);
