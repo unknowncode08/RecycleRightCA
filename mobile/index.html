@@ -468,27 +468,37 @@
     tabs.forEach(t => t.addEventListener('click', () => switchTab(t.dataset.tab)));
     switchTab('main');
 
-    async function addToCollection(userId, name, type, imageData) {
-      const user = auth.currentUser;
-      if (!user) return;
+    async function addToCollection(userId, name, type, base64img) {
+      const collectionRef = db.collection('users').doc(userId).collection('collection');
 
-      const collectionRef = db.collection('users').doc(user.uid).collection('collection');
-      const itemDoc = collectionRef.doc(name);
+      // Get all items with the same name
+      const snapshot = await collectionRef.where('name', '>=', name).where('name', '<=', name + '\uf8ff').get();
 
-      const itemSnapshot = await itemDoc.get();
-      if (itemSnapshot.exists) {
-        console.log("Item already exists in collection, not saving again.");
-        return;
+      let newName = name;
+      let count = 1;
+      const nameRegex = new RegExp(`^${name}( \\((\\d+)\\))?$`);
+
+      snapshot.forEach(doc => {
+        const existingName = doc.data().name;
+        const match = existingName.match(nameRegex);
+        if (match) {
+          const number = parseInt(match[2]) || 1;
+          if (number >= count) {
+            count = number + 1;
+          }
+        }
+      });
+
+      if (count > 1) {
+        newName = `${name} (${count})`;
       }
 
-      if (!itemSnapshot.exists) {
-        await itemDoc.set({
-          name,
-          type,
-          image: imageData,
-          timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        });
-      }
+      await collectionRef.add({
+        name: newName,
+        type: type,
+        image: 'data:image/jpeg;base64,' + base64img,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
     }
 
     async function loadCollection() {
