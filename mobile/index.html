@@ -16,6 +16,20 @@
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
 </head>
 <style>
+  body.dark {
+    background-color: #111827;
+    color: white;
+  }
+
+  body.dark .bg-white {
+    background-color: #1f2937 !important;
+  }
+
+  body.dark .text-gray-700 {
+    color: #d1d5db !important;
+  }
+</style>
+<style>
   .animate-fade-in {
     animation: fadeIn 0.8s ease-in-out;
   }
@@ -103,10 +117,22 @@
     <section id="page-profile" class="hidden p-6 space-y-4">
       <h2 class="text-xl font-bold">Profile</h2>
       <div id="profileContent" class="bg-white p-4 rounded-lg shadow text-center space-y-2"></div>
+      <div id="achievements" class="space-y-2">
+        <h3 class="text-lg font-semibold mt-6">Achievements</h3>
+        <ul class="list-disc list-inside text-gray-700">
+          <li>🔥 7-Day Streak</li>
+          <li>♻️ 50 Scans</li>
+          <li>💵 10 CRV Items</li>
+          <!-- Add logic to unlock dynamically in JS -->
+        </ul>
+      </div>
     </section>
     <section id="page-settings" class="hidden p-6 space-y-4">
       <h2 class="text-xl font-bold">Settings</h2>
-      <p>🔧 Settings coming soon…</p>
+      <div class="flex items-center justify-between">
+        <label for="darkModeToggle" class="text-lg font-medium">🌙 Dark Mode</label>
+        <input type="checkbox" id="darkModeToggle" class="w-5 h-5">
+      </div>
     </section>
   </main>
 
@@ -249,6 +275,14 @@
         </button>
       </div>
     `;
+        document.getElementById('achievements').innerHTML = `
+  <h3 class="text-lg font-semibold mt-6">Achievements</h3>
+  <ul class="list-disc list-inside text-gray-700">
+    ${streakData.current >= 7 ? '<li>🔥 7-Day Streak</li>' : ''}
+    ${streakData.totalScans >= 50 ? '<li>♻️ 50 Scans</li>' : ''}
+    ${streakData.crvScans >= 10 ? '<li>💵 10 CRV Items</li>' : ''}
+  </ul>
+`;
 
         if (!streakData.freeze) {
           document.getElementById('freezeSection').innerHTML = `
@@ -266,6 +300,15 @@
         </button>
       </div>
     `;
+        const today = new Date().toISOString().split('T')[0];
+        const challengeCompleted = localStorage.getItem('daily_challenge') === today;
+
+        profileContent.innerHTML += `
+  <div class="mt-4 bg-yellow-100 border-l-4 border-yellow-500 p-4 text-yellow-700">
+    <p><strong>Daily Challenge:</strong> Recycle one item today</p>
+    ${challengeCompleted ? '<p class="text-green-600 mt-1">✅ Completed!</p>' : '<p class="mt-1">❌ Not yet completed</p>'}
+  </div>
+`;
       }
     }
 
@@ -772,6 +815,7 @@
           await updateStreak(user.uid);
           await addPointsToUser(user.uid);
           await addToCollection(user.uid, material, 'rec', `data:image/jpeg;base64,${capturedBase64}`);
+          localStorage.setItem('daily_challenge', today);
         }
         refreshProfile();
       } else if (text.startsWith('[NON-R')) {
@@ -788,6 +832,7 @@
         if (user) {
           await updateStreak(user.uid);
           await addToCollection(user.uid, item, 'nrec', `data:image/jpeg;base64,${capturedBase64}`);
+          localStorage.setItem('daily_challenge', today);
         }
         refreshProfile();
       } else if (text.startsWith('[CRV')) {
@@ -808,6 +853,7 @@
           await updateStreak(user.uid);
           await addPointsToUser(user.uid);
           await addToCollection(user.uid, itemName, 'crv', `data:image/jpeg;base64,${capturedBase64}`);
+          localStorage.setItem('daily_challenge', today);
         }
         refreshProfile();
       } else {
@@ -1042,6 +1088,16 @@ Answer in this format:
       });
     }
 
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    if (localStorage.getItem('dark_mode') === 'true') {
+      document.body.classList.add('dark');
+      darkModeToggle.checked = true;
+    }
+    darkModeToggle.addEventListener('change', () => {
+      const enabled = darkModeToggle.checked;
+      document.body.classList.toggle('dark', enabled);
+      localStorage.setItem('dark_mode', enabled);
+    });
   </script>
   <style>
     html,
