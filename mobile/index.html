@@ -156,14 +156,15 @@
     </div>
   </div>
 
-  <div id="collectionPopup" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
-    <div class="bg-white rounded-lg p-6 w-80 text-center relative animate-fade-in">
-      <button onclick="document.getElementById('collectionPopup').classList.add('hidden')"
-        class="absolute top-2 right-2 text-gray-500 text-xl">&times;</button>
-      <img id="popupImage" class="w-full h-40 object-cover rounded mb-4" />
-      <h3 id="popupName" class="text-lg font-semibold mb-2"></h3>
-      <p id="popupType" class="text-sm text-gray-600 mb-4"></p>
-      <button id="deleteItemBtn" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Delete</button>
+  <div id="collectionPopup" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-80 max-w-sm text-center relative animate-fade-in">
+      <button id="closeCollectionPopup"
+        class="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl">&times;</button>
+      <img id="popupImage" class="w-32 h-32 rounded-full mx-auto mb-4 object-cover" />
+      <h2 id="popupName" class="text-xl font-bold text-gray-800 mb-2"></h2>
+      <p id="popupType" class="text-gray-600 mb-4"></p>
+      <button id="deleteItemBtn" class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">Delete from
+        Collection</button>
     </div>
   </div>
 
@@ -252,6 +253,66 @@
     `;
       }
     }
+
+    async function refreshCollection() {
+      const collectionList = document.getElementById('collectionList');
+      collectionList.innerHTML = '<p class="text-gray-500 text-center w-full">Loading your collection...</p>';
+
+      const user = auth.currentUser;
+      if (!user) {
+        collectionList.innerHTML = '<p class="text-gray-500 text-center w-full">Sign in to view your collection.</p>';
+        return;
+      }
+
+      const snapshot = await db.collection('users').doc(user.uid).collection('collection').orderBy('timestamp', 'desc').get();
+
+      if (snapshot.empty) {
+        collectionList.innerHTML = '<p class="text-gray-500 text-center w-full">No items yet. Start scanning!</p>';
+        return;
+      }
+
+      collectionList.innerHTML = '';
+
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        const emoji = data.type === 'rec' ? '♻️' : (data.type === 'nrec' ? '❌' : '💵');
+
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'bg-white p-4 rounded-lg shadow flex items-center gap-4 cursor-pointer hover:bg-gray-100 transition';
+        itemDiv.innerHTML = `
+      <img src="${data.image}" alt="${data.name}" class="w-16 h-16 rounded object-cover">
+      <div>
+        <p class="text-lg font-semibold">${data.name}</p>
+        <p class="text-gray-500">${emoji} ${data.type.toUpperCase()}</p>
+      </div>
+    `;
+
+        itemDiv.onclick = () => openCollectionPopup(data.name, data.image, data.type, doc.id);
+        collectionList.appendChild(itemDiv);
+      });
+    }
+
+    function openCollectionPopup(name, image, type, docId) {
+      document.getElementById('popupImage').src = image;
+      document.getElementById('popupName').textContent = name;
+      document.getElementById('popupType').textContent = (type === 'rec' ? '♻️ Recyclable' : type === 'nrec' ? '❌ Non-Recyclable' : '💵 CRV Eligible');
+
+      const deleteBtn = document.getElementById('deleteItemBtn');
+      deleteBtn.onclick = async () => {
+        const user = auth.currentUser;
+        if (!user) return;
+
+        await db.collection('users').doc(user.uid).collection('collection').doc(docId).delete();
+        document.getElementById('collectionPopup').classList.add('hidden');
+        refreshCollection();
+      };
+
+      document.getElementById('collectionPopup').classList.remove('hidden');
+    }
+
+    document.getElementById('closeCollectionPopup').onclick = () => {
+      document.getElementById('collectionPopup').classList.add('hidden');
+    };
 
     async function buyStreakFreeze() {
       const user = auth.currentUser;
@@ -400,7 +461,7 @@
       });
       if (tab === 'map' && !mapReady) initMap();
       if (tab === 'profile') refreshProfile();
-      if (tab === 'collection') loadCollection();
+      if (tab === 'collection') refreshCollection();
     }
     tabs.forEach(t => t.addEventListener('click', () => switchTab(t.dataset.tab)));
     switchTab('main');
