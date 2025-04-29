@@ -166,25 +166,10 @@
 		  `;
 		}
 
-		async function installApp() {
-			if (deferredPrompt) {
-				deferredPrompt.prompt();
-				const { outcome } = await deferredPrompt.userChoice;
-				if (outcome === 'accepted') {
-					document.getElementById('installBtn').textContent = '✅ Installed!';
-				}
-				deferredPrompt = null;
-			}
-		}
-
-		if (isAndroid) {
-			showInstallButton();
-		}
-
-		if (isIOS) {
+		if (isIOS || isAndroid) {
 			installOptions.innerHTML = `
 			<div class="border border-green-300 bg-green-50 p-4 rounded-lg text-green-700 text-center animate-fade-in">
-			  <p><strong>iPhone/iPad:</strong></p>
+			  <p><strong>Install App:</strong></p>
 			  <p>Tap the <span class="underline">Share</span> icon <br>→ then select <strong>"Add to Home Screen"</strong> to install.</p>
 			</div>
 		  `;
