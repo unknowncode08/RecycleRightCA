@@ -676,6 +676,7 @@
         loadingSpinner.classList.remove('hidden');
 
         const base64 = canvas.toDataURL('image/jpeg').split(',')[1];
+        capturedBase64 = base64;
         sendToGemini(base64);
       };
     });
