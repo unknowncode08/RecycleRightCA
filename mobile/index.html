@@ -473,7 +473,7 @@
       if (!user) return;
 
       const collectionRef = db.collection('users').doc(user.uid).collection('collection');
-      const itemDoc = collectionRef.doc(itemName);
+      const itemDoc = collectionRef.doc(name);
 
       const itemSnapshot = await itemDoc.get();
       if (itemSnapshot.exists) {
