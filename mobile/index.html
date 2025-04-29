@@ -768,7 +768,7 @@
         const user = auth.currentUser;
         if (user) {
           await updateStreak(user.uid);
-          await addToCollection(user.uid, material, 'nrec', `data:image/jpeg;base64,${capturedBase64}`);
+          await addToCollection(user.uid, item, 'nrec', `data:image/jpeg;base64,${capturedBase64}`);
         }
         refreshProfile();
       } else if (text.startsWith('[CRV')) {
@@ -788,7 +788,7 @@
         if (user) {
           await updateStreak(user.uid);
           await addPointsToUser(user.uid);
-          await addToCollection(user.uid, material, 'crv', `data:image/jpeg;base64,${capturedBase64}`);
+          await addToCollection(user.uid, itemName, 'crv', `data:image/jpeg;base64,${capturedBase64}`);
         }
         refreshProfile();
       } else {
