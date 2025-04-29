@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
 </head>
 <style>
   .animate-fade-in {
@@ -154,10 +155,13 @@
       authDomain: "recyclerightca.firebaseapp.com",
       projectId: "recyclerightca",
       appId: "1:680884147195:web:b1e0036607dd514908b15e",
+      storageBucket: "recyclerightca.firebasestorage.app",
+      messagingSenderId: "680884147195"
     };
 
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
+    const db = firebase.firestore();
 
     let stream = null;
     const tabs = document.querySelectorAll('.tab');
@@ -168,21 +172,188 @@
 
     let signupMode = false;
 
-    function refreshProfile() {
+    async function refreshProfile() {
       const profileContent = document.getElementById('profileContent');
       const user = auth.currentUser;
 
       if (user) {
+        const streakData = await fetchStreak(user.uid);
+        const points = streakData.pt;
+        const { name: levelName, badge } = calculateLevel(points);
+
+        let streakBadge = '';
+        if (streakData.current >= 90) streakBadge = '🔥 90-Day Master';
+        else if (streakData.current >= 30) streakBadge = '🏆 30-Day Legend';
+        else if (streakData.current >= 7) streakBadge = '🥇 7-Day Champ';
+
         profileContent.innerHTML = `
-      <p class="text-gray-700 mb-4">Welcome, <strong>${user.email}</strong></p>
-      <button onclick="logout()" class="px-4 py-2 bg-gray-200 rounded-md">Sign Out</button>
+      <div class="space-y-6 flex flex-col items-center">
+        <div class="rounded-full bg-green-100 w-32 h-32 flex items-center justify-center text-5xl shadow-inner animate-bounce">
+          ${badge}
+        </div>
+
+        <div class="text-gray-700 text-center">
+          <p class="text-2xl font-bold mb-2">${user.email}</p>
+          <p class="text-lg">Points: <span id="pointsCount" class="text-green-700 font-semibold">${points}</span></p>
+          <p class="text-lg">Level: <span class="text-blue-700 font-semibold">${levelName}</span></p>
+          <p class="text-lg">🔥 Current Streak: <span class="font-semibold">${streakData.current}</span> days</p>
+          <p class="text-lg">🏆 Longest Streak: <span class="font-semibold">${streakData.longest}</span> days</p>
+          <p class="text-lg">❄️ Streak Freeze: <span class="font-semibold">${streakData.freeze ? 'Available' : 'None'}</span></p>
+          ${streakBadge ? `<p class="mt-2 text-green-600 font-bold">${streakBadge}</p>` : ''}
+          <div id="freezeSection" class="mt-4"></div>
+        </div>
+
+        <button onclick="logout()" class="px-6 py-2 bg-gray-300 rounded-md hover:bg-gray-400">
+          Sign Out
+        </button>
+      </div>
     `;
+
+        if (!streakData.freeze) {
+          document.getElementById('freezeSection').innerHTML = `
+        <button onclick="buyStreakFreeze()" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+          Buy Streak Freeze (50 pts)
+        </button>
+      `;
+        }
       } else {
         profileContent.innerHTML = `
-      <p class="text-gray-600 mb-4">You are currently signed out.</p>
-      <button onclick="openAuthPopup()" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">Sign In</button>
+      <div class="space-y-6 flex flex-col items-center">
+        <p class="text-gray-600 text-lg">You are currently signed out.</p>
+        <button onclick="openAuthPopup()" class="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+          Sign In
+        </button>
+      </div>
     `;
       }
+    }
+
+    async function buyStreakFreeze() {
+      const user = auth.currentUser;
+      if (!user) return;
+
+      const userRef = db.collection('users').doc(user.uid);
+
+      try {
+        await db.runTransaction(async (transaction) => {
+          const doc = await transaction.get(userRef);
+          if (!doc.exists) throw new Error("User doc missing");
+
+          const data = doc.data();
+          const points = data.points || 0;
+          const freezeAvailable = data.streakFreezeAvailable || false;
+
+          if (freezeAvailable) throw new Error("You already have a Streak Freeze.");
+          if (points < 50) throw new Error("Not enough points!");
+
+          transaction.update(userRef, {
+            points: points - 50,
+            streakFreezeAvailable: true
+          });
+        });
+
+        // Success popup
+        const popup = document.createElement('div');
+        popup.textContent = '❄️ Streak Freeze Purchased!';
+        popup.className = 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-blue-500 text-white font-bold py-4 px-6 rounded-xl shadow-xl animate-bounce z-50';
+        document.body.appendChild(popup);
+        setTimeout(() => {
+          popup.remove();
+          refreshProfile(); // reload to show changes
+        }, 2000);
+
+      } catch (e) {
+        alert(e.message || "Error purchasing freeze");
+      }
+    }
+
+    async function updateStreak(userId) {
+      const userRef = db.collection('users').doc(userId);
+
+      await db.runTransaction(async (transaction) => {
+        const userDoc = await transaction.get(userRef);
+        const today = new Date().toISOString().slice(0, 10);
+        const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+
+        if (!userDoc.exists) {
+          transaction.set(userRef, {
+            currentStreak: 1,
+            longestStreak: 1,
+            lastScanDate: today,
+            streakFreezeAvailable: false
+          });
+          showPlusOne();
+        } else {
+          const data = userDoc.data();
+          const lastScanDate = data.lastScanDate || '';
+          let currentStreak = data.currentStreak || 0;
+          let longestStreak = data.longestStreak || 0;
+          let freezeAvailable = data.streakFreezeAvailable || false;
+
+          if (lastScanDate === today) {
+            return;
+          } else if (lastScanDate === yesterday) {
+            currentStreak += 1;
+            showPlusOne();
+          } else {
+            if (freezeAvailable) {
+              freezeAvailable = false;
+              showPlusOne();
+            } else {
+              currentStreak = 1;
+              showPlusOne();
+            }
+          }
+
+          if (currentStreak > longestStreak) {
+            longestStreak = currentStreak;
+          }
+
+          transaction.update(userRef, {
+            currentStreak,
+            longestStreak,
+            lastScanDate: today,
+            streakFreezeAvailable: freezeAvailable
+          });
+        }
+      });
+    }
+
+    async function fetchStreak(userId) {
+      const userDoc = await db.collection('users').doc(userId).get();
+      if (userDoc.exists) {
+        const data = userDoc.data();
+        return {
+          current: data.currentStreak || 0,
+          longest: data.longestStreak || 0,
+          freeze: data.streakFreezeAvailable || false,
+          pt: data.points || 0
+        };
+      }
+      return { current: 0, longest: 0, freeze: false };
+    }
+
+    async function addPointsToUser(userId, amount = 5) {
+      const userRef = db.collection('users').doc(userId);
+
+      await db.runTransaction(async (transaction) => {
+        const doc = await transaction.get(userRef);
+        if (!doc.exists) return;
+
+        const currentPoints = doc.data().points || 0;
+        transaction.update(userRef, {
+          points: currentPoints + amount
+        });
+      });
+    }
+
+    function showPlusOne() {
+      const plusOne = document.createElement('div');
+      plusOne.textContent = '+1🔥';
+      plusOne.className = 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-4xl text-green-600 font-bold animate-bounce';
+      document.body.appendChild(plusOne);
+
+      setTimeout(() => plusOne.remove(), 1500);
     }
 
     function switchTab(tab) {
@@ -233,14 +404,36 @@
 
       if (signupMode) {
         auth.createUserWithEmailAndPassword(email, password)
-          .then(() => {
+          .then((userCredential) => {
+            const user = userCredential.user;
+            // Create default Firestore document
+            db.collection('users').doc(user.uid).set({
+              currentStreak: 0,
+              longestStreak: 0,
+              lastScanDate: '',
+              streakFreezeAvailable: false
+            });
             document.getElementById('authPopup').classList.add('hidden');
             refreshProfile();
           })
           .catch(e => alert('Signup error: ' + e.message));
       } else {
         auth.signInWithEmailAndPassword(email, password)
-          .then(() => {
+          .then((userCredential) => {
+            const user = userCredential.user;
+            // Check if user document exists
+            const userRef = db.collection('users').doc(user.uid);
+            userRef.get().then((doc) => {
+              if (!doc.exists) {
+                // If no document, create default one
+                userRef.set({
+                  currentStreak: 0,
+                  longestStreak: 0,
+                  lastScanDate: '',
+                  streakFreezeAvailable: false
+                });
+              }
+            });
             document.getElementById('authPopup').classList.add('hidden');
             refreshProfile();
           })
@@ -250,43 +443,6 @@
 
     // Profile Tab Behavior
     const profileContent = document.getElementById('profileContent');
-
-    function refreshProfile() {
-      const profileContent = document.getElementById('profileContent');
-      const user = auth.currentUser;
-
-      if (user) {
-        const points = localStorage.getItem('user_points') || 0;
-        const { name: levelName, badge } = calculateLevel(points);
-
-        profileContent.innerHTML = `
-      <div class="space-y-6 flex flex-col items-center">
-        
-        <div class="rounded-full bg-green-100 w-32 h-32 flex items-center justify-center text-5xl shadow-inner animate-bounce">
-  ${badge}
-</div>
-
-<div class="text-gray-700 text-center">
-  <p class="text-2xl font-bold mb-2">${user.email}</p>
-  <p class="text-lg">Points: <span class="text-green-700 font-semibold">${points}</span></p>
-  <p class="text-lg">Level: <span class="text-blue-700 font-semibold">${levelName}</span></p>
-</div>
-<button onclick="logout()" class="px-6 py-2 bg-gray-300 rounded-md hover:bg-gray-400">
-          Sign Out
-        </button>
-      </div>
-    `;
-      } else {
-        profileContent.innerHTML = `
-      <div class="space-y-6 flex flex-col items-center">
-        <p class="text-gray-600 text-lg">You are currently signed out.</p>
-        <button onclick="openAuthPopup()" class="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
-          Sign In
-        </button>
-      </div>
-    `;
-      }
-    }
 
     // Call refreshProfile whenever we switch tabs
     document.querySelector('button[data-tab="profile"]').addEventListener('click', () => {
@@ -419,7 +575,7 @@
       }
     }
 
-    function showResult(text) {
+    async function showResult(text) {
       resultDiv.classList.remove('hidden');
       resultDiv.classList.add('fixed', 'top-0', 'left-0', 'w-full', 'h-full', 'flex', 'flex-col', 'items-center', 'justify-center', 'text-white', 'text-center', 'p-6', 'z-50');
       resultDiv.classList.remove('bg-white');
@@ -436,8 +592,11 @@
       <button onclick="closeResult()" class="mt-6 px-6 py-3 bg-white text-green-700 font-semibold rounded-xl">Close</button>
     `;
         // +5 points for every successful scan
-        let currentPoints = parseInt(localStorage.getItem('user_points') || '0', 10);
-        localStorage.setItem('user_points', (currentPoints + 5).toString());
+        const user = auth.currentUser;
+        if (user) {
+          await updateStreak(user.uid);
+          await addPointsToUser(user.uid);
+        }
         refreshProfile();
       } else if (text.startsWith('[NON-R')) {
         const item = text.split(',')[1].replace(']', '').trim();
@@ -462,8 +621,11 @@
       <button onclick="closeResult();switchTab('map');" class="mt-6 px-6 py-3 bg-white text-yellow-700 font-semibold rounded-xl">Find Nearest Center</button>
     `;
         // +5 points for every successful scan
-        let currentPoints = parseInt(localStorage.getItem('user_points') || '0', 10);
-        localStorage.setItem('user_points', (currentPoints + 5).toString());
+        const user = auth.currentUser;
+        if (user) {
+          await updateStreak(user.uid);
+          await addPointsToUser(user.uid);
+        }
         refreshProfile();
       } else {
         resultDiv.style.backgroundColor = '#6b7280'; // Gray fallback
