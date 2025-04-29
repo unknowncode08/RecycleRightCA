@@ -34,8 +34,7 @@
 				</div>
 				<p id="platformMsg" class="text-gray-500 text-sm"></p>
 			</div>
-			<img src="images/recyclebins.jpeg" alt="Recycling bins"
-				class="rounded-xl shadow-lg" />
+			<img src="images/recyclebins.jpeg" alt="Recycling bins" class="rounded-xl shadow-lg" />
 		</section>
 
 		<section id="learn" class="max-w-6xl mx-auto mt-20 space-y-12">
@@ -71,12 +70,9 @@
 				<p class="text-gray-600">A beautiful, intuitive interface that makes recycling easy for everyone.</p>
 			</div>
 			<div class="grid md:grid-cols-3 gap-6">
-				<img src="images/scanner.jpg"
-					class="rounded-xl shadow hover:scale-105 transition" alt="Scan Items">
-				<img src="images/results.png"
-					class="rounded-xl shadow hover:scale-105 transition" alt="Get Results">
-				<img src="images/center.png"
-					class="rounded-xl shadow hover:scale-105 transition" alt="Find Centers">
+				<img src="images/scanner.jpg" class="rounded-xl shadow hover:scale-105 transition" alt="Scan Items">
+				<img src="images/results.png" class="rounded-xl shadow hover:scale-105 transition" alt="Get Results">
+				<img src="images/center.png" class="rounded-xl shadow hover:scale-105 transition" alt="Find Centers">
 			</div>
 		</section>
 
@@ -109,10 +105,11 @@
 		</section>
 
 		<section class="max-w-6xl mx-auto mt-20">
-			<div class="text-center space-y-4">
+			<div class="text-center space-y-6">
 				<h3 class="text-2xl font-bold text-green-700">Install RecycleRight CA</h3>
 				<p class="text-gray-600">Get started in seconds — no app store needed.</p>
-				<div id="installMsg" class="mt-4"></div>
+
+				<div id="installOptions" class="mt-8 space-y-4"></div>
 			</div>
 		</section>
 
@@ -128,8 +125,7 @@
 					<span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">✅Privacy-focused</span>
 				</div>
 			</div>
-			<img src="images/bottles.png" class="rounded-xl shadow"
-				alt="Recycling bottles" />
+			<img src="images/bottles.png" class="rounded-xl shadow" alt="Recycling bottles" />
 		</section>
 		<footer class="bg-green-600 text-white text-center p-4 text-sm mt-20">
 			<p>&copy; 2025 RecycleRight CA. Built for the Congressional App Challenge.</p>
@@ -141,9 +137,9 @@
 		const isIOS = /iPhone|iPad|iPod/i.test(ua);
 		const isAndroid = /Android/i.test(ua);
 		const isMobile = isIOS || isAndroid;
-		const platformMsg = document.getElementById('platformMsg');
-		const installBtn = document.getElementById('installBtn');
 		const BASE = location.pathname.replace(/\/[^/]*$/, '/');
+		const installOptions = document.getElementById('installOptions');
+		let deferredPrompt;
 
 		if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
 			window.location.replace(BASE + 'mobile/');
@@ -153,28 +149,45 @@
 			navigator.serviceWorker.register('sw.js');
 		}
 
-		let deferredPrompt;
-
-		if (isMobile) {
-			platformMsg.textContent = isIOS ? 'Tap the Share icon → Add to Home Screen.' : 'Tap Install or ⋮ Menu → Add to Home screen.';
-		} else {
-			document.getElementById('installMsg').innerHTML = '<p>📱 Open this page on your mobile device to install RecycleRight CA!</p>';
-		}
-
 		window.addEventListener('beforeinstallprompt', (e) => {
 			e.preventDefault();
 			deferredPrompt = e;
-			if (isAndroid) installBtn.classList.remove('hidden');
+			if (isAndroid) showInstallButton();
 		});
 
-		installBtn.addEventListener('click', async () => {
-			if (deferredPrompt) {
-				deferredPrompt.prompt();
-				const { outcome } = await deferredPrompt.userChoice;
-				if (outcome === 'accepted') installBtn.textContent = '✅ Installed!';
-				deferredPrompt = null;
-			}
-		});
+		function showInstallButton() {
+			installOptions.innerHTML = `
+			<button id="installBtn"
+			  class="px-6 py-3 bg-green-600 text-white rounded shadow hover:bg-green-700 transition text-lg">
+			  📥 Install RecycleRight CA
+			</button>
+		  `;
+			document.getElementById('installBtn').addEventListener('click', async () => {
+				if (deferredPrompt) {
+					deferredPrompt.prompt();
+					const { outcome } = await deferredPrompt.userChoice;
+					if (outcome === 'accepted') {
+						document.getElementById('installBtn').textContent = '✅ Installed!';
+					}
+					deferredPrompt = null;
+				}
+			});
+		}
+
+		if (isIOS) {
+			installOptions.innerHTML = `
+			<div class="border border-green-300 bg-green-50 p-4 rounded-lg text-green-700 text-center animate-fade-in">
+			  <p><strong>iPhone/iPad:</strong></p>
+			  <p>Tap the <span class="underline">Share</span> icon <br>→ then select <strong>"Add to Home Screen"</strong> to install.</p>
+			</div>
+		  `;
+		}
+
+		if (!isMobile) {
+			installOptions.innerHTML = `
+			<p class="text-gray-600 text-sm mt-4">📱 Please open this page on your mobile device to install RecycleRight CA!</p>
+		  `;
+		}
 	</script>
 
 	<style>
