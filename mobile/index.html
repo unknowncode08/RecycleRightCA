@@ -481,21 +481,14 @@
         return;
       }
 
-      if (!itemDoc.exists) {
-        await collectionRef.set({
+      if (!itemSnapshot.exists) {
+        await itemDoc.set({
           name,
           type,
           image: imageData,
           timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
       }
-
-      await itemDoc.set({
-        name: itemName,
-        type: type, // rec, nrec, crv
-        image: 'data:image/jpeg;base64,' + base64img,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-      });
     }
 
     async function loadCollection() {
