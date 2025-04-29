@@ -141,6 +141,8 @@
 		const installOptions = document.getElementById('installOptions');
 		let deferredPrompt;
 
+		console.log("Android: " + isAndroid + " | IOS: " + isIOS);
+
 		if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
 			window.location.replace(BASE + 'mobile/');
 		}
@@ -157,21 +159,26 @@
 
 		function showInstallButton() {
 			installOptions.innerHTML = `
-			<button id="installBtn"
+			<button onclick="installApp()"
 			  class="px-6 py-3 bg-green-600 text-white rounded shadow hover:bg-green-700 transition text-lg">
 			  📥 Install RecycleRight CA
 			</button>
 		  `;
-			document.getElementById('installBtn').addEventListener('click', async () => {
-				if (deferredPrompt) {
-					deferredPrompt.prompt();
-					const { outcome } = await deferredPrompt.userChoice;
-					if (outcome === 'accepted') {
-						document.getElementById('installBtn').textContent = '✅ Installed!';
-					}
-					deferredPrompt = null;
+		}
+
+		async function installApp() {
+			if (deferredPrompt) {
+				deferredPrompt.prompt();
+				const { outcome } = await deferredPrompt.userChoice;
+				if (outcome === 'accepted') {
+					document.getElementById('installBtn').textContent = '✅ Installed!';
 				}
-			});
+				deferredPrompt = null;
+			}
+		}
+
+		if (isAndroid) {
+			showInstallButton();
 		}
 
 		if (isIOS) {
