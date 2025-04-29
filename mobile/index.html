@@ -76,7 +76,20 @@
         style="margin: 0;">
       </section>
     </section>
-    <div id="camera" class="hidden p-4 text-center animate-fade-in"></div>
+    <div id="camera" class="fixed inset-0 bg-black bg-opacity-90 hidden z-50 flex flex-col">
+      <video id="videoPreview" autoplay playsinline class="flex-1 object-cover w-full"></video>
+
+      <!-- Close Button -->
+      <button id="closeCamera" class="absolute top-4 right-4 text-white text-3xl font-bold z-10">
+        &times;
+      </button>
+
+      <!-- Capture Button -->
+      <div class="w-full flex justify-center pb-10 pt-4">
+        <button id="snapBtn"
+          class="w-20 h-20 rounded-full bg-green-500 hover:bg-green-600 border-4 border-white shadow-xl"></button>
+      </div>
+    </div>
     <div id="loadingSpinner" class="hidden text-center p-4 animate-pulse">
       <p>🔍 Analyzing image...</p>
     </div>
@@ -642,39 +655,41 @@
     const loadingSpinner = document.getElementById('loadingSpinner');
 
     document.getElementById('scanBtn').addEventListener('click', async () => {
-      resultDiv.classList.add('hidden');
-      cameraDiv.innerHTML = '';
+      const cameraDiv = document.getElementById('camera');
+      const video = document.getElementById('videoPreview');
+      const snapBtn = document.getElementById('snapBtn');
+
       cameraDiv.classList.remove('hidden');
 
-      const video = document.createElement('video');
-      video.setAttribute('autoplay', '');
-      video.setAttribute('playsinline', '');
-      video.className = 'rounded shadow-md';
-      video.style.width = '100%';
-      cameraDiv.appendChild(video);
-
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
       video.srcObject = stream;
 
-      const snapBtn = document.createElement('button');
-      snapBtn.textContent = '📸 Take Photo';
-      snapBtn.className = 'mt-4 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700';
-      cameraDiv.appendChild(snapBtn);
-
-      snapBtn.addEventListener('click', async () => {
+      snapBtn.onclick = async () => {
         const canvas = document.createElement('canvas');
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
         canvas.getContext('2d').drawImage(video, 0, 0);
 
         stream.getTracks().forEach(track => track.stop());
+        video.srcObject = null;
         cameraDiv.classList.add('hidden');
         loadingSpinner.classList.remove('hidden');
 
         const base64 = canvas.toDataURL('image/jpeg').split(',')[1];
-        capturedBase64 = base64; // <-- new
         sendToGemini(base64);
-      });
+      };
+    });
+
+    document.getElementById('closeCamera').addEventListener('click', () => {
+      const cameraDiv = document.getElementById('camera');
+      const video = document.getElementById('videoPreview');
+
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        stream = null;
+      }
+      video.srcObject = null;
+      cameraDiv.classList.add('hidden');
     });
 
     async function sendToGemini(base64img) {
