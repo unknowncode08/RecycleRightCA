@@ -467,17 +467,33 @@
     switchTab('main');
 
     async function addToCollection(userId, name, type, imageData) {
-      const itemRef = db.collection('users').doc(userId).collection('collection').doc(name);
+      const user = auth.currentUser;
+      if (!user) return;
 
-      const doc = await itemRef.get();
-      if (!doc.exists) {
-        await itemRef.set({
+      const collectionRef = db.collection('users').doc(user.uid).collection('collection');
+      const itemDoc = collectionRef.doc(itemName);
+
+      const itemSnapshot = await itemDoc.get();
+      if (itemSnapshot.exists) {
+        console.log("Item already exists in collection, not saving again.");
+        return;
+      }
+
+      if (!itemDoc.exists) {
+        await collectionRef.set({
           name,
           type,
           image: imageData,
           timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
       }
+
+      await itemDoc.set({
+        name: itemName,
+        type: type, // rec, nrec, crv
+        image: 'data:image/jpeg;base64,' + base64img,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
     }
 
     async function loadCollection() {
