@@ -80,11 +80,6 @@
           <span class="material-icons-outlined">photo_camera</span>
           Snap Item
         </button>
-        <button id="quickMapBtn"
-          class="w-full flex items-center justify-center gap-2 px-6 py-4 bg-blue-600 text-white rounded-xl shadow hover:bg-blue-700 transition-all text-lg">
-          <span class="material-icons-outlined">map</span>
-          Nearest Buy-Back Center
-        </button>
       </div>
       <section id="result" class="hidden w-full max-w-md mx-auto bg-white p-4 rounded-lg shadow animate-fade-in"
         style="margin: 0;">
@@ -117,15 +112,6 @@
     <section id="page-profile" class="hidden p-6 space-y-4">
       <h2 class="text-xl font-bold">Profile</h2>
       <div id="profileContent" class="bg-white p-4 rounded-lg shadow text-center space-y-2"></div>
-      <div id="achievements" class="space-y-2">
-        <h3 class="text-lg font-semibold mt-6">Achievements</h3>
-        <ul class="list-disc list-inside text-gray-700">
-          <li>🔥 7-Day Streak</li>
-          <li>♻️ 50 Scans</li>
-          <li>💵 10 CRV Items</li>
-          <!-- Add logic to unlock dynamically in JS -->
-        </ul>
-      </div>
     </section>
     <section id="page-settings" class="hidden p-6 space-y-4">
       <h2 class="text-xl font-bold">Settings</h2>
@@ -275,14 +261,6 @@
         </button>
       </div>
     `;
-        document.getElementById('achievements').innerHTML = `
-  <h3 class="text-lg font-semibold mt-6">Achievements</h3>
-  <ul class="list-disc list-inside text-gray-700">
-    ${streakData.current >= 7 ? '<li>🔥 7-Day Streak</li>' : ''}
-    ${streakData.totalScans >= 50 ? '<li>♻️ 50 Scans</li>' : ''}
-    ${streakData.crvScans >= 10 ? '<li>💵 10 CRV Items</li>' : ''}
-  </ul>
-`;
 
         if (!streakData.freeze) {
           document.getElementById('freezeSection').innerHTML = `
@@ -301,14 +279,6 @@
       </div>
     `;
         const today = new Date().toISOString().split('T')[0];
-        const challengeCompleted = localStorage.getItem('daily_challenge') === today;
-
-        profileContent.innerHTML += `
-  <div class="mt-4 bg-yellow-100 border-l-4 border-yellow-500 p-4 text-yellow-700">
-    <p><strong>Daily Challenge:</strong> Recycle one item today</p>
-    ${challengeCompleted ? '<p class="text-green-600 mt-1">✅ Completed!</p>' : '<p class="mt-1">❌ Not yet completed</p>'}
-  </div>
-`;
       }
     }
 
@@ -815,7 +785,6 @@
           await updateStreak(user.uid);
           await addPointsToUser(user.uid);
           await addToCollection(user.uid, material, 'rec', `data:image/jpeg;base64,${capturedBase64}`);
-          localStorage.setItem('daily_challenge', today);
         }
         refreshProfile();
       } else if (text.startsWith('[NON-R')) {
@@ -832,7 +801,6 @@
         if (user) {
           await updateStreak(user.uid);
           await addToCollection(user.uid, item, 'nrec', `data:image/jpeg;base64,${capturedBase64}`);
-          localStorage.setItem('daily_challenge', today);
         }
         refreshProfile();
       } else if (text.startsWith('[CRV')) {
@@ -854,7 +822,6 @@
           await updateStreak(user.uid);
           await addPointsToUser(user.uid);
           await addToCollection(user.uid, itemName, 'crv', `data:image/jpeg;base64,${capturedBase64}`);
-          localStorage.setItem('daily_challenge', today);
         }
         refreshProfile();
       } else {
