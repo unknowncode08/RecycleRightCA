@@ -739,6 +739,7 @@ document.getElementById('authMainBtn').onclick = () => {
             }
             );
             document.getElementById('authPopup').classList.add('hidden');
+            scheduleDailyReminder();
             refreshProfile();
 
         }
@@ -761,6 +762,7 @@ document.getElementById('authMainBtn').onclick = () => {
             }
             );
             document.getElementById('authPopup').classList.add('hidden');
+            scheduleDailyReminder();
             refreshProfile();
 
         }
@@ -774,8 +776,8 @@ document.getElementById('googleBtn').onclick = async () => {
     try {
         await auth.signInWithPopup(provider);
         document.getElementById('authPopup').classList.add('hidden');
+        scheduleDailyReminder();
         refreshProfile();
-
     }
     catch (error) {
         console.error('Google Sign-in error:', error.message);
@@ -819,3 +821,45 @@ darkModeToggle.addEventListener('change', () => {
 }
 );
 
+function scheduleDailyReminder() {
+    const now = new Date();
+    const targetHour = 18; // 6:00 PM daily
+    const targetMinute = 0;
+
+    const target = new Date();
+    target.setHours(targetHour, targetMinute, 0, 0);
+
+    if (target < now) {
+        target.setDate(target.getDate() + 1); // schedule for tomorrow if already past
+    }
+
+    const delay = target - now;
+    console.log(`Next notification in ${(delay / 1000 / 60).toFixed(1)} minutes.`);
+
+    setTimeout(() => {
+        sendRecycleReminder();
+        setInterval(sendRecycleReminder, 24 * 60 * 60 * 1000); // daily from then on
+    }, delay);
+}
+
+function sendRecycleReminder() {
+    if (Notification.permission === 'granted') {
+        new Notification('♻️ Reminder', {
+            body: 'Don’t forget to recycle something today!',
+            icon: '../icons/icon-192.png'
+        });
+    }
+}
+
+window.addEventListener('load', () => {
+    if ('Notification' in window && Notification.permission !== 'granted') {
+        Notification.requestPermission().then(permission => {
+            if (permission === 'granted') {
+                console.log('🔔 Notifications enabled!');
+                scheduleDailyReminder();
+            }
+        });
+    } else if (Notification.permission === 'granted') {
+        scheduleDailyReminder(); // Already granted
+    }
+});
