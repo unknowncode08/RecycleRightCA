@@ -1,23 +1,24 @@
 <!DOCTYPE html>
 <html class="h-full" lang="en">
- <head>
-  <meta charset="utf-8"/>
-  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
   <title>
-   RecycleRight CA
+    RecycleRight CA
   </title>
   <!-- TailwindCSS 3 CDN -->
   <script src="https://cdn.tailwindcss.com">
   </script>
-  <link href="styles.css" rel="stylesheet"/>
-  <meta content="#16a34a" name="theme-color"/>
+  <link href="styles.css" rel="stylesheet" />
+  <meta content="#16a34a" name="theme-color" />
   <!-- Fonts & Icons -->
-  <link href="https://fonts.googleapis.com" rel="preconnect"/>
-  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com" rel="preconnect" />
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
   <!-- Leaflet -->
-  <link href="https://unpkg.com/leaflet/dist/leaflet.css" rel="stylesheet"/>
+  <link href="https://unpkg.com/leaflet/dist/leaflet.css" rel="stylesheet" />
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js">
   </script>
@@ -25,225 +26,237 @@
   </script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js">
   </script>
- </head>
- <body class="h-full flex flex-col">
+</head>
+
+<body class="h-full flex flex-col">
   <!-- ----------  HEADER  ---------- -->
   <header class="relative z-20 shadow-sm">
-   <div class="h-16 bg-gradient-to-br from-green-600 to-emerald-500 flex items-center justify-center text-white">
-    <h1 class="text-2xl font-semibold tracking-tight animate-fade flex items-center gap-2">
-     <span class="material-icons-outlined text-3xl">
-      recycling
-     </span>
-     RecycleRight CA
-    </h1>
-   </div>
+    <div class="h-16 bg-gradient-to-br from-green-600 to-emerald-500 flex items-center justify-center text-white">
+      <h1 class="text-2xl font-semibold tracking-tight animate-fade flex items-center gap-2">
+        <span class="material-icons-outlined text-3xl">
+          recycling
+        </span>
+        RecycleRight CA
+      </h1>
+    </div>
   </header>
   <!-- ----------  MAIN PAGES CONTAINER  ---------- -->
   <main class="flex-1 overflow-y-auto pb-20" id="pages">
-   <!-- bottom padding so nav doesn't overlap -->
-   <!-- Home  -->
-   <section class="p-6 space-y-6 max-w-lg mx-auto animate-fade" id="page-main">
-    <div class="text-center space-y-2">
-     <h2 class="text-2xl font-bold">
-      Your Pocket Recycling Coach
-     </h2>
-     <p class="text-muted">
-      Snap a product and instantly learn the best way to dispose of it.
-     </p>
-    </div>
-    <div class="w-full space-y-4 flex flex-col items-center">
-     <button class="relative ripple w-full max-w-xs flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-br from-green-500 to-emerald-600 text-white rounded-2xl shadow-lg hover:from-green-600 hover:to-emerald-700 transition-all text-lg font-medium" id="scanBtn">
-      <span class="material-icons-outlined">
-       photo_camera
-      </span>
-      Snap Item
-     </button>
-    </div>
-    <section class="hidden w-full bg-card rounded-2xl shadow-lg animate-pop" id="result">
+    <!-- bottom padding so nav doesn't overlap -->
+    <!-- Home  -->
+    <section class="p-6 space-y-6 max-w-lg mx-auto animate-fade" id="page-main">
+      <div class="text-center space-y-2">
+        <h2 class="text-2xl font-bold">
+          Your Pocket Recycling Coach
+        </h2>
+        <p class="text-muted">
+          Snap a product and instantly learn the best way to dispose of it.
+        </p>
+      </div>
+      <div class="w-full space-y-4 flex flex-col items-center">
+        <button
+          class="relative ripple w-full max-w-xs flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-br from-green-500 to-emerald-600 text-white rounded-2xl shadow-lg hover:from-green-600 hover:to-emerald-700 transition-all text-lg font-medium"
+          id="scanBtn">
+          <span class="material-icons-outlined">
+            photo_camera
+          </span>
+          Snap Item
+        </button>
+      </div>
+      <section class="hidden w-full bg-card rounded-2xl shadow-lg animate-pop" id="result">
+      </section>
     </section>
-   </section>
-   <!-- Camera Overlay  -->
-   <div class="fixed inset-0 bg-black/90 hidden z-50 flex flex-col" id="camera">
-    <video autoplay="" class="flex-1 object-cover w-full" id="videoPreview" playsinline="">
-    </video>
-    <!-- Close -->
-    <button class="absolute top-4 right-4 text-white/80 text-4xl font-bold" id="closeCamera">
-     ×
-    </button>
-    <!-- Capture -->
-    <div class="w-full flex justify-center pb-10 pt-4">
-     <button class="w-20 h-20 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 border-4 border-white shadow-xl hover:scale-105 transition-transform" id="snapBtn">
-     </button>
+    <!-- Camera Overlay  -->
+    <div class="fixed inset-0 bg-black/90 hidden z-50 flex flex-col" id="camera">
+      <video autoplay="" class="flex-1 object-cover w-full" id="videoPreview" playsinline="">
+      </video>
+      <!-- Close -->
+      <button class="absolute top-4 right-4 text-white/80 text-4xl font-bold" id="closeCamera">
+        ×
+      </button>
+      <!-- Capture -->
+      <div class="w-full flex justify-center pb-10 pt-4">
+        <button
+          class="w-20 h-20 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 border-4 border-white shadow-xl hover:scale-105 transition-transform"
+          id="snapBtn">
+        </button>
+      </div>
     </div>
-   </div>
-   <div class="hidden text-center p-6 animate-fade" id="loadingSpinner">
-    <p class="text-lg">
-     🔍 Analyzing image…
-    </p>
-   </div>
-   <!-- Map -->
-   <section class="hidden p-0" id="page-map">
-    <div class="w-full" id="map" style="height: calc(100vh - 112px);">
+    <div class="hidden text-center p-6 animate-fade" id="loadingSpinner">
+      <p class="text-lg">
+        🔍 Analyzing image…
+      </p>
     </div>
-   </section>
-   <!-- Collection -->
-   <section class="hidden p-6 space-y-6 max-w-xl mx-auto" id="page-collection">
-    <h2 class="text-xl font-bold text-center">
-     My Collection
-    </h2>
-    <div class="grid gap-4" id="collectionList">
-    </div>
-   </section>
-   <!-- Profile -->
-   <section class="hidden p-6 space-y-6 max-w-xl mx-auto" id="page-profile">
-    <h2 class="text-xl font-bold">
-     Profile
-    </h2>
-    <div class="bg-card p-6 rounded-2xl shadow-lg text-center space-y-4" id="profileContent">
-    </div>
-   </section>
-   <!-- Settings -->
-   <section class="hidden p-6 space-y-6 max-w-xl mx-auto" id="page-settings">
-    <h2 class="text-xl font-bold">
-     Settings
-    </h2>
-    <div class="flex items-center justify-between bg-card px-4 py-3 rounded-xl shadow">
-     <label class="text-lg font-medium flex items-center gap-2" for="darkModeToggle">
-      <span class="material-icons-outlined">
-       dark_mode
-      </span>
-      Dark Mode
-     </label>
-     <input class="w-5 h-5" id="darkModeToggle" type="checkbox"/>
-    </div>
-   </section>
+    <!-- Map -->
+    <section class="hidden p-0" id="page-map">
+      <div class="w-full" id="map" style="height: calc(100vh - 112px);">
+      </div>
+    </section>
+    <!-- Collection -->
+    <section class="hidden p-6 space-y-6 max-w-xl mx-auto" id="page-collection">
+      <h2 class="text-xl font-bold text-center">
+        My Collection
+      </h2>
+      <div class="grid gap-4" id="collectionList">
+      </div>
+    </section>
+    <!-- Profile -->
+    <section class="hidden p-6 space-y-6 max-w-xl mx-auto" id="page-profile">
+      <h2 class="text-xl font-bold">
+        Profile
+      </h2>
+      <div class="bg-card p-6 rounded-2xl shadow-lg text-center space-y-4" id="profileContent">
+      </div>
+    </section>
+    <!-- Settings -->
+    <section class="hidden p-6 space-y-6 max-w-xl mx-auto" id="page-settings">
+      <h2 class="text-xl font-bold">
+        Settings
+      </h2>
+      <div class="flex items-center justify-between bg-card px-4 py-3 rounded-xl shadow">
+        <label class="text-lg font-medium flex items-center gap-2" for="darkModeToggle">
+          <span class="material-icons-outlined">
+            dark_mode
+          </span>
+          Dark Mode
+        </label>
+        <input class="w-5 h-5" id="darkModeToggle" type="checkbox" />
+      </div>
+    </section>
   </main>
   <!-- ----------  BOTTOM NAV  ---------- -->
-  <nav class="fixed bottom-0 inset-x-0 h-16 bg-white/80 backdrop-blur border-t border-gray-200 shadow-inner flex justify-around items-center text-sm z-30">
-   <button class="tab flex flex-col items-center text-green-600 gap-0.5" data-tab="main">
-    <span class="material-icons-outlined text-2xl">
-     home
-    </span>
-    <span>
-     Main
-    </span>
-   </button>
-   <button class="tab flex flex-col items-center text-gray-500 gap-0.5" data-tab="map">
-    <span class="material-icons-outlined text-2xl">
-     map
-    </span>
-    <span>
-     Map
-    </span>
-   </button>
-   <button class="tab flex flex-col items-center text-gray-500 gap-0.5" data-tab="collection">
-    <span class="material-icons-outlined text-2xl">
-     collections
-    </span>
-    <span>
-     Collection
-    </span>
-   </button>
-   <button class="tab flex flex-col items-center text-gray-500 gap-0.5" data-tab="profile">
-    <span class="material-icons-outlined text-2xl">
-     person
-    </span>
-    <span>
-     Profile
-    </span>
-   </button>
-   <button class="tab flex flex-col items-center text-gray-500 gap-0.5" data-tab="settings">
-    <span class="material-icons-outlined text-2xl">
-     settings
-    </span>
-    <span>
-     Settings
-    </span>
-   </button>
+  <nav
+    class="fixed bottom-0 inset-x-0 h-16 bg-white/80 backdrop-blur border-t border-gray-200 shadow-inner flex justify-around items-center text-sm z-30">
+    <button class="tab flex flex-col items-center text-green-600 gap-0.5" data-tab="main">
+      <span class="material-icons-outlined text-2xl">
+        home
+      </span>
+      <span>
+        Main
+      </span>
+    </button>
+    <button class="tab flex flex-col items-center text-gray-500 gap-0.5" data-tab="map">
+      <span class="material-icons-outlined text-2xl">
+        map
+      </span>
+      <span>
+        Map
+      </span>
+    </button>
+    <button class="tab flex flex-col items-center text-gray-500 gap-0.5" data-tab="collection">
+      <span class="material-icons-outlined text-2xl">
+        collections
+      </span>
+      <span>
+        Collection
+      </span>
+    </button>
+    <button class="tab flex flex-col items-center text-gray-500 gap-0.5" data-tab="profile">
+      <span class="material-icons-outlined text-2xl">
+        person
+      </span>
+      <span>
+        Profile
+      </span>
+    </button>
+    <button class="tab flex flex-col items-center text-gray-500 gap-0.5" data-tab="settings">
+      <span class="material-icons-outlined text-2xl">
+        settings
+      </span>
+      <span>
+        Settings
+      </span>
+    </button>
   </nav>
   <!-- ----------  MODALS  ---------- -->
   <!-- Sign‑in gate (nickname) -->
   <div class="fixed inset-0 bg-black/40 flex items-center justify-center hidden z-50" id="signinModal">
-   <div class="bg-card rounded-2xl shadow-xl w-80 p-6 space-y-4 text-center animate-pop">
-    <h3 class="text-lg font-semibold">
-     Sign In
-    </h3>
-    <p class="text-sm text-muted">
-     Sign in to save history, earn points, and rise in rank.
-    </p>
-    <input class="w-full border border-gray-300 rounded p-2" id="usernameInput" placeholder="Enter a nickname"/>
-    <button class="w-full px-4 py-2 bg-gradient-to-br from-green-500 to-emerald-600 text-white rounded-md hover:to-emerald-700" id="signinConfirm">
-     Continue
-    </button>
-    <button class="w-full px-4 py-2 text-sm text-muted" id="signinCancel">
-     Maybe later
-    </button>
-   </div>
+    <div class="bg-card rounded-2xl shadow-xl w-80 p-6 space-y-4 text-center animate-pop">
+      <h3 class="text-lg font-semibold">
+        Sign In
+      </h3>
+      <p class="text-sm text-muted">
+        Sign in to save history, earn points, and rise in rank.
+      </p>
+      <input class="w-full border border-gray-300 rounded p-2" id="usernameInput" placeholder="Enter a nickname" />
+      <button
+        class="w-full px-4 py-2 bg-gradient-to-br from-green-500 to-emerald-600 text-white rounded-md hover:to-emerald-700"
+        id="signinConfirm">
+        Continue
+      </button>
+      <button class="w-full px-4 py-2 text-sm text-muted" id="signinCancel">
+        Maybe later
+      </button>
+    </div>
   </div>
   <!-- Auth (email/pass & google) -->
   <div class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50" id="authPopup">
-   <div class="bg-card rounded-2xl shadow-xl p-6 w-80 animate-pop relative text-center">
-    <button class="absolute top-2 right-2 text-muted hover:text-gray-700 text-2xl" id="closeAuth">
-     ×
-    </button>
-    <h2 class="text-xl font-bold mb-4" id="authTitle">
-     Sign In
-    </h2>
-    <input class="w-full mb-3 p-2 border rounded" id="emailInput" placeholder="Email" type="email"/>
-    <input class="w-full mb-4 p-2 border rounded" id="passwordInput" placeholder="Password" type="password"/>
-    <button class="w-full mb-3 px-4 py-2 bg-gradient-to-br from-green-500 to-emerald-600 text-white rounded hover:to-emerald-700" id="authMainBtn">
-     Login
-    </button>
-    <button class="w-full px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 flex items-center justify-center gap-2" id="googleBtn">
-     <span class="material-icons-outlined">
-      google
-     </span>
-     Google
-    </button>
-    <p class="text-sm mt-4 text-blue-600 cursor-pointer underline" id="switchAuthMode">
-     Signup
-    </p>
-   </div>
+    <div class="bg-card rounded-2xl shadow-xl p-6 w-80 animate-pop relative text-center">
+      <button class="absolute top-2 right-2 text-muted hover:text-gray-700 text-2xl" id="closeAuth">
+        ×
+      </button>
+      <h2 class="text-xl font-bold mb-4" id="authTitle">
+        Sign In
+      </h2>
+      <input class="w-full mb-3 p-2 border rounded" id="emailInput" placeholder="Email" type="email" />
+      <input class="w-full mb-4 p-2 border rounded" id="passwordInput" placeholder="Password" type="password" />
+      <button
+        class="w-full mb-3 px-4 py-2 bg-gradient-to-br from-green-500 to-emerald-600 text-white rounded hover:to-emerald-700"
+        id="authMainBtn">
+        Login
+      </button>
+      <button
+        class="w-full px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 flex items-center justify-center gap-2"
+        id="googleBtn">
+        <span class="material-icons-outlined">
+          google
+        </span>
+        Google
+      </button>
+      <p class="text-sm mt-4 text-blue-600 cursor-pointer underline" id="switchAuthMode">
+        Signup
+      </p>
+    </div>
   </div>
   <!-- How/Why & Collection Popups (same IDs kept) -->
   <div class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50" id="howToPopup">
-   <div class="bg-card rounded-2xl shadow-xl p-6 w-80 text-center animate-pop relative">
-    <button class="absolute top-2 right-2 text-muted hover:text-gray-700 text-2xl" id="closeHowTo">
-     ×
-    </button>
-    <h2 class="text-xl font-bold text-blue-700 mb-4">
-     How To Recycle
-    </h2>
-    <p class="text-muted" id="howToText">
-    </p>
-   </div>
+    <div class="bg-card rounded-2xl shadow-xl p-6 w-80 text-center animate-pop relative">
+      <button class="absolute top-2 right-2 text-muted hover:text-gray-700 text-2xl" id="closeHowTo">
+        ×
+      </button>
+      <h2 class="text-xl font-bold text-blue-700 mb-4">
+        How To Recycle
+      </h2>
+      <p class="text-muted" id="howToText">
+      </p>
+    </div>
   </div>
   <div class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50" id="whyPopup">
-   <div class="bg-card rounded-2xl shadow-xl p-6 w-80 text-center animate-pop relative">
-    <button class="absolute top-2 right-2 text-muted hover:text-gray-700 text-2xl" id="closeWhy">
-     ×
-    </button>
-    <h2 class="text-xl font-bold text-green-700 mb-4">
-     Why?
-    </h2>
-    <p class="text-muted" id="whyText">
-    </p>
-   </div>
+    <div class="bg-card rounded-2xl shadow-xl p-6 w-80 text-center animate-pop relative">
+      <button class="absolute top-2 right-2 text-muted hover:text-gray-700 text-2xl" id="closeWhy">
+        ×
+      </button>
+      <h2 class="text-xl font-bold text-green-700 mb-4">
+        Why?
+      </h2>
+      <p class="text-muted" id="whyText">
+      </p>
+    </div>
   </div>
   <div class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50" id="collectionPopup">
-   <div class="bg-card rounded-2xl shadow-xl p-6 w-80 text-center animate-pop relative">
-    <button class="absolute top-2 right-2 text-muted hover:text-gray-700 text-2xl" id="closeCollectionPopup">
-     ×
-    </button>
-    <img class="w-32 h-32 rounded-full mx-auto mb-4 object-cover shadow" id="popupImage"/>
-    <h2 class="text-xl font-bold mb-1" id="popupName">
-    </h2>
-    <p class="text-muted mb-4" id="popupType">
-    </p>
-    <button class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600" id="deleteItemBtn">
-     Delete from Collection
-    </button>
-   </div>
+    <div class="bg-card rounded-2xl shadow-xl p-6 w-80 text-center animate-pop relative">
+      <button class="absolute top-2 right-2 text-muted hover:text-gray-700 text-2xl" id="closeCollectionPopup">
+        ×
+      </button>
+      <img class="w-32 h-32 rounded-full mx-auto mb-4 object-cover shadow" id="popupImage" />
+      <h2 class="text-xl font-bold mb-1" id="popupName">
+      </h2>
+      <p class="text-muted mb-4" id="popupType">
+      </p>
+      <button class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600" id="deleteItemBtn">
+        Delete from Collection
+      </button>
+    </div>
   </div>
   <!-- ----------  SCRIPTS  ---------- -->
   <script src="https://unpkg.com/leaflet/dist/leaflet.js">
@@ -251,5 +264,6 @@
   <!-- The entire original JS logic is preserved below to maintain functionality -->
   <script src="script.js">
   </script>
- </body>
+</body>
+
 </html>
