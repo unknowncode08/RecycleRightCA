@@ -1,0 +1,99 @@
+/* ----------  Global Styles  ---------- */
+html,
+body {
+  height: 100%;
+  font-family: 'Inter', sans-serif;
+  -webkit-tap-highlight-color: transparent
+}
+
+body {
+  background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 35%, #f0fdf4 100%);
+  color: #1f2937
+}
+
+body.dark {
+  background: #111827;
+  color: white
+}
+
+body.dark .bg-card {
+  background: #1f2937 !important
+}
+
+body.dark .text-muted {
+  color: #9ca3af !important
+}
+
+/* Glass morphic card */
+.bg-card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px)
+}
+
+/* Animations */
+.animate-fade {
+  animation: fadeIn 0.6s ease both
+}
+
+.animate-pop {
+  animation: pop 0.45s ease-out both
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0
+  }
+
+  to {
+    opacity: 1
+  }
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(.85);
+    opacity: 0
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1
+  }
+}
+
+@keyframes bounce {
+
+  0%,
+  100% {
+    transform: translateY(-25%)
+  }
+
+  50% {
+    transform: translateY(0)
+  }
+}
+
+/* Ripple effect for buttons */
+.ripple {
+  position: relative;
+  overflow: hidden
+}
+
+.ripple:after {
+  content: "";
+  position: absolute;
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+  transform: scale(0);
+  opacity: 0;
+  pointer-events: none;
+  animation: ripple 600ms ease-out
+}
+
+@keyframes ripple {
+  to {
+    transform: scale(4);
+    opacity: 0
+  }
+}
