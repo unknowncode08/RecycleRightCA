@@ -67,7 +67,9 @@
           <div id="levelProgress" class="bg-green-500 h-full transition-all duration-500 ease-out" style="width: 0%">
           </div>
         </div>
-        <p id="levelLabel" class="text-center text-sm text-gray-500 mt-1">Level Progress</p>
+        <div class="w-full flex justify-center col-span-2">
+          <p id="levelLabel" class="text-sm text-gray-500 mt-1 text-center"></p>
+        </div>
       </div>
 
       <div class="bg-card rounded-lg p-4 shadow space-y-2">
@@ -116,7 +118,7 @@
     </div>
     <!-- Map -->
     <section class="hidden p-0" id="page-map">
-      <div class="w-full" id="map" style="height: calc(100vh - 112px);">
+      <div class="w-full" id="map" style="height: calc(100vh - 125px);">
       </div>
     </section>
     <!-- Collection -->
@@ -291,6 +293,12 @@
   <!-- The entire original JS logic is preserved below to maintain functionality -->
   <script src="script.js">
   </script>
+  <div id="dashboardLoadingOverlay"
+    class="fixed inset-0 bg-white bg-opacity-80 flex items-center justify-center z-50 hidden">
+    <div class="text-center animate-pulse text-gray-700 text-lg">
+      🔄 Loading dashboard stats...
+    </div>
+  </div>
 </body>
 
 </html>

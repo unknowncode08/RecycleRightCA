@@ -24,7 +24,7 @@ let signupMode = false;
 let capturedBase64;
 
 /* ------------------------------  VERSION CONTROL ------------------------------ */
-const LOCAL_APP_VERSION = "0.0.1.2"; // your current app version
+const LOCAL_APP_VERSION = "0.0.1.3"; // your current app version
 
 function compareVersions(v1, v2) {
     const a = v1.split('.').map(Number);
@@ -317,16 +317,30 @@ function updateLevelProgress(points) {
     const progressBar = document.getElementById('levelProgress');
     const label = document.getElementById('levelLabel');
 
-    let nextLevel = 20;
-    if (points >= 200) nextLevel = 250;
-    else if (points >= 100) nextLevel = 200;
-    else if (points >= 50) nextLevel = 100;
-    else if (points >= 20) nextLevel = 50;
+    let level = 0;
+    let nextLevelPoints = 20;
 
-    const prevLevel = points >= 200 ? 200 : points >= 100 ? 100 : points >= 50 ? 50 : points >= 20 ? 20 : 0;
-    const pct = Math.min(100, Math.floor(((points - prevLevel) / (nextLevel - prevLevel)) * 100));
-    progressBar.style.width = `${pct}%`;
-    label.textContent = `Level Progress: ${pct}% to next level`;
+    if (points >= 200) {
+        level = 4;
+        nextLevelPoints = 250;
+    } else if (points >= 100) {
+        level = 3;
+        nextLevelPoints = 200;
+    } else if (points >= 50) {
+        level = 2;
+        nextLevelPoints = 100;
+    } else if (points >= 20) {
+        level = 1;
+        nextLevelPoints = 50;
+    }
+
+    const prevLevelPoints = [0, 20, 50, 100, 200][level];
+    const progress = points - prevLevelPoints;
+    const required = nextLevelPoints - prevLevelPoints;
+    const percent = Math.min(100, Math.floor((progress / required) * 100));
+
+    if (progressBar) progressBar.style.width = `${percent}%`;
+    if (label) label.textContent = `${percent}% to next level`;
 }
 
 /* ---------------------------  TAB ROUTER --------------------------- */
@@ -626,10 +640,11 @@ function initMap() {
             loadingMessage.innerHTML = '🔄 Loading nearby centers...';
             mapContainer.appendChild(loadingMessage);
             map = L.map('map').setView([lat, lon], 11);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
-            }
-            ).addTo(map);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
+                subdomains: 'abcd',
+                maxZoom: 19
+            }).addTo(map);
             const userIcon = L.icon({
                 iconUrl: 'https://cdn-icons-png.flaticon.com/512/727/727634.png', iconSize: [32, 32], iconAnchor: [16, 32], popupAnchor: [0, -32]
             }
@@ -799,7 +814,7 @@ document.getElementById('authMainBtn').onclick = () => {
             document.getElementById('authPopup').classList.add('hidden');
             scheduleDailyReminder();
             refreshProfile();
-
+            loadDashboardStats();
         }
         ).catch(e => alert('Signup error: ' + e.message));
 
@@ -822,7 +837,7 @@ document.getElementById('authMainBtn').onclick = () => {
             document.getElementById('authPopup').classList.add('hidden');
             scheduleDailyReminder();
             refreshProfile();
-
+            loadDashboardStats();
         }
         ).catch(e => alert('Login error: ' + e.message));
 
@@ -836,6 +851,7 @@ document.getElementById('googleBtn').onclick = async () => {
         document.getElementById('authPopup').classList.add('hidden');
         scheduleDailyReminder();
         refreshProfile();
+        loadDashboardStats();
     }
     catch (error) {
         console.error('Google Sign-in error:', error.message);
@@ -956,6 +972,12 @@ window.addEventListener('load', async () => {
 
 async function loadDashboardStats() {
     const user = auth.currentUser;
+    if (!user) {
+        document.getElementById('dashboardContent').innerHTML = `
+          <p class="text-center text-gray-500">🔒 Sign in to view your dashboard stats and earn points.</p>
+        `;
+        return;
+    }
     if (!user) return;
 
     const snapshot = await db.collection('users').doc(user.uid).collection('collection').get();
@@ -988,3 +1010,10 @@ async function loadDashboardStats() {
 document.querySelector('button[data-tab="main"]').addEventListener('click', () => {
     loadDashboardStats();
 });
+
+let loadFunc = setInterval(() => {
+    if (document.getElementById('page-main') && !document.getElementById('page-main').classList.contains('hidden')) {
+        loadDashboardStats();
+        clearInterval(loadFunc);
+    }
+}, 2000); // refresh every 10 seconds while on main tab  
