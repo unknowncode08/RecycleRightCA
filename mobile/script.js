@@ -24,7 +24,7 @@ let signupMode = false;
 let capturedBase64;
 
 /* ------------------------------  VERSION CONTROL ------------------------------ */
-const LOCAL_APP_VERSION = "0.0.1.3"; // your current app version
+const LOCAL_APP_VERSION = "0.0.1.4"; // your current app version
 
 function compareVersions(v1, v2) {
     const a = v1.split('.').map(Number);
@@ -316,6 +316,8 @@ function animateCount(elementId, endValue, duration = 800) {
 function updateLevelProgress(points) {
     const progressBar = document.getElementById('levelProgress');
     const label = document.getElementById('levelLabel');
+    const labelCount = document.getElementById('levelCountLabel');
+    const perLabel = document.getElementById('percentLabel');
 
     let level = 0;
     let nextLevelPoints = 20;
@@ -339,8 +341,12 @@ function updateLevelProgress(points) {
     const required = nextLevelPoints - prevLevelPoints;
     const percent = Math.min(100, Math.floor((progress / required) * 100));
 
+    console.log('Prev: ' + prevLevelPoints + " | prog: " + progress + " | req: " + required + " | per: " + percent);
+
+    if (perLabel) perLabel.textContent = `${percent}%`;
+    if (labelCount) labelCount.textContent = `Level: ${level}`;
     if (progressBar) progressBar.style.width = `${percent}%`;
-    if (label) label.textContent = `${percent}% to next level`;
+    if (label) label.textContent = `${required} Points to Next Level`;
 }
 
 /* ---------------------------  TAB ROUTER --------------------------- */

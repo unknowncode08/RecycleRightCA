@@ -64,10 +64,16 @@
           <p class="text-2xl font-bold text-blue-600" id="statPoints">--</p>
         </div>
         <div class="col-span-2 bg-gray-200 h-3 rounded-full overflow-hidden shadow-inner">
-          <div id="levelProgress" class="bg-green-500 h-full transition-all duration-500 ease-out" style="width: 0%">
+          <div id="levelProgress" class="bg-green-500 h-full transition-all duration-500 ease-out" style="width: 100%">
           </div>
         </div>
-        <div class="w-full flex justify-center col-span-2">
+        <div class="w-full flex justify-center col-span-2" style="margin-top: 2px; margin-bottom: 2px;">
+          <p id="percentLabel" class="text-sm text-gray-500 text-center" style="margin-top: 2px; margin-bottom: 2px;"></p>
+        </div>
+        <div class="w-full flex justify-center">
+          <p id="levelCountLabel" class="text-sm text-gray-500 mt-1 text-center font-bold"></p>
+        </div>
+        <div class="w-full flex justify-center">
           <p id="levelLabel" class="text-sm text-gray-500 mt-1 text-center"></p>
         </div>
       </div>
