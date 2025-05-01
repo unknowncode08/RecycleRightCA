@@ -24,7 +24,7 @@ let signupMode = false;
 let capturedBase64;
 
 /* ------------------------------  VERSION CONTROL ------------------------------ */
-const LOCAL_APP_VERSION = "0.0.1.1"; // your current app version
+const LOCAL_APP_VERSION = "0.0.1.2"; // your current app version
 
 function compareVersions(v1, v2) {
     const a = v1.split('.').map(Number);
@@ -298,6 +298,36 @@ function showPlusOne() {
 
 }
 
+function animateCount(elementId, endValue, duration = 800) {
+    const el = document.getElementById(elementId);
+    let start = 0;
+    const increment = endValue / (duration / 16);
+    const timer = setInterval(() => {
+        start += increment;
+        if (start >= endValue) {
+            el.textContent = endValue;
+            clearInterval(timer);
+        } else {
+            el.textContent = Math.floor(start);
+        }
+    }, 16);
+}
+
+function updateLevelProgress(points) {
+    const progressBar = document.getElementById('levelProgress');
+    const label = document.getElementById('levelLabel');
+
+    let nextLevel = 20;
+    if (points >= 200) nextLevel = 250;
+    else if (points >= 100) nextLevel = 200;
+    else if (points >= 50) nextLevel = 100;
+    else if (points >= 20) nextLevel = 50;
+
+    const prevLevel = points >= 200 ? 200 : points >= 100 ? 100 : points >= 50 ? 50 : points >= 20 ? 20 : 0;
+    const pct = Math.min(100, Math.floor(((points - prevLevel) / (nextLevel - prevLevel)) * 100));
+    progressBar.style.width = `${pct}%`;
+    label.textContent = `Level Progress: ${pct}% to next level`;
+}
 
 /* ---------------------------  TAB ROUTER --------------------------- */
 function switchTab(tab) {
@@ -922,4 +952,39 @@ window.addEventListener('load', async () => {
     }
 
     document.getElementById('appVersionDisplay').textContent = LOCAL_APP_VERSION;
+});
+
+async function loadDashboardStats() {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const snapshot = await db.collection('users').doc(user.uid).collection('collection').get();
+    let crvCount = 0;
+    let last = null;
+
+    snapshot.forEach(doc => {
+        const data = doc.data();
+        if (data.type === 'crv') crvCount++;
+        if (!last || data.timestamp?.seconds > last.timestamp?.seconds) {
+            last = data;
+        }
+    });
+
+    animateCount('statTotal', snapshot.size);
+    animateCount('statCRV', crvCount);
+    const streakData = await fetchStreak(user.uid);
+    animateCount('statPoints', streakData.pt);
+    updateLevelProgress(streakData.pt);
+
+    const lastDiv = document.getElementById('lastItem');
+    if (last) {
+        lastDiv.innerHTML = `
+        <img src="${last.image}" class="w-12 h-12 rounded inline-block mr-2 object-cover">
+        <span>${last.name} (${last.type.toUpperCase()})</span>
+      `;
+    }
+}
+
+document.querySelector('button[data-tab="main"]').addEventListener('click', () => {
+    loadDashboardStats();
 });
