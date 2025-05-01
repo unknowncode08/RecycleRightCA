@@ -24,7 +24,7 @@ let signupMode = false;
 let capturedBase64;
 
 /* ------------------------------  VERSION CONTROL ------------------------------ */
-const LOCAL_APP_VERSION = "0.0.1"; // your current app version
+const LOCAL_APP_VERSION = "0.0.1.1"; // your current app version
 
 function compareVersions(v1, v2) {
     const a = v1.split('.').map(Number);
@@ -376,6 +376,9 @@ document.getElementById('closeCamera').addEventListener('click', () => {
 /* ---------------------------  GEMINI  --------------------------- */
 async function sendToGemini(base64img) {
     const body = {
+        generationConfig: {
+            temperature: 0.2  // 👈 Makes AI output more stable
+        },
         contents: {
             parts: [{
                 inline_data: {
