@@ -24,6 +24,16 @@ let signupMode = false;
 let capturedBase64;
 
 /* ---------------------------  PROFILE & COLLECTION  --------------------------- */
+function logout() {
+    auth.signOut().then(() => {
+        console.log("User signed out successfully.");
+        window.location.reload();  // Refresh the page to reset the profile UI
+    }).catch((error) => {
+        console.error("Sign out error:", error.message);
+        alert("Failed to sign out: " + error.message);
+    });
+}
+
 async function refreshProfile() {
     const profileContent = document.getElementById('profileContent');
     const user = auth.currentUser;
