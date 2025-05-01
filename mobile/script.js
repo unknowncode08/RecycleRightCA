@@ -726,7 +726,7 @@ document.getElementById('switchAuthMode').onclick = () => {
     document.getElementById('authTitle').textContent = signupMode ? 'Sign Up' : 'Sign In';
     document.getElementById('authMainBtn').textContent = signupMode ? 'Create Account' : 'Login';
     document.getElementById('switchAuthMode').textContent = signupMode ? 'Already have an account? Sign In' : 'Signup';
-
+    document.getElementById('googleBtnText').textContent = signupMode ? 'Sign up with Google' : 'Sign in with Google';
 };
 document.getElementById('authMainBtn').onclick = () => {
     const email = document.getElementById('emailInput').value.trim();
