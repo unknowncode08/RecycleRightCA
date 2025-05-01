@@ -23,6 +23,21 @@ const GEMINI_API_KEY = "AIzaSyCteI1RtEohJ7bMCNcJt3sUdROp_ZlVx4E";
 let signupMode = false;
 let capturedBase64;
 
+/* ------------------------------  VERSION CONTROL ------------------------------ */
+const LOCAL_APP_VERSION = "0.0.1"; // your current app version
+
+function compareVersions(v1, v2) {
+    const a = v1.split('.').map(Number);
+    const b = v2.split('.').map(Number);
+    for (let i = 0; i < Math.max(a.length, b.length); i++) {
+        const num1 = a[i] || 0;
+        const num2 = b[i] || 0;
+        if (num1 > num2) return 1;
+        if (num1 < num2) return -1;
+    }
+    return 0;
+}
+
 /* ---------------------------  PROFILE & COLLECTION  --------------------------- */
 function logout() {
     auth.signOut().then(() => {
@@ -861,7 +876,7 @@ function sendRecycleReminder() {
     }
 }
 
-window.addEventListener('load', () => {
+window.addEventListener('load', async () => {
     if ('Notification' in window && Notification.permission !== 'granted') {
         Notification.requestPermission().then(permission => {
             if (permission === 'granted') {
@@ -872,4 +887,36 @@ window.addEventListener('load', () => {
     } else if (Notification.permission === 'granted') {
         scheduleDailyReminder(); // Already granted
     }
+
+    const metaRef = firebase.firestore().collection('meta').doc('appVersion');
+    const doc = await metaRef.get();
+    let serverVersion = doc.exists ? doc.data().version : null;
+
+    if (serverVersion) {
+        const compare = compareVersions(LOCAL_APP_VERSION, serverVersion);
+
+        if (compare < 0) {
+            // 🔒 Client version is older → block use
+            document.body.innerHTML = `
+        <div class="min-h-screen flex items-center justify-center bg-gray-100 text-center px-4">
+          <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-2xl font-bold mb-4">Update Required</h2>
+            <p class="mb-4">A newer version of the app is available. Please refresh or reinstall to continue.</p>
+            <button onclick="location.reload()" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Refresh</button>
+          </div>
+        </div>
+      `;
+            return;
+        }
+
+        if (compare > 0) {
+            // 🚀 Local version is newer → auto-update Firestore
+            await metaRef.set({ version: LOCAL_APP_VERSION }, { merge: true });
+        }
+    } else {
+        // 🔧 Firestore version doesn't exist → set initial
+        await metaRef.set({ version: LOCAL_APP_VERSION });
+    }
+
+    document.getElementById('appVersionDisplay').textContent = LOCAL_APP_VERSION;
 });
