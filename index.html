@@ -232,6 +232,7 @@
 
 	<!-- ------------------------------------------------ SCRIPT (unchanged) ------------------------------------------------ -->
 	<script>
+		const redirectLink = "RecycleRightCA/mobile/";
 		/* existing JS untouched to keep functionality */
 		const ua = navigator.userAgent;
 		const isIOS = /iPhone|iPad|iPod/i.test(ua); const isAndroid = /Android/i.test(ua); const isMobile = isIOS || isAndroid;
@@ -258,7 +259,7 @@
 				'On the next page, tap the Share icon and choose "Add to Home Screen."'
 			);
 			// keep any query string / hash in case you’re deep‑linking
-			location.replace('/mobile' + location.search + location.hash);
+			location.replace(redirectLink + location.search + location.hash);
 		});
 		function showInstallIfAndroid() { if (/Android/i.test(navigator.userAgent)) { document.getElementById('installBtn').classList.remove('hidden'); } }
 		if (isIOS || isAndroid) { installOptions.innerHTML = '<div class="glass p-4 rounded-2xl text-gray-200 text-sm">Add to Home Screen via the <span class="underline">Share</span> menu for an app‑like experience.</div>'; }
