@@ -227,7 +227,12 @@
 		const isIOS = /iPhone|iPad|iPod/i.test(ua); const isAndroid = /Android/i.test(ua); const isMobile = isIOS || isAndroid;
 		const BASE = location.pathname.replace(/\/[^/]*$/, '/');
 		const installOptions = document.getElementById('installOptions'); let deferredPrompt;
-		if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) { window.location.replace(BASE + 'mobile/'); }
+		const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+		const currentPath = window.location.pathname;
+
+		if (isStandalone && !currentPath.startsWith('/mobile')) {
+			window.location.replace('/mobile/');
+		}
 		if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
 		window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; showInstallIfAndroid(); });
 		function showInstallIfAndroid() { if (/Android/i.test(navigator.userAgent)) { document.getElementById('installBtn').classList.remove('hidden'); } }
