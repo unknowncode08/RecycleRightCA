@@ -24,7 +24,7 @@ let signupMode = false;
 let capturedBase64;
 
 /* ------------------------------  VERSION CONTROL ------------------------------ */
-const LOCAL_APP_VERSION = "0.0.1.4"; // your current app version
+const LOCAL_APP_VERSION = "0.0.1.5"; // your current app version
 
 function compareVersions(v1, v2) {
     const a = v1.split('.').map(Number);
@@ -353,8 +353,11 @@ function updateLevelProgress(points) {
 function switchTab(tab) {
     if (tab !== 'main') {
         document.getElementById('camera').classList.add('hidden');
-
+        document.getElementById('floatingScanBtn').style.display = "none";
+    } else {
+        document.getElementById('floatingScanBtn').style.display = "flex";
     }
+
     if (stream && tab !== 'main') {
         stream.getTracks().forEach(track => track.stop());
         stream = null;
@@ -375,6 +378,10 @@ function switchTab(tab) {
     if (tab === 'collection') refreshCollection();
 
 }
+
+document.getElementById('floatingScanBtn').addEventListener('click', () => {
+    document.getElementById('scanBtn').click();
+});
 
 tabs.forEach(t => t.addEventListener('click', () => switchTab(t.dataset.tab)));
 switchTab('main');
@@ -979,13 +986,39 @@ window.addEventListener('load', async () => {
 async function loadDashboardStats() {
     const user = auth.currentUser;
     if (!user) {
-        document.getElementById('dashboardContent').innerHTML = `
-          <p class="text-center text-gray-500">🔒 Sign in to view your dashboard stats and earn points.</p>
+        document.getElementById('dashboardDiv').innerHTML = `
+          <p class="text-center text-gray-500 col-span-2">🔒 Sign in to view your dashboard stats and earn points.</p>
         `;
         return;
     }
     if (!user) return;
-
+    document.getElementById('dashboardDiv').innerHTML = `
+          <div class="bg-card rounded-lg p-4 text-center shadow">
+          <p class="text-sm text-muted">Total Scanned</p>
+          <p class="text-2xl font-bold text-green-700" id="statTotal">--</p>
+        </div>
+        <div class="bg-card rounded-lg p-4 text-center shadow">
+          <p class="text-sm text-muted">CRV Items</p>
+          <p class="text-2xl font-bold text-yellow-500" id="statCRV">--</p>
+        </div>
+        <div class="bg-card rounded-lg p-4 text-center shadow col-span-2">
+          <p class="text-sm text-muted">Points</p>
+          <p class="text-2xl font-bold text-blue-600" id="statPoints">--</p>
+        </div>
+        <div class="col-span-2 bg-gray-200 h-3 rounded-full overflow-hidden shadow-inner">
+          <div id="levelProgress" class="bg-green-500 h-full transition-all duration-500 ease-out" style="width: 100%">
+          </div>
+        </div>
+        <div class="w-full flex justify-center col-span-2" style="margin-top: 2px; margin-bottom: 2px;">
+          <p id="percentLabel" class="text-sm text-gray-500 text-center" style="margin-top: 2px; margin-bottom: 2px;">
+          </p>
+        </div>
+        <div class="w-full flex justify-center">
+          <p id="levelCountLabel" class="text-sm text-gray-500 mt-1 text-center font-bold"></p>
+        </div>
+        <div class="w-full flex justify-center">
+          <p id="levelLabel" class="text-sm text-gray-500 mt-1 text-center"></p>
+        </div>`;
     const snapshot = await db.collection('users').doc(user.uid).collection('collection').get();
     let crvCount = 0;
     let last = null;
