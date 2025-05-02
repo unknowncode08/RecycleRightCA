@@ -15,6 +15,8 @@
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 	<!-- Material Icons -->
 	<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
+	<!-- in index.html *and* mobile/index.html -->
+	<link rel="manifest" href="/manifest.webmanifest" />
 
 	<style>
 		html,
@@ -89,6 +91,14 @@
 			z-index: 10
 		}
 	</style>
+	<script>
+		if (
+			(window.matchMedia('(display-mode: standalone)').matches || navigator.standalone) &&
+			!location.pathname.startsWith('/mobile')
+		) {
+			location.replace('/mobile/');
+		}
+	</script>
 </head>
 
 <body class="h-full text-gray-200 bg-[#0b1724] overflow-x-hidden">
@@ -224,22 +234,17 @@
 	<script>
 		/* existing JS untouched to keep functionality */
 		const ua = navigator.userAgent;
-		const isIOS = /iPhone|iPad|iPod/i.test(ua);
-		const isAndroid = /Android/i.test(ua);
-		const isMobile = isIOS || isAndroid;
+		const isIOS = /iPhone|iPad|iPod/i.test(ua); const isAndroid = /Android/i.test(ua); const isMobile = isIOS || isAndroid;
 		const BASE = location.pathname.replace(/\/[^/]*$/, '/');
-		const installOptions = document.getElementById('installOptions');
-		let deferredPrompt;
+		const installOptions = document.getElementById('installOptions'); let deferredPrompt;
+		const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+		const currentPath = window.location.pathname;
 
-		console.log("Android: " + isAndroid + " | IOS: " + isIOS);
-
-		if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
-			window.location.replace(BASE + 'mobile/');
+		if (isStandalone && !currentPath.startsWith('/mobile')) {
+			window.location.replace('/mobile/');
 		}
-
-		if ('serviceWorker' in navigator) {
-			navigator.serviceWorker.register('sw.js');
-		}
+		if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
+		window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; showInstallIfAndroid(); });
 		function showInstallIfAndroid() { if (/Android/i.test(navigator.userAgent)) { document.getElementById('installBtn').classList.remove('hidden'); } }
 		document.getElementById('installBtn')?.addEventListener('click', () => { if (!deferredPrompt) return; deferredPrompt.prompt(); deferredPrompt.userChoice.finally(() => { deferredPrompt = null; }); });
 		if (isIOS || isAndroid) { installOptions.innerHTML = '<div class="glass p-4 rounded-2xl text-gray-200 text-sm">Add to Home Screen via the <span class="underline">Share</span> menu for an app‑like experience.</div>'; }
