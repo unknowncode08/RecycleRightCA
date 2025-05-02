@@ -243,6 +243,13 @@
 		if (isStandalone && !currentPath.startsWith('/mobile')) {
 			window.location.replace('/mobile/');
 		}
+
+		if (isMobile) {
+			document.getElementById('installBtn').classList.remove('hidden');
+		} else {
+			document.getElementById('installBtn').classList.add('hidden');
+		}
+
 		if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
 		window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; showInstallIfAndroid(); });
 		document.getElementById('installBtn')?.addEventListener('click', () => {
