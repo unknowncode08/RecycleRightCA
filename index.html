@@ -259,7 +259,7 @@
 				'On the next page, tap the Share icon and choose "Add to Home Screen."'
 			);
 			// keep any query string / hash in case you’re deep‑linking
-			location.replace('/mobile/' + location.search + location.hash);
+			window.location.href = "https://unknowncode08.github.io/RecycleRightCA/mobile/";
 		});
 		function showInstallIfAndroid() { if (/Android/i.test(navigator.userAgent)) { document.getElementById('installBtn').classList.remove('hidden'); } }
 		if (isIOS || isAndroid) { installOptions.innerHTML = '<div class="glass p-4 rounded-2xl text-gray-200 text-sm">Add to Home Screen via the <span class="underline">Share</span> menu for an app‑like experience.</div>'; }
