@@ -121,7 +121,7 @@
 					class="text-emerald-300 font-semibold">where</span> to recycle — plus cash‑back tips for CRV.</p>
 			<div class="flex flex-col xs:flex-row xs:justify-center gap-4 mt-4">
 				<button id="installBtn"
-					class="hidden glossy-btn rounded-full px-8 py-3 backdrop-blur text-gray-900 font-semibold shadow-lg hover:scale-105 transition-transform">
+					class="glossy-btn rounded-full px-8 py-3 backdrop-blur text-gray-900 font-semibold shadow-lg hover:scale-105 transition-transform">
 					<span>Install&nbsp;App</span>
 				</button>
 				<a href="#learn"
@@ -245,8 +245,15 @@
 		}
 		if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
 		window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; showInstallIfAndroid(); });
+		document.getElementById('installBtn')?.addEventListener('click', () => {
+			alert(
+				'Tip: Add RecycleRight CA to your Home Screen for offline use.\n' +
+				'On the next page, tap the Share icon and choose "Add to Home Screen."'
+			);
+			// keep any query string / hash in case you’re deep‑linking
+			location.replace('/mobile' + location.search + location.hash);
+		});
 		function showInstallIfAndroid() { if (/Android/i.test(navigator.userAgent)) { document.getElementById('installBtn').classList.remove('hidden'); } }
-		document.getElementById('installBtn')?.addEventListener('click', () => { if (!deferredPrompt) return; deferredPrompt.prompt(); deferredPrompt.userChoice.finally(() => { deferredPrompt = null; }); });
 		if (isIOS || isAndroid) { installOptions.innerHTML = '<div class="glass p-4 rounded-2xl text-gray-200 text-sm">Add to Home Screen via the <span class="underline">Share</span> menu for an app‑like experience.</div>'; }
 		if (!isMobile) { installOptions.innerHTML = '<p class="text-gray-400 text-sm">Open this page on your phone to install.</p>'; }
 	</script>
