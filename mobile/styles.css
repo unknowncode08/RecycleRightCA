@@ -119,4 +119,9 @@ body.dark .text-muted {
   .minus-icon.selected {
     background-color: #f87171; /* red-400 */
   }
+
+  .collection-item {
+    user-select: none;
+  }
+  
   
