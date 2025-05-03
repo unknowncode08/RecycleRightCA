@@ -76,21 +76,16 @@ async function refreshProfile() {
         if (!streakData.freeze) {
             document.getElementById('freezeSection').innerHTML = `<button onclick="buyStreakFreeze()" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">Buy Streak Freeze (50 pts)</button>`
         }
-
     }
     else {
         profileContent.innerHTML = `<div class="space-y-6 flex flex-col items-center"><p class="text-muted text-lg">You are currently signed out.</p><button onclick="openAuthPopup()" class="px-6 py-2 bg-gradient-to-br from-green-500 to-emerald-600 text-white rounded-md hover:to-emerald-700">Sign In</button></div>`;
 
     }
-
 }
 
 async function addToCollection(userId, name, type, base64img) {
     const collectionRef = db.collection('users').doc(userId).collection('collection');
-
-    // Get all items with the same name
     const snapshot = await collectionRef.where('name', '>=', name).where('name', '<=', name + '\uf8ff').get();
-
     let newName = name;
     let count = 1;
     const nameRegex = new RegExp(`^${name}( \\((\\d+)\\))?$`);
@@ -125,13 +120,11 @@ async function refreshCollection() {
     if (!user) {
         collectionList.innerHTML = '<p class="text-muted text-center w-full">Sign in to view your collection.</p>';
         return;
-
     }
     const snapshot = await db.collection('users').doc(user.uid).collection('collection').orderBy('timestamp', 'desc').get();
     if (snapshot.empty) {
         collectionList.innerHTML = '<p class="text-muted text-center w-full">No items yet. Start scanning!</p>';
         return;
-
     }
     collectionList.innerHTML = '';
     snapshot.forEach(doc => {
@@ -159,7 +152,7 @@ async function refreshCollection() {
             longPressed = true;
             enterMultiSelectMode();
             selectItem(itemDiv);
-          }, 2000); // 2 second long press
+          }, 2000);
         });
         
         itemDiv.addEventListener('mouseup', () => {
@@ -200,9 +193,7 @@ async function refreshCollection() {
             }
           });
         collectionList.appendChild(itemDiv);
-        
     });
-
 }
 document.getElementById('page-collection').addEventListener('click', (e) => {
     if (!isMultiSelectMode) return;
@@ -210,7 +201,6 @@ document.getElementById('page-collection').addEventListener('click', (e) => {
       exitMultiSelectMode();
     }
   });
-
   
   function enterMultiSelectMode() {
     isMultiSelectMode = true;
@@ -235,7 +225,6 @@ document.getElementById('page-collection').addEventListener('click', (e) => {
     document.getElementById('multiDeleteBtn').classList.add('hidden');
   }
   
-  
   function selectItem(itemDiv) {
     const id = itemDiv.dataset.docId;
     if (selectedItems.has(id)) {
@@ -248,7 +237,6 @@ document.getElementById('page-collection').addEventListener('click', (e) => {
       itemDiv.querySelector('.minus-icon').classList.add('selected');
     }
   }
-  
 
 function openCollectionPopup(name, image, type, docId) {
     document.getElementById('popupImage').src = image;
@@ -263,7 +251,6 @@ function openCollectionPopup(name, image, type, docId) {
 
     };
     document.getElementById('collectionPopup').classList.remove('hidden');
-
 }
 
 document.getElementById('closeCollectionPopup').onclick = () => {

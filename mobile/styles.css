@@ -122,6 +122,12 @@ body.dark .text-muted {
 
   .collection-item {
     user-select: none;
+    .collection-item {
+        user-select: none;
+        -webkit-user-select: none;     /* Safari */
+        -ms-user-select: none;         /* IE/Edge */
+        -webkit-touch-callout: none;   /* iOS Safari */
+      }
   }
   
   
