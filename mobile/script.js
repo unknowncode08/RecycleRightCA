@@ -27,6 +27,7 @@ let selectionMode = false;
 let holdTimeout = null;
 let longPressTimer;
 let isMultiSelectMode = false;
+let suppressNextClick = false;
 const selectedItems = new Set();
 
 /* ------------------------------  VERSION CONTROL ------------------------------ */
@@ -172,25 +173,32 @@ async function refreshCollection() {
         itemDiv.addEventListener('touchstart', () => {
             longPressed = false;
             longPressTimer = setTimeout(() => {
-                longPressed = true;
-                enterMultiSelectMode();
-                selectItem(itemDiv);
-            }, 2000);
-        }, { passive: true});
-
-        
-        
-        // This stays below to decide what happens on click
-        itemDiv.addEventListener('click', () => {
-          if (longPressed) return; // Prevent click after long press
-          if (isMultiSelectMode) {
-            selectItem(itemDiv);
-          } else {
-            openCollectionPopup(data.name, data.image, data.type, doc.id);
-          }
+              longPressed = true;
+              suppressNextClick = true;
+              enterMultiSelectMode();
+              selectItem(itemDiv);
+              if (navigator.vibrate) navigator.vibrate(10);
+            }, 800);
+          }, { passive: true });
+          
+        itemDiv.addEventListener('touchend', () => {
+        clearTimeout(longPressTimer);
+        setTimeout(() => suppressNextClick = false, 100);
         });
         
-        
+        itemDiv.addEventListener('touchcancel', () => {
+        clearTimeout(longPressTimer);
+        });
+
+        itemDiv.addEventListener('click', () => {
+            if (longPressed || suppressNextClick) return;
+          
+            if (isMultiSelectMode) {
+              selectItem(itemDiv);
+            } else {
+              openCollectionPopup(data.name, data.image, data.type, doc.id);
+            }
+          });
         collectionList.appendChild(itemDiv);
         
     });
