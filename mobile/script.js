@@ -168,6 +168,17 @@ async function refreshCollection() {
         itemDiv.addEventListener('mouseleave', () => {
           clearTimeout(longPressTimer);
         });
+
+        itemDiv.addEventListener('touchstart', () => {
+            longPressed = false;
+            longPressTimer = setTimeout(() => {
+                longPressed = true;
+                enterMultiSelectMode();
+                selectItem(itemDiv);
+            }, 2000);
+        }, { passive: true});
+
+        
         
         // This stays below to decide what happens on click
         itemDiv.addEventListener('click', () => {
