@@ -168,10 +168,10 @@ async function refreshCollection() {
             longPressTimer = setTimeout(() => {
               longPressed = true;
               suppressNextClick = true;
+              navigator.vibrate(500, 0.8);
               enterMultiSelectMode();
               selectItem(itemDiv);
             }, 800);
-            if (navigator.vibrate) navigator.vibrate(500, 0.8);
           }, { passive: true });
           
         itemDiv.addEventListener('touchend', () => {
