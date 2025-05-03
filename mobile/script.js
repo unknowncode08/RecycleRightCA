@@ -170,8 +170,8 @@ async function refreshCollection() {
               suppressNextClick = true;
               enterMultiSelectMode();
               selectItem(itemDiv);
-              if (navigator.vibrate) navigator.vibrate(10);
             }, 800);
+            if (navigator.vibrate) navigator.vibrate(50);
           }, { passive: true });
           
         itemDiv.addEventListener('touchend', () => {
