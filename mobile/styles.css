@@ -105,3 +105,18 @@ body.dark .text-muted {
 #floatingScanBtn:hover {
     transform: scale(1.1);
 }
+
+@keyframes shake {
+    0% { transform: rotate(-1deg); }
+    50% { transform: rotate(1deg); }
+    100% { transform: rotate(-1deg); }
+  }
+  
+  .collection-item.shake {
+    animation: shake 0.3s infinite;
+  }
+  
+  .minus-icon.selected {
+    background-color: #f87171; /* red-400 */
+  }
+  

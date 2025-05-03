@@ -23,6 +23,12 @@ const GEMINI_API_KEY = "AIzaSyCteI1RtEohJ7bMCNcJt3sUdROp_ZlVx4E";
 let signupMode = false;
 let capturedBase64;
 
+let selectionMode = false;
+let holdTimeout = null;
+let longPressTimer;
+let isMultiSelectMode = false;
+const selectedItems = new Set();
+
 /* ------------------------------  VERSION CONTROL ------------------------------ */
 const LOCAL_APP_VERSION = "0.0.1.5"; // your current app version
 
@@ -131,15 +137,99 @@ async function refreshCollection() {
         const data = doc.data();
         const emoji = data.type === 'rec' ? '♻️' : data.type === 'nrec' ? '❌' : '💵';
         const itemDiv = document.createElement('div');
-        itemDiv.className = 'bg-card p-4 rounded-xl shadow flex items-center gap-4 cursor-pointer hover:bg-white/90 transition';
-        itemDiv.innerHTML = `<img src="${data.image}" alt="${data.name}" class="w-16 h-16 rounded object-cover shadow"><div><p class="text-lg font-semibold">${data.name}</p><p class="text-muted">${emoji} ${data.type.toUpperCase()}</p></div>`;
-        itemDiv.onclick = () => openCollectionPopup(data.name, data.image, data.type, doc.id);
-        collectionList.appendChild(itemDiv);
+        itemDiv.className = 'collection-item bg-card p-4 rounded-xl shadow flex items-center gap-4 cursor-pointer transition relative';
+        itemDiv.dataset.docId = doc.id;
+        
+        const minusIcon = `<div class="minus-icon absolute top-0 right-0 m-2 hidden text-red-600 text-lg bg-white rounded-full w-6 h-6 flex items-center justify-center shadow">−</div>`;
+        itemDiv.innerHTML = `
+          ${minusIcon}
+          <img src="${data.image}" alt="${data.name}" class="w-16 h-16 rounded object-cover shadow">
+          <div>
+            <p class="text-lg font-semibold">${data.name}</p>
+            <p class="text-muted">${emoji} ${data.type.toUpperCase()}</p>
+          </div>
+        `;
+        
+        let longPressed = false;
 
-    }
-    );
+        itemDiv.addEventListener('mousedown', () => {
+          longPressed = false;
+          longPressTimer = setTimeout(() => {
+            longPressed = true;
+            enterMultiSelectMode();
+            selectItem(itemDiv);
+          }, 2000); // 2 second long press
+        });
+        
+        itemDiv.addEventListener('mouseup', () => {
+          clearTimeout(longPressTimer);
+        });
+        
+        itemDiv.addEventListener('mouseleave', () => {
+          clearTimeout(longPressTimer);
+        });
+        
+        // This stays below to decide what happens on click
+        itemDiv.addEventListener('click', () => {
+          if (longPressed) return; // Prevent click after long press
+          if (isMultiSelectMode) {
+            selectItem(itemDiv);
+          } else {
+            openCollectionPopup(data.name, data.image, data.type, doc.id);
+          }
+        });
+        
+        
+        collectionList.appendChild(itemDiv);
+        
+    });
 
 }
+document.getElementById('page-collection').addEventListener('click', (e) => {
+    if (!isMultiSelectMode) return;
+    if (!e.target.closest('.collection-item')) {
+      exitMultiSelectMode();
+    }
+  });
+
+  
+  function enterMultiSelectMode() {
+    isMultiSelectMode = true;
+    selectedItems.clear();
+  
+    document.querySelectorAll('.collection-item').forEach(item => {
+      item.classList.add('shake');
+      item.querySelector('.minus-icon').classList.remove('hidden');
+    });
+    document.getElementById('multiDeleteBtn').classList.remove('hidden');
+  }
+  
+  function exitMultiSelectMode() {
+    isMultiSelectMode = false;
+    selectedItems.clear();
+  
+    document.querySelectorAll('.collection-item').forEach(item => {
+      item.classList.remove('shake');
+      item.querySelector('.minus-icon').classList.add('hidden');
+      item.classList.remove('bg-blue-100');
+    });
+    document.getElementById('multiDeleteBtn').classList.add('hidden');
+  }
+  
+  
+  function selectItem(itemDiv) {
+    const id = itemDiv.dataset.docId;
+    if (selectedItems.has(id)) {
+      selectedItems.delete(id);
+      itemDiv.classList.remove('bg-blue-100');
+      itemDiv.querySelector('.minus-icon').classList.remove('selected');
+    } else {
+      selectedItems.add(id);
+      itemDiv.classList.add('bg-blue-100');
+      itemDiv.querySelector('.minus-icon').classList.add('selected');
+    }
+  }
+  
 
 function openCollectionPopup(name, image, type, docId) {
     document.getElementById('popupImage').src = image;
@@ -375,8 +465,10 @@ function switchTab(tab) {
     );
     if (tab === 'map' && !mapReady) initMap();
     if (tab === 'profile') refreshProfile();
-    if (tab === 'collection') refreshCollection();
-
+    if (tab === 'collection') {
+        if (isMultiSelectMode) exitMultiSelectMode();
+        refreshCollection();
+    }    
 }
 
 document.getElementById('floatingScanBtn').addEventListener('click', () => {
