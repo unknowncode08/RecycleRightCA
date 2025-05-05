@@ -133,7 +133,7 @@ async function refreshCollection() {
         const itemDiv = document.createElement('div');
         itemDiv.className = 'collection-item bg-card p-4 rounded-xl shadow flex items-center gap-4 cursor-pointer transition relative';
         itemDiv.dataset.docId = doc.id;
-        
+
         const minusIcon = `<div class="minus-icon absolute top-0 right-0 m-2 hidden text-red-600 text-lg bg-white rounded-full w-6 h-6 flex items-center justify-center shadow">−</div>`;
         itemDiv.innerHTML = `
           ${minusIcon}
@@ -143,100 +143,124 @@ async function refreshCollection() {
             <p class="text-muted">${emoji} ${data.type.toUpperCase()}</p>
           </div>
         `;
-        
+
         let longPressed = false;
 
         itemDiv.addEventListener('mousedown', () => {
-          longPressed = false;
-          longPressTimer = setTimeout(() => {
-            longPressed = true;
-            enterMultiSelectMode();
-            selectItem(itemDiv);
-          }, 2000);
+            longPressed = false;
+            longPressTimer = setTimeout(() => {
+                longPressed = true;
+                enterMultiSelectMode();
+                selectItem(itemDiv);
+            }, 2000);
         });
-        
+
         itemDiv.addEventListener('mouseup', () => {
-          clearTimeout(longPressTimer);
+            clearTimeout(longPressTimer);
         });
-        
+
         itemDiv.addEventListener('mouseleave', () => {
-          clearTimeout(longPressTimer);
+            clearTimeout(longPressTimer);
         });
 
         itemDiv.addEventListener('touchstart', () => {
             longPressed = false;
             longPressTimer = setTimeout(() => {
-              longPressed = true;
-              suppressNextClick = true;
-              if (navigator.vibrate) navigator.vibrate(500, 0.8);
-              enterMultiSelectMode();
-              selectItem(itemDiv);
+                longPressed = true;
+                suppressNextClick = true;
+                if (navigator.vibrate) navigator.vibrate(500, 0.8);
+                enterMultiSelectMode();
+                selectItem(itemDiv);
             }, 800);
-          }, { passive: true });
-          
+        }, { passive: true });
+
         itemDiv.addEventListener('touchend', () => {
-        clearTimeout(longPressTimer);
-        setTimeout(() => suppressNextClick = false, 100);
+            clearTimeout(longPressTimer);
+            setTimeout(() => suppressNextClick = false, 100);
         });
-        
+
         itemDiv.addEventListener('touchcancel', () => {
-        clearTimeout(longPressTimer);
+            clearTimeout(longPressTimer);
         });
 
         itemDiv.addEventListener('click', () => {
             if (longPressed || suppressNextClick) return;
-          
+
             if (isMultiSelectMode) {
-              selectItem(itemDiv);
+                selectItem(itemDiv);
             } else {
-              openCollectionPopup(data.name, data.image, data.type, doc.id);
+                openCollectionPopup(data.name, data.image, data.type, doc.id);
             }
-          });
+        });
         collectionList.appendChild(itemDiv);
     });
 }
 document.getElementById('page-collection').addEventListener('click', (e) => {
     if (!isMultiSelectMode) return;
     if (!e.target.closest('.collection-item')) {
-      exitMultiSelectMode();
+        exitMultiSelectMode();
     }
-  });
-  
-  function enterMultiSelectMode() {
+});
+
+function enterMultiSelectMode() {
     isMultiSelectMode = true;
     selectedItems.clear();
-  
+
     document.querySelectorAll('.collection-item').forEach(item => {
-      item.classList.add('shake');
-      item.querySelector('.minus-icon').classList.remove('hidden');
+        item.classList.add('shake');
+        item.querySelector('.minus-icon').classList.remove('hidden');
     });
     document.getElementById('multiDeleteBtn').classList.remove('hidden');
-  }
-  
-  function exitMultiSelectMode() {
+}
+
+function exitMultiSelectMode() {
     isMultiSelectMode = false;
     selectedItems.clear();
-  
+
     document.querySelectorAll('.collection-item').forEach(item => {
-      item.classList.remove('shake');
-      item.querySelector('.minus-icon').classList.add('hidden');
-      item.classList.remove('bg-blue-100');
+        item.classList.remove('shake');
+        item.querySelector('.minus-icon').classList.add('hidden');
+        item.classList.remove('bg-blue-100');
     });
     document.getElementById('multiDeleteBtn').classList.add('hidden');
-  }
-  
-  function selectItem(itemDiv) {
+}
+
+function selectItem(itemDiv) {
     const id = itemDiv.dataset.docId;
     if (selectedItems.has(id)) {
-      selectedItems.delete(id);
-      itemDiv.classList.remove('bg-blue-100');
-      itemDiv.querySelector('.minus-icon').classList.remove('selected');
+        selectedItems.delete(id);
+        itemDiv.classList.remove('bg-blue-100');
+        itemDiv.querySelector('.minus-icon').classList.remove('selected');
     } else {
-      selectedItems.add(id);
-      itemDiv.classList.add('bg-blue-100');
-      itemDiv.querySelector('.minus-icon').classList.add('selected');
+        selectedItems.add(id);
+        itemDiv.classList.add('bg-blue-100');
+        itemDiv.querySelector('.minus-icon').classList.add('selected');
     }
-  }
+}
+
+document.getElementById('multiDeleteBtn').onclick = async () => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const batch = db.batch();
+    const collectionRef = db.collection('users').doc(user.uid).collection('collection');
+
+    for (const docId of selectedItems) {
+        const docRef = collectionRef.doc(docId);
+        batch.delete(docRef);
+    }
+
+    try {
+        await batch.commit();
+        selectedItems.clear();
+        exitMultiSelectMode();
+        refreshCollection();
+        console.log("Selected items deleted successfully.");
+    } catch (e) {
+        console.error("Error deleting selected items:", e.message);
+        alert("Failed to delete items: " + e.message);
+    }
+};
 
 function openCollectionPopup(name, image, type, docId) {
     document.getElementById('popupImage').src = image;
@@ -474,7 +498,7 @@ function switchTab(tab) {
     if (tab === 'collection') {
         if (isMultiSelectMode) exitMultiSelectMode();
         refreshCollection();
-    }    
+    }
 }
 
 document.getElementById('floatingScanBtn').addEventListener('click', () => {
