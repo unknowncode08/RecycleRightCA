@@ -13,7 +13,7 @@ let stream = null;
 const tabs = document.querySelectorAll('.tab');
 
 const pages = {
-    main: 'page-main', map: 'page-map', profile: 'page-profile', settings: 'page-settings', collection: 'page-collection'
+    main: 'page-main', map: 'page-map', profile: 'page-profile', settings: 'page-settings', collection: 'page-collection', encyclopedia: 'page-encyclopedia'
 };
 
 let map = null;
@@ -29,6 +29,50 @@ let longPressTimer;
 let isMultiSelectMode = false;
 let suppressNextClick = false;
 const selectedItems = new Set();
+
+/* -------------------------------  ENCYCLOPEDIA  ------------------------------- */
+const encyclopediaEntries = [
+    {
+        name: "Plastic Bottle",
+        emoji: "🧴",
+        description: "Most plastic bottles are recyclable and often eligible for CRV. They should be emptied and rinsed before recycling."
+    },
+    {
+        name: "Aluminum Can",
+        emoji: "🥫",
+        description: "Aluminum cans are 100% recyclable and can be turned into new cans quickly. Always eligible for CRV."
+    },
+    {
+        name: "Glass Jar",
+        emoji: "🍯",
+        description: "Glass jars are recyclable if clean and not mixed with non-recyclable items. Not all are CRV-eligible."
+    },
+    {
+        name: "Pizza Box",
+        emoji: "🍕",
+        description: "Cardboard pizza boxes are only recyclable if they are free of grease and food residue."
+    },
+    {
+        name: "Plastic Bag",
+        emoji: "🛍️",
+        description: "Plastic bags often clog recycling machines. They are generally not accepted curbside but can be recycled at drop-off locations."
+    }
+];
+
+function loadEncyclopedia() {
+    const list = document.getElementById('encyclopediaList');
+    list.innerHTML = '';
+    encyclopediaEntries.forEach(entry => {
+        const div = document.createElement('div');
+        div.className = 'bg-card p-4 rounded shadow';
+        div.innerHTML = `<div class="text-xl font-semibold mb-1">${entry.emoji} ${entry.name}</div><div class="text-sm text-gray-600">${entry.description}</div>`;
+        list.appendChild(div);
+    });
+}
+
+document.querySelector('button[data-tab="encyclopedia"]').addEventListener('click', () => {
+    loadEncyclopedia();
+});
 
 /* ------------------------------  VERSION CONTROL ------------------------------ */
 const LOCAL_APP_VERSION = "0.0.1.5"; // your current app version
