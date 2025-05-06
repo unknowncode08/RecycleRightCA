@@ -75,7 +75,7 @@ document.querySelector('button[data-tab="encyclopedia"]').addEventListener('clic
 });
 
 /* ------------------------------  VERSION CONTROL ------------------------------ */
-const LOCAL_APP_VERSION = "0.0.1.5"; // your current app version
+const LOCAL_APP_VERSION = "0.0.1.6"; // your current app version
 
 function compareVersions(v1, v2) {
     const a = v1.split('.').map(Number);
