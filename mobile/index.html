@@ -93,6 +93,11 @@
         <div id="lastItem" class="text-muted">None yet</div>
       </div>
 
+      <button id="openEncyclopediaBtn"
+        class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md shadow hover:bg-blue-600">
+        📘 Open Encyclopedia
+      </button>
+
       <div class="w-full space-y-4 flex flex-col items-center">
         <button
           class="hidden relative ripple w-full max-w-xs flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-br from-green-500 to-emerald-600 text-white rounded-2xl shadow-lg hover:from-green-600 hover:to-emerald-700 transition-all text-lg font-medium"
@@ -140,7 +145,8 @@
       <div class="grid gap-4" id="collectionList">
       </div>
     </section>
-    <button id="multiDeleteBtn" class="hidden fixed bottom-20 right-6 bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg z-50">
+    <button id="multiDeleteBtn"
+      class="hidden fixed bottom-20 right-6 bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg z-50">
       🗑️ Delete Selected
     </button>
     <!-- Profile -->
@@ -157,7 +163,7 @@
       <div id="encyclopediaList" class="space-y-4">
         <!-- Entries injected here -->
       </div>
-    </div>    
+    </div>
     <!-- Settings -->
     <section class="hidden p-6 space-y-6 max-w-xl mx-auto" id="page-settings">
       <h2 class="text-xl font-bold">
@@ -208,14 +214,6 @@
       </span>
       <span>
         Profile
-      </span>
-    </button>
-    <button class="tab flex flex-col items-center text-gray-500 gap-0.5" data-tab="encyclopedia">
-      <span class="material-icons-outlined text-2xl">
-        book
-      </span>
-      <span>
-        Docs
       </span>
     </button>
     <button class="tab flex flex-col items-center text-gray-500 gap-0.5" data-tab="settings">
@@ -299,6 +297,19 @@
       </h2>
       <p class="text-muted" id="whyText">
       </p>
+    </div>
+  </div>
+  <div id="encyclopediaPopup" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div
+      class="bg-white dark:bg-gray-800 rounded-lg shadow-lg max-h-[90vh] w-[90%] md:w-[500px] overflow-y-auto p-6 relative">
+      <button id="closeEncyclopediaBtn"
+        class="absolute top-2 right-2 text-gray-500 hover:text-red-500 text-2xl font-bold">&times;</button>
+      <h2 class="text-xl font-bold mb-2 text-center text-blue-600">♻️ Recycling Encyclopedia</h2>
+      <input type="text" id="encyclopediaSearch" placeholder="Search materials..."
+        class="w-full mb-4 px-3 py-2 border rounded-md shadow focus:outline-none focus:ring focus:ring-blue-400 dark:bg-gray-700 dark:text-white" />
+      <div id="encyclopediaList" class="space-y-2">
+        <!-- Items will load here -->
+      </div>
     </div>
   </div>
   <div class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50" id="collectionPopup">
