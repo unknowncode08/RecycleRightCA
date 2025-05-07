@@ -97,7 +97,6 @@ function loadEncyclopedia(filter = '') {
 document.getElementById('openEncyclopediaBtn').addEventListener('click', () => {
     loadEncyclopedia();
     document.getElementById('encyclopediaPopup').classList.remove('hidden');
-    document.getElementById('encyclopediaSearch').value = '';
 });
 
 document.getElementById('encyclopediaSearch').addEventListener('input', (e) => {
