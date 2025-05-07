@@ -108,6 +108,22 @@ document.getElementById('closeEncyclopediaBtn').addEventListener('click', () => 
     document.getElementById('encyclopediaPopup').classList.add('hidden');
 });
 
+document.addEventListener('DOMContentLoaded', () => {
+    const openBtn = document.getElementById('openEncyclopediaBtn');
+    const popup = document.getElementById('encyclopediaPopup');
+    const closeBtn = document.getElementById('closeEncyclopediaPopup');
+  
+    if (openBtn && popup && closeBtn) {
+      openBtn.addEventListener('click', () => {
+        popup.classList.remove('hidden');
+      });
+  
+      closeBtn.addEventListener('click', () => {
+        popup.classList.add('hidden');
+      });
+    }
+  });  
+
 /* ------------------------------  VERSION CONTROL ------------------------------ */
 const LOCAL_APP_VERSION = "0.0.1.9"; // your current app version
 

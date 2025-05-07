@@ -157,13 +157,6 @@
       <div class="bg-card p-6 rounded-2xl shadow-lg text-center space-y-4" id="profileContent">
       </div>
     </section>
-    <!-- Encyclopedia -->
-    <div id="page-encyclopedia" class="hidden p-4">
-      <h2 class="text-xl font-bold mb-4">♻️ Recycling Encyclopedia</h2>
-      <div id="encyclopediaList" class="space-y-4">
-        <!-- Entries injected here -->
-      </div>
-    </div>
     <!-- Settings -->
     <section class="hidden p-6 space-y-6 max-w-xl mx-auto" id="page-settings">
       <h2 class="text-xl font-bold">
@@ -299,14 +292,15 @@
       </p>
     </div>
   </div>
-  <div id="encyclopediaPopup" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-    <div
-      class="bg-white dark:bg-gray-800 rounded-lg shadow-lg max-h-[90vh] w-[90%] md:w-[500px] overflow-y-auto p-6 relative">
-      <button id="closeEncyclopediaBtn"
-        class="absolute top-2 right-2 text-gray-500 hover:text-red-500 text-2xl font-bold">&times;</button>
-      <h2 class="text-xl font-bold mb-4 text-center text-blue-600">♻️ Recycling Encyclopedia</h2>
-      <div id="encyclopediaList" class="space-y-2 max-h-[60vh] overflow-y-auto pr-2"></div>
-      <!-- Items will load here -->
+  <div id="encyclopediaPopup" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white dark:bg-gray-900 max-h-[80vh] w-[90%] rounded-lg shadow-lg overflow-y-auto p-6">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold text-gray-800 dark:text-white">♻️ Recycling Encyclopedia</h2>
+        <button id="closeEncyclopediaPopup" class="text-gray-500 dark:text-white hover:text-red-500">✖</button>
+      </div>
+      <div class="space-y-4" id="encyclopediaContent">
+        <!-- Collapsible entries go here -->
+      </div>
     </div>
   </div>
   </div>
