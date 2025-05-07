@@ -107,26 +107,37 @@ body.dark .text-muted {
 }
 
 @keyframes shake {
-    0% { transform: rotate(-1deg); }
-    50% { transform: rotate(1deg); }
-    100% { transform: rotate(-1deg); }
-  }
-  
-  .collection-item.shake {
-    animation: shake 0.3s infinite;
-  }
-  
-  .minus-icon.selected {
-    background-color: #f87171; /* red-400 */
-  }
+    0% {
+        transform: rotate(-1deg);
+    }
 
-  .collection-item, 
-  .collection-item * {
+    50% {
+        transform: rotate(1deg);
+    }
+
+    100% {
+        transform: rotate(-1deg);
+    }
+}
+
+.collection-item.shake {
+    animation: shake 0.3s infinite;
+}
+
+.minus-icon.selected {
+    background-color: #f87171;
+    /* red-400 */
+}
+
+.collection-item,
+.collection-item * {
     user-select: none;
     -webkit-user-select: none;
     -ms-user-select: none;
     -webkit-touch-callout: none;
-  }
-  
-  
-  
+}
+
+#encyclopediaList {
+    scrollbar-width: thin;
+    scrollbar-color: #a5b4fc #e5e7eb;
+}
