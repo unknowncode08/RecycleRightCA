@@ -13,7 +13,7 @@ let stream = null;
 const tabs = document.querySelectorAll('.tab');
 
 const pages = {
-    main: 'page-main', map: 'page-map', profile: 'page-profile', settings: 'page-settings', collection: 'page-collection'
+    main: 'page-main', map: 'page-map', profile: 'page-profile', settings: 'page-settings', collection: 'page-collection', encyclopedia: 'page-encyclopedia'
 };
 
 let map = null;
@@ -35,96 +35,47 @@ const encyclopediaEntries = [
     {
         name: "Plastic Bottle",
         emoji: "🧴",
-        description: "Plastic bottles are recyclable and often eligible for CRV. Rinse before recycling."
+        description: "Most plastic bottles are recyclable and often eligible for CRV. They should be emptied and rinsed before recycling."
     },
     {
         name: "Aluminum Can",
         emoji: "🥫",
-        description: "100% recyclable and CRV-eligible. Recycle clean."
+        description: "Aluminum cans are 100% recyclable and can be turned into new cans quickly. Always eligible for CRV."
     },
     {
         name: "Glass Jar",
         emoji: "🍯",
-        description: "Recyclable if clean and unbroken. Not always CRV."
+        description: "Glass jars are recyclable if clean and not mixed with non-recyclable items. Not all are CRV-eligible."
     },
     {
         name: "Pizza Box",
         emoji: "🍕",
-        description: "Only recyclable if not greasy. Tear off clean parts."
+        description: "Cardboard pizza boxes are only recyclable if they are free of grease and food residue."
     },
     {
         name: "Plastic Bag",
         emoji: "🛍️",
-        description: "Not curbside recyclable. Use drop-off bins at stores."
+        description: "Plastic bags often clog recycling machines. They are generally not accepted curbside but can be recycled at drop-off locations."
     }
 ];
 
-function loadEncyclopedia(filter = '') {
+function loadEncyclopedia() {
     const list = document.getElementById('encyclopediaList');
     list.innerHTML = '';
-    encyclopediaEntries
-        .filter(entry =>
-            entry.name.toLowerCase().includes(filter.toLowerCase()) ||
-            entry.description.toLowerCase().includes(filter.toLowerCase())
-        )
-        .forEach((entry, index) => {
-            const container = document.createElement('div');
-            container.className = 'border rounded-lg shadow bg-card';
-
-            container.innerHTML = `
-          <button class="w-full text-left p-3 font-semibold flex justify-between items-center toggleEntry" data-index="${index}">
-            ${entry.emoji} ${entry.name}
-            <span class="text-gray-400">+</span>
-          </button>
-          <div class="entryContent hidden px-4 pb-3 text-sm text-muted">${entry.description}</div>
-        `;
-
-            list.appendChild(container);
-        });
-
-    // Re-bind collapse toggles
-    document.querySelectorAll('.toggleEntry').forEach(button => {
-        button.addEventListener('click', () => {
-            const content = button.nextElementSibling;
-            const icon = button.querySelector('span');
-            const isOpen = !content.classList.contains('hidden');
-            content.classList.toggle('hidden');
-            icon.textContent = isOpen ? '+' : '−';
-        });
+    encyclopediaEntries.forEach(entry => {
+        const div = document.createElement('div');
+        div.className = 'bg-card p-4 rounded shadow';
+        div.innerHTML = `<div class="text-xl font-semibold mb-1">${entry.emoji} ${entry.name}</div><div class="text-sm text-gray-600">${entry.description}</div>`;
+        list.appendChild(div);
     });
 }
 
-document.getElementById('openEncyclopediaBtn').addEventListener('click', () => {
+document.querySelector('button[data-tab="encyclopedia"]').addEventListener('click', () => {
     loadEncyclopedia();
-    document.getElementById('encyclopediaPopup').classList.remove('hidden');
 });
-
-document.getElementById('encyclopediaSearch').addEventListener('input', (e) => {
-    loadEncyclopedia(e.target.value);
-});
-
-document.getElementById('closeEncyclopediaBtn').addEventListener('click', () => {
-    document.getElementById('encyclopediaPopup').classList.add('hidden');
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-    const openBtn = document.getElementById('openEncyclopediaBtn');
-    const popup = document.getElementById('encyclopediaPopup');
-    const closeBtn = document.getElementById('closeEncyclopediaPopup');
-  
-    if (openBtn && popup && closeBtn) {
-      openBtn.addEventListener('click', () => {
-        popup.classList.remove('hidden');
-      });
-  
-      closeBtn.addEventListener('click', () => {
-        popup.classList.add('hidden');
-      });
-    }
-  });  
 
 /* ------------------------------  VERSION CONTROL ------------------------------ */
-const LOCAL_APP_VERSION = "0.0.1.9"; // your current app version
+const LOCAL_APP_VERSION = "0.0.1.5"; // your current app version
 
 function compareVersions(v1, v2) {
     const a = v1.split('.').map(Number);

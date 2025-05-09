@@ -93,11 +93,6 @@
         <div id="lastItem" class="text-muted">None yet</div>
       </div>
 
-      <button id="openEncyclopediaBtn"
-        class="mt-6 mx-auto flex items-center gap-2 px-4 py-3 bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-full shadow-lg hover:scale-105 transition">
-        📘 <span class="font-semibold">Recycling Encyclopedia</span>
-      </button>
-
       <div class="w-full space-y-4 flex flex-col items-center">
         <button
           class="hidden relative ripple w-full max-w-xs flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-br from-green-500 to-emerald-600 text-white rounded-2xl shadow-lg hover:from-green-600 hover:to-emerald-700 transition-all text-lg font-medium"
@@ -145,8 +140,7 @@
       <div class="grid gap-4" id="collectionList">
       </div>
     </section>
-    <button id="multiDeleteBtn"
-      class="hidden fixed bottom-20 right-6 bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg z-50">
+    <button id="multiDeleteBtn" class="hidden fixed bottom-20 right-6 bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg z-50">
       🗑️ Delete Selected
     </button>
     <!-- Profile -->
@@ -157,6 +151,13 @@
       <div class="bg-card p-6 rounded-2xl shadow-lg text-center space-y-4" id="profileContent">
       </div>
     </section>
+    <!-- Encyclopedia -->
+    <div id="page-encyclopedia" class="hidden p-4">
+      <h2 class="text-xl font-bold mb-4">♻️ Recycling Encyclopedia</h2>
+      <div id="encyclopediaList" class="space-y-4">
+        <!-- Entries injected here -->
+      </div>
+    </div>    
     <!-- Settings -->
     <section class="hidden p-6 space-y-6 max-w-xl mx-auto" id="page-settings">
       <h2 class="text-xl font-bold">
@@ -209,6 +210,7 @@
         Profile
       </span>
     </button>
+    <button class="tab text-gray-500" data-tab="encyclopedia">📘</button>
     <button class="tab flex flex-col items-center text-gray-500 gap-0.5" data-tab="settings">
       <span class="material-icons-outlined text-2xl">
         settings
@@ -291,18 +293,6 @@
       <p class="text-muted" id="whyText">
       </p>
     </div>
-  </div>
-  <div id="encyclopediaPopup" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white dark:bg-gray-900 max-h-[80vh] w-[90%] rounded-lg shadow-lg overflow-y-auto p-6">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-bold text-gray-800 dark:text-white">♻️ Recycling Encyclopedia</h2>
-        <button id="closeEncyclopediaPopup" class="text-gray-500 dark:text-white hover:text-red-500">✖</button>
-      </div>
-      <div class="space-y-4" id="encyclopediaList">
-        <!-- Collapsible entries go here -->
-      </div>
-    </div>
-  </div>
   </div>
   <div class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50" id="collectionPopup">
     <div class="bg-card rounded-2xl shadow-xl p-6 w-80 text-center animate-pop relative">
