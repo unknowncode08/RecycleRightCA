@@ -28,8 +28,8 @@
   </script>
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <link rel="apple-touch-icon" href="../icons/icon-192.png" />
-  <link rel="icon" type="image/x-icon" href="../icons/icon-512.png">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png" />
+  <link rel="icon" type="image/x-icon" href="./icons/icon-512.png">
 </head>
 
 <body class="h-full flex flex-col">
@@ -151,13 +151,6 @@
       <div class="bg-card p-6 rounded-2xl shadow-lg text-center space-y-4" id="profileContent">
       </div>
     </section>
-    <!-- Encyclopedia -->
-    <div id="page-encyclopedia" class="hidden p-4">
-      <h2 class="text-xl font-bold mb-4">♻️ Recycling Encyclopedia</h2>
-      <div id="encyclopediaList" class="space-y-4">
-        <!-- Entries injected here -->
-      </div>
-    </div>    
     <!-- Settings -->
     <section class="hidden p-6 space-y-6 max-w-xl mx-auto" id="page-settings">
       <h2 class="text-xl font-bold">
@@ -210,7 +203,6 @@
         Profile
       </span>
     </button>
-    <button class="tab text-gray-500" data-tab="encyclopedia">📘</button>
     <button class="tab flex flex-col items-center text-gray-500 gap-0.5" data-tab="settings">
       <span class="material-icons-outlined text-2xl">
         settings
