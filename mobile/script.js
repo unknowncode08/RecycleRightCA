@@ -677,45 +677,40 @@ document.getElementById('closeHowTo').onclick = () => {
 };
 
 async function askWhyExplanation(itemName, type) {
-
     let reason = (type === 'RECYCABLE') ? 'can be recyclable' : 'cannot be recyclable';
     if (type === 'CRV') {
         reason = 'can be recycled with CRV refund.';
-
     }
+
     const prompt = `Explain to the user: Explain in 3 short sentences of why ${itemName} ${reason}.\nAnswer in this format:\n\n[2 SENTENCE RESPONSE]`;
 
+    // 👇 Show loading indicator before fetching
+    const popup = document.getElementById('whyPopup');
+    const whyText = document.getElementById('whyText');
+    whyText.textContent = '⏳ Loading explanation...';
+    popup.classList.remove('hidden');
+
     const body = {
-        contents: [{
-            parts: [{
-                text: prompt
-            }
-            ]
-        }
-        ]
+        contents: [{ parts: [{ text: prompt }] }]
     };
+
     try {
         const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`, {
-            method: 'POST', headers: {
-                'Content-Type': 'application/json'
-            }
-            , body: JSON.stringify(body)
-        }
-        );
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+
         const data = await res.json();
-        const explanation = data.candidates[0]?.content?.parts[0]?.text.trim() || 'Could not fetch explanation.';
-        document.getElementById('whyText').textContent = explanation;
-        document.getElementById('whyPopup').classList.remove('hidden');
+        const explanation = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || 'Could not fetch explanation.';
+        whyText.textContent = explanation;
 
+    } catch (err) {
+        whyText.textContent = '⚠️ Failed to load explanation.';
+        console.error('AskWhy error:', err);
     }
-    catch (err) {
-        document.getElementById('whyText').textContent = '⚠️ Failed to load explanation.';
-        document.getElementById('whyPopup').classList.remove('hidden');
-
-    }
-
-
 }
+
 
 function askHowToRecycle(itemName, type) {
     const style = (type === 'CRV') ? 'how to recycle AND get refund at centers' : 'how to properly recycle curbside or center';
@@ -1030,6 +1025,30 @@ darkModeToggle.addEventListener('change', () => {
 }
 );
 
+
+  document.getElementById('enableNotificationsBtn').addEventListener('click', async () => {
+    if (!('Notification' in window)) {
+      alert('Notifications are not supported in this browser.');
+      return;
+    }
+
+    const permission = await Notification.requestPermission();
+    if (permission === 'granted') {
+      console.log('🔔 Notifications enabled!');
+      alert('Notifications have been enabled!');
+      scheduleDailyReminder(); // Call your scheduling function here
+    } else if (permission === 'denied') {
+      alert('You have denied notifications. You may need to change browser settings to enable them.');
+    }
+  });
+
+  // Example stub to avoid errors if scheduleDailyReminder doesn't exist yet
+  function scheduleDailyReminder() {
+    // You can replace this with your real scheduling logic
+    console.log('🗓️ Reminder would be scheduled here.');
+  }
+
+
 function scheduleDailyReminder() {
     const now = new Date();
     const targetHour = 18; // 6:00 PM daily
@@ -1061,6 +1080,7 @@ function sendRecycleReminder() {
 }
 
 window.addEventListener('load', async () => {
+    /*
     if ('Notification' in window && Notification.permission !== 'granted') {
         Notification.requestPermission().then(permission => {
             if (permission === 'granted') {
@@ -1070,7 +1090,7 @@ window.addEventListener('load', async () => {
         });
     } else if (Notification.permission === 'granted') {
         scheduleDailyReminder(); // Already granted
-    }
+    */
 
     const metaRef = firebase.firestore().collection('meta').doc('appVersion');
     const doc = await metaRef.get();
