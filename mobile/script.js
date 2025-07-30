@@ -18,7 +18,7 @@ const pages = {
 
 let map = null;
 let mapReady = false;
-const GEMINI_API_KEY = "AIzaSyCteI1RtEohJ7bMCNcJt3sUdROp_ZlVx4E";
+const GEMINI_API_KEY = "AIzaSyC1wlM7BygYivPTog2Qa7tzkmx-aijUPlY";
 
 let signupMode = false;
 let capturedBase64;
