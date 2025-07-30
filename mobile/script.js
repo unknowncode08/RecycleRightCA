@@ -18,7 +18,7 @@ const pages = {
 
 let map = null;
 let mapReady = false;
-const GEMINI_API_KEY = "AIzaSyC1wlM7BygYivPTog2Qa7tzkmx-aijUPlY";
+const GEMINI_API_KEY = "AIzaSyAimHcH5pgj99Za5Ievq1UNfFbh9mfsEL8";
 
 let signupMode = false;
 let capturedBase64;
@@ -31,7 +31,7 @@ let suppressNextClick = false;
 const selectedItems = new Set();
 
 /* ------------------------------  VERSION CONTROL ------------------------------ */
-const LOCAL_APP_VERSION = "0.0.1.10"; // your current app version
+const LOCAL_APP_VERSION = "0.0.1.11"; // your current app version
 
 function compareVersions(v1, v2) {
     const a = v1.split('.').map(Number);
