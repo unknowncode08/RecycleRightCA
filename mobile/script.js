@@ -31,7 +31,7 @@ let suppressNextClick = false;
 const selectedItems = new Set();
 
 /* ------------------------------  VERSION CONTROL ------------------------------ */
-const LOCAL_APP_VERSION = "0.0.1.9"; // your current app version
+const LOCAL_APP_VERSION = "0.0.1.10"; // your current app version
 
 function compareVersions(v1, v2) {
     const a = v1.split('.').map(Number);
