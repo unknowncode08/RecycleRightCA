@@ -52,7 +52,7 @@
 
 	<script>
 		// Redirects to the mobile app if it's already installed on the user's home screen
-		if ((window.matchMedia('(display-mode: standalone)').matches || navigator.standalone) && !location.pathname.startsWith('/mobile')) {
+		if ((window.matchMedia('(display-mode: standalone)').matches || navigator.standalone) && !location.pathname.startsWith('/RecycleRightCA/mobile')) {
 			location.replace('/RecycleRightCA/mobile/');
 		}
 	</script>
@@ -213,16 +213,8 @@
 			}
 
 			// On Android, if the prompt is ready, show it
-			if (deferredPrompt) {
-				deferredPrompt.prompt();
-				const { outcome } = await deferredPrompt.userChoice;
-				console.log(`User response to the install prompt: ${outcome}`);
-				deferredPrompt = null;
-				installBtn.classList.add('hidden');
-			} else if (isAndroid) {
-				// If the prompt isn't ready, show manual instructions
-				alert("To install this app on Android:\n\n1. Tap the 'three dots' menu in Chrome.\n2. Tap 'Install app' or 'Add to Home screen'.");
-			}
+			alert("For a better Experience:\n1. Launch the Web App\n2. Add the app to Home Screen");
+			window.location.replace('/RecycleRightCA/mobile/');
 		});
 
 		// Initial setup for different devices
@@ -235,7 +227,7 @@
 			platformMsg.textContent = "Checking compatibility...";
 			setTimeout(() => {
 				if (!deferredPrompt) {
-					installBtn.textContent = 'How to Install';
+					installBtn.textContent = 'Launch Web App';
 					installBtn.classList.remove('hidden');
 					platformMsg.textContent = "Use your browser's menu to 'Install app' or 'Add to Home Screen'.";
 				}
