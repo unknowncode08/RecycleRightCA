@@ -14,7 +14,7 @@
 		rel="stylesheet" />
 	<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
 
-	<link rel="manifest" href="/manifest.webmanifest" />
+	<link rel="manifest" href="manifest.webmanifest" />
 
 	<style>
 		/* Custom font and base styles */
@@ -28,7 +28,7 @@
 		.glass-card {
 			background: rgba(255, 255, 255, 0.05);
 			backdrop-filter: blur(24px) saturate(180%);
-			border: 1px solid rgba(255, 255, 255, 0.1);
+			border: 1px solid rgba(255, 255, 0.1);
 			box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 		}
 
@@ -51,7 +51,7 @@
 	</style>
 
 	<script>
-		// Redirects to the mobile app if it's installed on the user's home screen
+		// Redirects to the mobile app if it's already installed on the user's home screen
 		if ((window.matchMedia('(display-mode: standalone)').matches || navigator.standalone) && !location.pathname.startsWith('/mobile')) {
 			location.replace('/RecycleRightCA/mobile/');
 		}
