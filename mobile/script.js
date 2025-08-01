@@ -812,68 +812,89 @@ async function sendToGemini(base64img) {
 
 
 /* ---------------------------  RESULT UI --------------------------- */
+/**
+ * Displays the analysis result in a modern "bottom sheet" popup.
+ * @param {string} text - The response text from the Gemini API.
+ */
 async function showResult(text) {
     const resultDiv = document.getElementById('result');
-    resultDiv.classList.remove('hidden');
-    resultDiv.classList.add('fixed', 'inset-0', 'flex', 'flex-col', 'items-center', 'justify-center', 'text-white', 'text-center', 'p-6', 'z-50');
-    resultDiv.classList.remove('bg-card');
+    let icon = '❓';
+    let title = 'Unknown';
+    let subtitle = 'Could not recognize the item clearly.';
+    let titleColor = 'text-gray-800 dark:text-gray-200'; // Default text color
+    let item = 'Unknown Item';
+    let type = 'unknown';
+    let buttons = '';
+
+    // Parse the API response text
     if (text.startsWith('[RECYCABLE')) {
-        const material = text.split(',')[1].replace(']', '').trim();
-        resultDiv.style.backgroundColor = '#16a34a';
-        resultDiv.innerHTML = `<div class="text-7xl mb-6 animate-bounce">♻️</div><div class="text-3xl font-bold mb-2">Recyclable</div><div class="text-lg">Detected: <strong>${material}</strong></div><button onclick="askWhyExplanation('${material}','RECYCABLE')" class="mt-6 px-4 py-2 bg-yellow-400 text-white rounded-md hover:bg-yellow-500">Learn Why</button><button onclick="askHowToRecycle('${material}','RECYCABLE')" class="mt-3 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">How To</button><button onclick="closeResult()" class="mt-6 px-6 py-3 bg-white text-green-700 font-semibold rounded-xl">Close</button>`;
-        const user = auth.currentUser;
-        if (user) {
+        item = text.split(',')[1].replace(']', '').trim();
+        type = 'rec';
+        icon = '♻️';
+        title = 'Recyclable';
+        subtitle = `Detected: <strong>${item}</strong>`;
+        titleColor = 'text-emerald-500';
+        buttons = `<button onclick="askHowToRecycle('${item}','RECYCABLE')" class="w-full mt-4 px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 font-semibold">How To Recycle</button>`;
+    } else if (text.startsWith('[NON-R')) {
+        item = text.split(',')[1].replace(']', '').trim();
+        type = 'nrec';
+        icon = '❌';
+        title = 'Not Recyclable';
+        subtitle = `Detected: <strong>${item}</strong>`;
+        titleColor = 'text-red-500';
+        buttons = `<button onclick="askWhyExplanation('${item}','NON-R')" class="w-full mt-4 px-4 py-3 bg-yellow-500 text-black rounded-lg hover:bg-yellow-600 font-semibold">Learn Why</button>`;
+    } else if (text.startsWith('[CRV')) {
+        const refund = text.split(',')[1].trim();
+        item = text.split(',')[2].replace(']', '').trim();
+        type = 'crv';
+        icon = '💵';
+        title = 'CRV Eligible';
+        subtitle = `Refund: <strong>${refund}</strong> — Detected: <strong>${item}</strong>`;
+        titleColor = 'text-yellow-500';
+        buttons = `<button onclick="switchTab('map'); closeResult();" class="w-full mt-4 py-3 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 font-semibold">Find Nearest Center</button>`;
+    }
+    
+    // Set the classes directly to create the overlay and bottom sheet
+    resultDiv.className = 'fixed inset-0 z-[1000] bg-black/50 backdrop-blur-sm flex items-end';
+    resultDiv.style.animation = 'fade-in 0.3s ease-out';
+
+    // Construct the new result screen HTML
+    resultDiv.innerHTML = `
+        <div class="glass-card w-full p-6 pb-8 rounded-t-3xl shadow-2xl flex flex-col items-center text-center" style="animation: slide-up 0.4s ease-out;">
+            <div class="w-12 h-1.5 bg-gray-300 dark:bg-gray-600 rounded-full mb-4"></div>
+            <div class="text-6xl mb-2">${icon}</div>
+            <h2 class="text-3xl font-bold ${titleColor}">${title}</h2>
+            <p class="text-lg text-muted mt-1">${subtitle}</p>
+            <div class="w-full max-w-xs pt-4">
+                ${buttons}
+                <button onclick="closeResult()" class="w-full mt-3 px-4 py-2 text-muted hover:bg-black/5 dark:hover:bg-white/10 rounded-lg">Close</button>
+            </div>
+        </div>
+    `;
+
+    // Handle user data updates after showing the result
+    const user = auth.currentUser;
+    if (user && type !== 'unknown') {
+        try {
             await updateStreak(user.uid);
-            await addPointsToUser(user.uid);
-            await addToCollection(user.uid, material, 'rec', `data:image/jpeg;base64,${capturedBase64}`);
-
+            await addPointsToUser(user.uid, type === 'crv' ? 10 : 5);
+            await addToCollection(user.uid, item, type, capturedBase64);
+            if (document.getElementById('page-main').offsetParent !== null) {
+               loadDashboardStats();
+            }
+        } catch(e) {
+            console.error("Error updating user data:", e);
         }
-        refreshProfile();
-
     }
-    else if (text.startsWith('[NON-R')) {
-        const item = text.split(',')[1].replace(']', '').trim();
-        resultDiv.style.backgroundColor = '#dc2626';
-        resultDiv.innerHTML = `<div class="text-7xl mb-6 animate-bounce">❌</div><div class="text-3xl font-bold mb-2">Not Recyclable</div><div class="text-lg">Detected: <strong>${item}</strong></div><button onclick="askWhyExplanation('${item}','NON-R')" class="px-4 py-2 bg-yellow-400 text-white rounded-md hover:bg-yellow-500">Learn Why</button><button onclick="closeResult()" class="mt-6 px-6 py-3 bg-white text-red-700 font-semibold rounded-xl">Close</button>`;
-        const user = auth.currentUser;
-        if (user) {
-            await updateStreak(user.uid);
-            await addToCollection(user.uid, item, 'nrec', `data:image/jpeg;base64,${capturedBase64}`);
-
-        }
-        refreshProfile();
-
-    }
-    else if (text.startsWith('[CRV')) {
-        const refund = text.split(',')[1];
-        const itemName = text.split(',')[2].replace(']', '').trim();
-        resultDiv.style.backgroundColor = '#facc15';
-        resultDiv.innerHTML = `<div class="text-7xl mb-6 animate-bounce">💵</div><div class="text-3xl font-bold mb-2">CRV Eligible</div><div class="text-lg">Refund: <strong>${refund}</strong></div><div class="text-lg">Detected: <strong>${itemName}</strong></div><button onclick="askWhyExplanation('${itemName}','CRV')" class="mt-6 px-4 py-2 bg-green-400 text-white rounded-md hover:bg-green-500">Learn Why</button><button onclick="askHowToRecycle('${itemName}','CRV')" class="mt-3 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">How To</button><button onclick="closeResult();switchTab('map');" class="mt-6 px-6 py-3 bg-white text-yellow-700 font-semibold rounded-xl">Find Nearest Center</button>`;
-        const user = auth.currentUser;
-        if (user) {
-            await updateStreak(user.uid);
-            await addPointsToUser(user.uid);
-            await addToCollection(user.uid, itemName, 'crv', `data:image/jpeg;base64,${capturedBase64}`);
-
-        }
-        refreshProfile();
-
-    }
-    else {
-        resultDiv.style.backgroundColor = '#6b7280';
-        resultDiv.innerHTML = `<div class="text-7xl mb-6">❓</div><div class="text-3xl font-bold mb-2">Unknown</div><div class="text-lg">Could not recognize clearly.</div><button onclick="closeResult()" class="mt-6 px-6 py-3 bg-white text-gray-700 font-semibold rounded-xl">Close</button>`;
-
-    }
-
 }
 
+/**
+ * Closes the result overlay.
+ */
 function closeResult() {
     const resultDiv = document.getElementById('result');
-    resultDiv.classList.add('hidden');
-    resultDiv.classList.remove('fixed', 'inset-0', 'flex', 'flex-col', 'items-center', 'justify-center', 'text-white', 'z-50');
-    resultDiv.style.backgroundColor = '';
+    resultDiv.className = 'hidden'; // Simply hide the div
     resultDiv.innerHTML = '';
-
 }
 
 
