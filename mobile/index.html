@@ -4,9 +4,7 @@
 <head>
   <meta charset="utf-8" />
   <meta content="width=device-width, initial-scale=1" name="viewport" />
-  <title>
-    RecycleRight CA
-  </title>
+  <title>RecycleRight CA</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com" rel="preconnect" />
   <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
@@ -109,10 +107,6 @@
         </div>
       </div>
       <div class="glass-card rounded-xl p-4 shadow-md space-y-2">
-        <p class="font-semibold">📌 Daily Challenge</p>
-        <p class="text-muted">Try recycling one plastic bottle today!</p>
-      </div>
-      <div class="glass-card rounded-xl p-4 shadow-md space-y-2">
         <p class="font-semibold">🕒 Last Item Scanned</p>
         <div id="lastItem"><span class="text-muted">None yet</span></div>
       </div>
@@ -123,11 +117,32 @@
     </section>
 
     <section class="hidden p-6 space-y-6" id="page-collection">
+      <div class="max-w-x1 mx-auto px-6">
+
+        <nav
+          class="fixed top-16 left-1/2 -translate-x-1/2 w-96 h-16  bg-white border p-4 shadow rounded z-50 flex justify-around items-center">
+          <button class="tab flex flex-col items-center" data-tab="collection">
+            <span>
+              Items
+            </span>
+          </button>
+          <button class="tab flex flex-col items-center" data-tab="collection">
+            <span>
+              Museum
+            </span>
+          </button>
+          <div class="absolute bottom-0 h-0.5 bg-green">
+            <div class=" mt-6 grid gap-4" id="collectionList">
+            </div>
+          </div>
     </section>
+    <button id="multiDeleteBtn"
+      class="hidden fixed bottom-20 right-6 bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg z-50">
+      🗑️ Delete Selected
+    </button>
 
     <section class="hidden p-6" id="page-profile">
-      <div class="glass-card p-6 rounded-2xl shadow-lg text-center space-y-4" id="profileContent">
-      </div>
+      <div class="glass-card p-6 rounded-2xl shadow-lg text-center space-y-4" id="profileContent"></div>
     </section>
 
     <section class="hidden p-6 space-y-6" id="page-settings">
@@ -163,6 +178,47 @@
         class="material-icons-outlined text-2xl">settings</span><span class="text-xs">Settings</span></button>
   </nav>
 
+  <!-- How/Why & Collection Popups (same IDs kept) -->
+  <div class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50" id="howToPopup">
+    <div class="bg-card rounded-2xl shadow-xl p-6 w-80 text-center animate-pop relative">
+      <button class="absolute top-2 right-2 text-muted hover:text-gray-700 text-2xl" id="closeHowTo">
+        ×
+      </button>
+      <h2 class="text-xl font-bold text-blue-700 mb-4">
+        How To Recycle
+      </h2>
+      <p class="text-muted" id="howToText">
+      </p>
+    </div>
+  </div>
+  <div class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50" id="whyPopup">
+    <div class="bg-card rounded-2xl shadow-xl p-6 w-80 text-center animate-pop relative">
+      <button class="absolute top-2 right-2 text-muted hover:text-gray-700 text-2xl" id="closeWhy">
+        ×
+      </button>
+      <h2 class="text-xl font-bold text-green-700 mb-4">
+        Why?
+      </h2>
+      <p class="text-muted" id="whyText">
+      </p>
+    </div>
+  </div>
+  <div class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50" id="collectionPopup">
+    <div class="bg-card rounded-2xl shadow-xl p-6 w-80 text-center animate-pop relative">
+      <button class="absolute top-2 right-2 text-muted hover:text-gray-700 text-2xl" id="closeCollectionPopup">
+        ×
+      </button>
+      <img class="w-32 h-32 rounded-full mx-auto mb-4 object-cover shadow" id="popupImage" />
+      <h2 class="text-xl font-bold mb-1" id="popupName">
+      </h2>
+      <p class="text-muted mb-4" id="popupType">
+      </p>
+      <button class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600" id="deleteItemBtn">
+        Delete from Collection
+      </button>
+    </div>
+  </div>
+
   <button id="floatingScanBtn"
     class="fixed bottom-24 right-6 bg-gradient-to-br from-green-500 to-emerald-600 text-white rounded-full w-20 h-20 flex items-center justify-center shadow-2xl hover:scale-105 transform transition-transform z-40"
     style="display: none;">
@@ -171,6 +227,44 @@
 
   <div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center hidden z-[100]"
     id="authPopup">
+    <div class="bg-card rounded-2xl shadow-xl p-6 w-80 animate-pop relative text-center">
+      <button class="absolute top-2 right-2 text-muted hover:text-gray-700 text-2xl" id="closeAuth">
+        ×
+      </button>
+      <h2 class="text-xl font-bold mb-4" id="authTitle">
+        Sign In
+      </h2>
+      <input class="w-full mb-3 p-2 border rounded" id="emailInput" placeholder="Email" type="email" />
+      <input class="w-full mb-4 p-2 border rounded" id="passwordInput" placeholder="Password" type="password" />
+      <button
+        class="w-full mb-3 px-4 py-2 bg-gradient-to-br from-green-500 to-emerald-600 text-white rounded hover:to-emerald-700"
+        id="authMainBtn">
+        Login
+      </button>
+      <button
+        class="w-full mb-3 px-4 py-2 border border-gray-300 rounded-md bg-white hover:bg-gray-100 flex items-center justify-center gap-3"
+        id="googleBtn">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google logo"
+          class="w-5 h-5" />
+        <span id="googleBtnText" class="text-sm text-gray-700 font-medium">Sign in with Google</span>
+      </button>
+      <p class="text-sm mt-4 text-blue-600 cursor-pointer underline" id="switchAuthMode">
+        Signup
+      </p>
+    </div>
+  </div>
+
+  <div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center hidden z-[100]"
+    id="collectionPopup">
+    <div class="bg-card rounded-2xl shadow-xl p-6 w-80 text-center animate-pop relative">
+      <button class="absolute top-2 right-2 text-muted hover:text-gray-700 text-2xl"
+        id="closeCollectionPopup">×</button>
+      <img class="w-32 h-32 rounded-full mx-auto mb-4 object-cover shadow" id="popupImage" />
+      <h2 class="text-xl font-bold mb-1" id="popupName"></h2>
+      <p class="text-muted mb-4" id="popupType"></p>
+      <button class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600" id="deleteItemBtn">Delete from
+        Collection</button>
+    </div>
   </div>
 
   <div class="fixed inset-0 bg-black/90 hidden z-[999] flex flex-col" id="loadingSpinner">
@@ -180,8 +274,7 @@
   </div>
 
   <div class="hidden fixed inset-0 z-[1000] flex flex-col items-center justify-center text-white text-center p-6"
-    id="result">
-  </div>
+    id="result"></div>
 
   <div class="fixed inset-0 bg-black/50 backdrop-blur-xl hidden z-[999] flex flex-col" id="camera">
     <button

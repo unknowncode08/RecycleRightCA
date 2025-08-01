@@ -17,6 +17,8 @@ const db = firebase.firestore();
 // Global Variables
 const GEMINI_API_KEY = "AIzaSyAimHcH5pgj99Za5Ievq1UNfFbh9mfsEL8";
 const LOCAL_APP_VERSION = "0.0.1.11";
+
+const videoPreviewEl = document.getElementById('videoPreview'); // <-- ADD THIS LINE
 let stream = null;
 let map = null;
 let mapReady = false;
@@ -80,15 +82,14 @@ document.querySelectorAll('.tab').forEach(t => {
  * Opens the device camera to scan an item.
  */
 document.getElementById('floatingScanBtn').addEventListener('click', async () => {
-    const video = document.getElementById('videoPreview');
     const cameraView = document.getElementById('camera');
     cameraView.classList.remove('hidden');
     try {
         stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-        video.srcObject = stream;
+        videoPreviewEl.srcObject = stream; // Use the new variable
     } catch (err) {
         console.error("Camera Error:", err);
-        alert("Could not access the camera. Please check permissions and ensure you are on a secure server (https).");
+        alert("Could not access the camera. Please check permissions.");
         cameraView.classList.add('hidden');
     }
 });
@@ -97,17 +98,25 @@ document.getElementById('floatingScanBtn').addEventListener('click', async () =>
  * Captures a photo from the video stream and sends it for analysis.
  */
 document.getElementById('snapBtn').onclick = () => {
+    if (!stream) return; // Don't do anything if the camera isn't running
+
     const canvas = document.createElement('canvas');
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    canvas.getContext('2d').drawImage(video, 0, 0);
+    canvas.width = videoPreviewEl.videoWidth;  // Use the new variable
+    canvas.height = videoPreviewEl.videoHeight; // Use the new variable
+    canvas.getContext('2d').drawImage(videoPreviewEl, 0, 0);
+
+    // Stop the camera stream
     stream.getTracks().forEach(track => track.stop());
-    video.srcObject = null;
+    videoPreviewEl.srcObject = null;
+    stream = null;
+
+    // Hide camera and show loading spinner
     document.getElementById('camera').classList.add('hidden');
     document.getElementById('loadingSpinner').classList.remove('hidden');
-    const base64 = canvas.toDataURL('image/jpeg').split(',')[1];
-    capturedBase64 = base64;
-    sendToGemini(base64);
+
+    // Send image for analysis
+    capturedBase64 = canvas.toDataURL('image/jpeg').split(',')[1];
+    sendToGemini(capturedBase64);
 };
 
 /**
@@ -288,6 +297,36 @@ function calculateLevel(points) {
 // addToCollection, refreshCollection, and the multi-delete logic.
 // Please ensure they are present in your file. I have omitted them here to avoid
 // redundancy from the previous turn, but they are essential.
+
+async function addToCollection(userId, name, type, base64img) {
+    const collectionRef = db.collection('users').doc(userId).collection('collection');
+    const snapshot = await collectionRef.where('name', '>=', name).where('name', '<=', name + '\uf8ff').get();
+    let newName = name;
+    let count = 1;
+    const nameRegex = new RegExp(`^${name}( \\((\\d+)\\))?$`);
+
+    snapshot.forEach(doc => {
+        const existingName = doc.data().name;
+        const match = existingName.match(nameRegex);
+        if (match) {
+            const number = parseInt(match[2]) || 1;
+            if (number >= count) {
+                count = number + 1;
+            }
+        }
+    });
+
+    if (count > 1) {
+        newName = `${name} (${count})`;
+    }
+
+    await collectionRef.add({
+        name: newName,
+        type: type,
+        image: 'data:image/jpeg;base64,' + capturedBase64,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
+}
 
 async function refreshCollection() {
     const collectionList = document.getElementById('collectionList');
@@ -688,6 +727,8 @@ window.addEventListener('load', async () => {
     if (versionDisplay) {
         versionDisplay.textContent = LOCAL_APP_VERSION;
     }
+
+    versionDisplay.textContent = LOCAL_APP_VERSION;
 
     // Set up Dark Mode toggle
     const darkModeToggle = document.getElementById('darkModeToggle');
