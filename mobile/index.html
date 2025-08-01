@@ -101,7 +101,7 @@
     </div>
   </header>
   <!-- ----------  MAIN PAGES CONTAINER  ---------- -->
-  <main class="flex-1 overflow-y-auto pb-20" id="pages">
+  <main class="relative flex-1 overflow-y-auto pb-20 z-10" id="pages">
     <!-- bottom padding so nav doesn't overlap -->
     <!-- Home  -->
     <section id="page-main" class="p-6 space-y-6">
@@ -177,8 +177,8 @@
       </p>
     </div>
     <!-- Map -->
-    <section class="hidden p-0" id="page-map">
-      <div class="w-full" id="map" style="height: calc(100vh - 125px);">
+    <section class="hidden h-full" id="page-map">
+      <div class="w-full h-full" id="map">
       </div>
     </section>
     <!-- Collection -->

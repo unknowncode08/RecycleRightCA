@@ -35,19 +35,30 @@ const pages = { main: 'page-main', map: 'page-map', profile: 'page-profile', set
  * @param {string} tabName - The identifier for the tab to switch to (e.g., 'main', 'map').
  */
 function switchTab(tabName) {
+    const mainContainer = document.getElementById('pages');
     const allTabs = document.querySelectorAll('.tab');
     const allPages = document.querySelectorAll('main > section');
 
+    // Dynamically adjust padding for the map view
+    if (tabName === 'map') {
+        mainContainer.classList.remove('pb-20');
+    } else {
+        mainContainer.classList.add('pb-20');
+    }
+
+    // Update active tab styles
     allTabs.forEach(t => {
         const isActive = t.dataset.tab === tabName;
         t.classList.toggle('text-green-500', isActive);
         t.classList.toggle('text-muted', !isActive);
     });
 
+    // Show the correct page
     allPages.forEach(p => {
         p.classList.toggle('hidden', p.id !== pages[tabName]);
     });
 
+    // Show/hide the floating scan button
     document.getElementById('floatingScanBtn').style.display = (tabName === 'main') ? 'flex' : 'none';
 
     // Page-specific actions
@@ -144,26 +155,64 @@ async function refreshProfile() {
 /**
  * Loads and displays the main dashboard statistics.
  */
+/**
+ * Loads and displays the main dashboard statistics, including the last scanned item.
+ */
 async function loadDashboardStats() {
     const user = auth.currentUser;
+    // Target dashboard elements
+    const statPointsEl = document.getElementById('statPoints');
+    const statTotalEl = document.getElementById('statTotal');
+    const statCrvEl = document.getElementById('statCRV');
+    const lastItemEl = document.getElementById('lastItem');
+
+    // If user is not logged in, reset stats to default
     if (!user) {
-        document.getElementById('statPoints').textContent = '--';
-        document.getElementById('statTotal').textContent = '--';
-        document.getElementById('statCRV').textContent = '--';
+        if (statPointsEl) statPointsEl.textContent = '--';
+        if (statTotalEl) statTotalEl.textContent = '--';
+        if (statCrvEl) statCrvEl.textContent = '--';
+        if (lastItemEl) lastItemEl.innerHTML = '<span class="text-muted">None yet</span>';
         updateLevelProgress(0);
         return;
     }
-    const streakData = await fetchStreak(user.uid);
-    document.getElementById('statPoints').textContent = streakData.pt;
+
+    // --- Fetch all user data in parallel for speed ---
+    const [streakData, collectionSnapshot] = await Promise.all([
+        fetchStreak(user.uid),
+        db.collection('users').doc(user.uid).collection('collection').get()
+    ]);
+
+    // --- Update Points and Level ---
+    statPointsEl.textContent = streakData.pt;
     updateLevelProgress(streakData.pt);
 
-    const snapshot = await db.collection('users').doc(user.uid).collection('collection').get();
+    // --- Update Total Scanned and CRV Count ---
     let crvCount = 0;
-    snapshot.forEach(doc => {
+    collectionSnapshot.forEach(doc => {
         if (doc.data().type === 'crv') crvCount++;
     });
-    document.getElementById('statTotal').textContent = snapshot.size;
-    document.getElementById('statCRV').textContent = crvCount;
+    statTotalEl.textContent = collectionSnapshot.size;
+    statCrvEl.textContent = crvCount;
+
+    // --- Find and Display the Last Scanned Item ---
+    // This is the restored logic
+    const lastItemQuery = db.collection('users').doc(user.uid).collection('collection').orderBy('timestamp', 'desc').limit(1);
+    const lastItemSnapshot = await lastItemQuery.get();
+
+    if (!lastItemSnapshot.empty) {
+        const lastItem = lastItemSnapshot.docs[0].data();
+        lastItemEl.innerHTML = `
+            <div class="flex items-center gap-3">
+                <img src="${lastItem.image}" class="w-12 h-12 rounded-lg object-cover shadow-md" alt="${lastItem.name}">
+                <div>
+                    <p class="font-semibold">${lastItem.name}</p>
+                    <p class="text-sm text-muted">${lastItem.type.toUpperCase()}</p>
+                </div>
+            </div>
+        `;
+    } else {
+        lastItemEl.innerHTML = '<span class="text-muted">None yet</span>';
+    }
 }
 
 /**
