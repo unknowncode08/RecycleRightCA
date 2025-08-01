@@ -1,13 +1,21 @@
 {
-  "name": "RecycleRight CA",
+  "name": "RecycleRight CA",
   "short_name": "RecycleRight",
-  "start_url": "/mobile/?source=pwa",    
-  "scope":   "/mobile/",                
+  "start_url": "/mobile/",
   "display": "standalone",
-  "theme_color": "#16a34a",
-  "background_color": "#0b1724",
+  "background_color": "#0d2e20",
+  "theme_color": "#10b981",
+  "description": "A smart recycling assistant for California.",
   "icons": [
-    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
   ]
 }

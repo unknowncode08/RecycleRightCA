@@ -4,214 +4,154 @@
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<title>RecycleRight CA — Smarter Recycling</title>
+	<title>RecycleRight CA — Smarter Recycling</title>
 
-	<!-- TailwindCSS CDN -->
 	<script src="https://cdn.tailwindcss.com"></script>
 
-	<!-- Inter font -->
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-	<!-- Material Icons -->
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+		rel="stylesheet" />
 	<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
-	<!-- in index.html *and* mobile/index.html -->
+
 	<link rel="manifest" href="/manifest.webmanifest" />
 
 	<style>
+		/* Custom font and base styles */
 		html,
 		body {
 			font-family: 'Inter', sans-serif;
-			-webkit-tap-highlight-color: transparent
+			-webkit-tap-highlight-color: transparent;
 		}
 
-		/* ---------- KEY ANIMATIONS ---------- */
-		@keyframes floatUp {
-			0% {
+		/* Re-usable glass effect with softer blur and border */
+		.glass-card {
+			background: rgba(255, 255, 255, 0.05);
+			backdrop-filter: blur(24px) saturate(180%);
+			border: 1px solid rgba(255, 255, 255, 0.1);
+			box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+		}
+
+		/* Page load animation */
+		@keyframes floatIn {
+			from {
 				transform: translateY(20px);
-				opacity: 0
+				opacity: 0;
 			}
 
-			100% {
-				transform: translateY(0);
-				opacity: 1
-			}
-		}
-
-		@keyframes shimmer {
 			to {
-				background-position: 200% center
+				transform: translateY(0);
+				opacity: 1;
 			}
 		}
 
-		/* Continuous gentle float (for mobile + desktop)  */
-		@keyframes floatLoop {
-
-			0%,
-			100% {
-				transform: translateY(-12px)
-			}
-
-			50% {
-				transform: translateY(12px)
-			}
-		}
-
-		.animate-float {
-			animation: floatUp 0.8s ease-out both
-		}
-
-		.animate-float-loop {
-			animation: floatLoop 6s ease-in-out infinite
-		}
-
-		.glass {
-			background: rgba(255, 255, 255, 0.15);
-			backdrop-filter: blur(18px)saturate(160%);
-			box-shadow: 0 30px 45px rgba(0, 0, 0, 0.25);
-			border: 1px solid rgba(255, 255, 255, 0.3)
-		}
-
-		.glossy-btn {
-			position: relative;
-			overflow: hidden
-		}
-
-		.glossy-btn:before {
-			content: "";
-			position: absolute;
-			inset: 0;
-			background: linear-gradient(110deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.6) 50%, rgba(255, 255, 255, 0.1) 100%);
-			background-size: 200% 200%;
-			animation: shimmer 2.5s infinite
-		}
-
-		.glossy-btn>span {
-			position: relative;
-			z-index: 10
+		.animate-float-in {
+			animation: floatIn 0.8s ease-out both;
 		}
 	</style>
+
 	<script>
-		if (
-			(window.matchMedia('(display-mode: standalone)').matches || navigator.standalone) &&
-			!location.pathname.startsWith('/mobile')
-		) {
+		// Redirects to the mobile app if it's installed on the user's home screen
+		if ((window.matchMedia('(display-mode: standalone)').matches || navigator.standalone) && !location.pathname.startsWith('/mobile')) {
 			location.replace('/mobile/');
 		}
 	</script>
 </head>
 
-<body class="h-full text-gray-200 bg-[#0b1724] overflow-x-hidden">
-	<!-- ------------------------------------------------ HERO ------------------------------------------------ -->
-	<header class="relative w-full min-h-[88vh] flex flex-col items-center justify-center overflow-hidden pt-safe">
-		<!-- animated blurred blobs -->
-		<div class="absolute -top-40 -left-32 w-[360px] h-[360px] bg-green-500 rounded-full filter blur-3xl opacity-40 animate-pulse"
+<body class="bg-slate-900 text-gray-300 overflow-x-hidden">
+
+	<header
+		class="relative w-full min-h-[90vh] sm:min-h-screen flex flex-col items-center justify-center overflow-hidden p-4">
+		<div class="absolute top-0 left-0 w-96 h-96 bg-emerald-500 rounded-full filter blur-3xl opacity-20 animate-pulse"
 			aria-hidden="true"></div>
-		<div class="absolute -bottom-20 -right-20 w-[420px] h-[420px] bg-green-500 rounded-full filter blur-3xl opacity-25 animate-pulse"
+		<div class="absolute bottom-0 right-0 w-96 h-96 bg-emerald-500 rounded-full filter blur-3xl opacity-20 animate-pulse animation-delay-4000"
 			aria-hidden="true"></div>
 
-		<div class="relative z-10 text-center px-4 sm:px-6 max-w-md sm:max-w-2xl animate-float space-y-6">
+		<div class="relative z-10 text-center max-w-3xl animate-float-in space-y-6">
 			<h1
-				class="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight drop-shadow-xl flex items-center justify-center gap-3">
-				<span class="material-icons-outlined text-5xl sm:text-6xl md:text-7xl text-emerald-300">recycling</span>
-				RecycleRight&nbsp;<span class="text-emerald-300">CA</span>
+				class="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tighter text-white drop-shadow-xl flex items-center justify-center gap-3">
+				<span class="material-icons-outlined text-4xl sm:text-5xl md:text-6xl text-emerald-400">recycling</span>
+				RecycleRight <span class="text-emerald-400">CA</span>
 			</h1>
-			<p class="text-base sm:text-lg md:text-2xl text-gray-300 leading-snug sm:leading-normal">Snap anything. Know
-				instantly <span class="text-emerald-300 font-semibold">how</span> &nbsp;and&nbsp; <span
-					class="text-emerald-300 font-semibold">where</span> to recycle — plus cash‑back tips for CRV.</p>
-			<div class="flex flex-col xs:flex-row xs:justify-center gap-4 mt-4">
-				<button id="installBtn"
-					class="glossy-btn rounded-full px-8 py-3 backdrop-blur text-gray-900 font-semibold shadow-lg hover:scale-105 transition-transform">
-					<span>Install&nbsp;App</span>
-				</button>
-				<a href="#learn"
-					class="rounded-full px-8 py-3 glass hover:scale-105 transition-transform">Learn&nbsp;More</a>
-			</div>
-			<p id="platformMsg" class="text-sm text-gray-400"></p>
-		</div>
 
-		<!-- mockup phones -->
+			<p class="text-base sm:text-lg md:text-xl text-slate-300 leading-relaxed">
+				Snap any item. Instantly know <span class="text-emerald-300 font-semibold">how</span> and <span
+					class="text-emerald-300 font-semibold">where</span> to recycle it, with cash-back tips for CRV.
+			</p>
+
+			<div class="flex flex-row justify-center items-center gap-3 pt-4">
+				<button id="installBtn"
+					class="hidden shrink-0 bg-emerald-500 text-slate-900 font-semibold rounded-full px-6 py-3 sm:px-8 shadow-lg hover:bg-emerald-400 hover:scale-105 transition-all text-center">
+					Install App
+				</button>
+				<a href="#features"
+					class="shrink-0 bg-white/10 text-white font-medium rounded-full px-6 py-3 sm:px-8 backdrop-blur-md border border-white/20 hover:bg-white/20 hover:scale-105 transition-all text-center">
+					Learn More
+				</a>
+			</div>
+
+			<p id="platformMsg" class="text-sm text-slate-500 pt-2"></p>
+		</div>
 	</header>
 
-	<!-- ------------------------------------------------ REST OF PAGE (unchanged) ------------------------------------------------ -->
-
 	<main class="flex-1">
-		<!-- INSTALL SECTION -->
-		<section class="relative py-20 sm:py-24">
-			<div
-				class="absolute inset-0 bg-gradient-to-br from-[#102132] via-[#0b1724] to-[#102132] pointer-events-none">
-			</div>
-			<div class="relative max-w-md sm:max-w-3xl mx-auto px-4 sm:px-6 text-center space-y-8 animate-float">
-				<h2 class="text-3xl sm:text-4xl font-bold text-emerald-300">Install in Seconds</h2>
-				<p class="text-gray-400 text-base sm:text-lg">No app‑store. No hassle. Recycle smarter, right from your
-					home screen.</p>
-				<div id="installOptions" class="space-y-6"></div>
-			</div>
-		</section>
 
-		<!-- FEATURES -->
-		<section id="learn" class="relative py-24 sm:py-28">
-			<div
-				class="absolute inset-0 -z-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5">
-			</div>
-			<div class="max-w-md sm:max-w-6xl mx-auto px-4 sm:px-6 space-y-12 sm:space-y-16">
-				<div class="text-center space-y-4 animate-float">
-					<h3 class="text-2xl sm:text-3xl font-bold text-emerald-300">Why You'll Love It</h3>
-					<p class="text-gray-400 text-base sm:text-lg">AI guidance, cash rewards, and eco‑gamification — all
-						in one glossy app.</p>
+		<section id="features" class="relative py-24 sm:py-32">
+			<div class="max-w-6xl mx-auto px-4 sm:px-6 space-y-16">
+				<div class="text-center space-y-4 animate-float-in">
+					<h2 class="text-4xl font-bold tracking-tight text-white">Why You'll Love It</h2>
+					<p class="text-lg text-slate-400 max-w-2xl mx-auto">AI guidance, cash rewards, and eco-gamification
+						— all in one sleek app.</p>
 				</div>
-				<div class="grid gap-8 sm:gap-10 grid-cols-2 sm:grid-cols-4">
+				<div class="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
 					<div
-						class="glass p-6 rounded-3xl flex flex-col items-center text-center hover:scale-[1.04] transition-transform">
-						<span class="material-icons-outlined text-4xl sm:text-5xl text-emerald-200 mb-3">bolt</span>
-						<h4 class="font-semibold mb-1 sm:mb-2 text-sm sm:text-base">Instant Results</h4>
-						<p class="text-xs sm:text-sm text-gray-300">Camera + AI = lightning‑fast recycling answers.</p>
+						class="glass-card p-6 rounded-3xl flex flex-col items-center text-center hover:-translate-y-2 transition-transform">
+						<span class="material-icons-outlined text-5xl text-emerald-300 mb-4">bolt</span>
+						<h3 class="font-semibold text-white mb-2 text-lg">Instant Results</h3>
+						<p class="text-sm text-slate-400">Our camera and AI deliver lightning-fast recycling answers.
+						</p>
 					</div>
 					<div
-						class="glass p-6 rounded-3xl flex flex-col items-center text-center hover:scale-[1.04] transition-transform">
-						<span class="material-icons-outlined text-4xl sm:text-5xl text-emerald-200 mb-3">map</span>
-						<h4 class="font-semibold mb-1 sm:mb-2 text-sm sm:text-base">CRV Finder</h4>
-						<p class="text-xs sm:text-sm text-gray-300">Pin‑point cash‑back centers near you.</p>
+						class="glass-card p-6 rounded-3xl flex flex-col items-center text-center hover:-translate-y-2 transition-transform">
+						<span class="material-icons-outlined text-5xl text-emerald-300 mb-4">map</span>
+						<h3 class="font-semibold text-white mb-2 text-lg">CRV Finder</h3>
+						<p class="text-sm text-slate-400">Pin-point local cash-back and recycling centers near you.</p>
 					</div>
 					<div
-						class="glass p-6 rounded-3xl flex flex-col items-center text-center hover:scale-[1.04] transition-transform">
-						<span
-							class="material-icons-outlined text-4xl sm:text-5xl text-emerald-200 mb-3">emoji_events</span>
-						<h4 class="font-semibold mb-1 sm:mb-2 text-sm sm:text-base">Gamified</h4>
-						<p class="text-xs sm:text-sm text-gray-300">Earn points, badges & keep eco‑streaks alive.</p>
+						class="glass-card p-6 rounded-3xl flex flex-col items-center text-center hover:-translate-y-2 transition-transform">
+						<span class="material-icons-outlined text-5xl text-emerald-300 mb-4">emoji_events</span>
+						<h3 class="font-semibold text-white mb-2 text-lg">Gamified Goals</h3>
+						<p class="text-sm text-slate-400">Earn points, collect badges, and keep your eco-streaks alive.
+						</p>
 					</div>
 					<div
-						class="glass p-6 rounded-3xl flex flex-col items-center text-center hover:scale-[1.04] transition-transform">
-						<span class="material-icons-outlined text-4xl sm:text-5xl text-emerald-200 mb-3">school</span>
-						<h4 class="font-semibold mb-1 sm:mb-2 text-sm sm:text-base">Learn As You Go</h4>
-						<p class="text-xs sm:text-sm text-gray-300">Quick insights on why & how to recycle items right.
+						class="glass-card p-6 rounded-3xl flex flex-col items-center text-center hover:-translate-y-2 transition-transform">
+						<span class="material-icons-outlined text-5xl text-emerald-300 mb-4">school</span>
+						<h3 class="font-semibold text-white mb-2 text-lg">Learn As You Go</h3>
+						<p class="text-sm text-slate-400">Get quick insights on why and how to recycle items correctly.
 						</p>
 					</div>
 				</div>
 			</div>
 		</section>
 
-		<!-- TESTIMONIAL -->
-		<section class="py-20 bg-[#0e1d2c] text-center">
-			<blockquote class="max-w-4xl mx-auto text-2xl md:text-3xl italic text-emerald-200 animate-float">
-				“This app makes recycling addictive! I actually compete with friends
-				for points.”
-			</blockquote>
-			<cite class="block mt-6 text-gray-400">— Alex&nbsp;M., Elk Grove</cite>
+		<section class="py-24 bg-slate-900/70">
+			<div class="max-w-4xl mx-auto px-4 text-center">
+				<blockquote class="text-3xl md:text-4xl font-semibold italic text-white leading-snug">
+					“This app makes recycling addictive! I actually compete with friends for points.”
+				</blockquote>
+				<cite class="block mt-6 text-slate-400">— Alex M., Elk Grove</cite>
+			</div>
 		</section>
 
-		<!-- GALLERY (unchanged except responsive grid cols) -->
-		<section class="relative py-24">
-			<div
-				class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(22,163,74,0.15)_0%,transparent_70%)]">
-			</div>
-			<div class="max-w-md sm:max-w-6xl mx-auto px-4 sm:px-6 space-y-12 sm:space-y-16">
-				<div class="text-center space-y-4 animate-float">
-					<h3 class="text-2xl sm:text-3xl font-bold text-emerald-300">Eye‑Candy Interface</h3>
-					<p class="text-gray-400 text-base sm:text-lg">Neumorphic cards & neon highlights — see for yourself.
-					</p>
+		<section class="relative py-24 sm:py-32">
+			<div class="max-w-6xl mx-auto px-4 sm:px-6 space-y-16">
+				<div class="text-center space-y-4">
+					<h2 class="text-4xl font-bold tracking-tight text-white">Sleek, Modern Interface</h2>
+					<p class="text-lg text-slate-400 max-w-2xl mx-auto">A glassy, intuitive design that makes recycling
+						feel effortless.</p>
 				</div>
-				<div class="grid gap-6 sm:gap-8 grid-cols-1 sm:grid-cols-3">
+				<div class="grid gap-8 grid-cols-1 sm:grid-cols-3">
 					<img src="images/scanner.jpg" class="rounded-3xl shadow-2xl hover:scale-105 transition-transform"
 						alt="Scanner screen" />
 					<img src="images/results.png" class="rounded-3xl shadow-2xl hover:scale-105 transition-transform"
@@ -223,47 +163,87 @@
 			</div>
 		</section>
 
-		<!-- HOW IT WORKS & remaining sections kept intact -->
-		<!-- ... (unchanged HTML from your current file for How‑It‑Works, Testimonial, About, Footer, and Script) ... -->
+		<section class="relative py-24 sm:py-32 border-t border-white/10">
+			<div class="relative max-w-3xl mx-auto px-4 text-center space-y-8">
+				<h2 class="text-4xl font-bold text-white">Install in Seconds</h2>
+				<p class="text-lg text-slate-400">No app store needed. Get started right from your browser.</p>
+				<div id="installOptions" class="pt-4">
+				</div>
+			</div>
+		</section>
+
 	</main>
 
-	<footer class="text-center py-6 text-xs sm:text-sm text-gray-500 bg-[#09121c]">© 2025 RecycleRight CA —
-		Congressional App Challenge</footer>
+	<footer class="text-center py-8 text-sm text-slate-500 bg-slate-900/50 border-t border-white/10">
+		© 2025 RecycleRight CA — Congressional App Challenge
+	</footer>
 
-	<!-- ------------------------------------------------ SCRIPT (unchanged) ------------------------------------------------ -->
 	<script>
-		const redirectLink = "RecycleRightCA/mobile/";
-		/* existing JS untouched to keep functionality */
+		// --- PWA INSTALL SCRIPT ---
+
+		// Detect user's device type
 		const ua = navigator.userAgent;
-		const isIOS = /iPhone|iPad|iPod/i.test(ua); const isAndroid = /Android/i.test(ua); const isMobile = isIOS || isAndroid;
-		const BASE = location.pathname.replace(/\/[^/]*$/, '/');
-		const installOptions = document.getElementById('installOptions'); let deferredPrompt;
-		const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-		const currentPath = window.location.pathname;
+		const isIOS = /iPhone|iPad|iPod/i.test(ua);
+		const isAndroid = /Android/i.test(ua);
 
-		if (isStandalone && !currentPath.startsWith('/mobile')) {
-			window.location.replace('/mobile/');
+		const installBtn = document.getElementById('installBtn');
+		const platformMsg = document.getElementById('platformMsg');
+		let deferredPrompt; // This will hold the install event
+
+		// Register service worker (required for PWA)
+		if ('serviceWorker' in navigator) {
+			navigator.serviceWorker.register('sw.js');
 		}
 
-		if (isMobile) {
-			document.getElementById('installBtn').classList.remove('hidden');
-		} else {
-			document.getElementById('installBtn').classList.add('hidden');
-		}
-
-		if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
-		window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; showInstallIfAndroid(); });
-		document.getElementById('installBtn')?.addEventListener('click', () => {
-			alert(
-				'Tip: Add RecycleRight CA to your Home Screen for offline use.\n' +
-				'On the next page, tap the Share icon and choose "Add to Home Screen."'
-			);
-			// keep any query string / hash in case you’re deep‑linking
-			window.location.href = "https://unknowncode08.github.io/RecycleRightCA/mobile/";
+		// Listen for the browser's install prompt
+		window.addEventListener('beforeinstallprompt', (e) => {
+			e.preventDefault();
+			deferredPrompt = e;
+			installBtn.textContent = 'Install App';
+			installBtn.classList.remove('hidden');
+			platformMsg.textContent = "Get the full app experience on your home screen.";
 		});
-		function showInstallIfAndroid() { if (/Android/i.test(navigator.userAgent)) { document.getElementById('installBtn').classList.remove('hidden'); } }
-		if (isIOS || isAndroid) { installOptions.innerHTML = '<div class="glass p-4 rounded-2xl text-gray-200 text-sm">Add to Home Screen via the <span class="underline">Share</span> menu for an app‑like experience.</div>'; }
-		if (!isMobile) { installOptions.innerHTML = '<p class="text-red-400 text-sm">Open this page on your phone to install.</p>'; }
+
+		// Handle the install button click
+		installBtn.addEventListener('click', async () => {
+			// On iOS, we can only show instructions
+			if (isIOS && !window.navigator.standalone) {
+				alert("To install this app on your iPhone:\n\n1. Tap the 'Share' icon in Safari.\n2. Scroll down and tap 'Add to Home Screen'.");
+				return;
+			}
+
+			// On Android, if the prompt is ready, show it
+			if (deferredPrompt) {
+				deferredPrompt.prompt();
+				const { outcome } = await deferredPrompt.userChoice;
+				console.log(`User response to the install prompt: ${outcome}`);
+				deferredPrompt = null;
+				installBtn.classList.add('hidden');
+			} else if (isAndroid) {
+				// If the prompt isn't ready, show manual instructions
+				alert("To install this app on Android:\n\n1. Tap the 'three dots' menu in Chrome.\n2. Tap 'Install app' or 'Add to Home screen'.");
+			}
+		});
+
+		// Initial setup for different devices
+		if (isIOS && !window.navigator.standalone) {
+			installBtn.textContent = 'How to Install on iPhone';
+			installBtn.classList.remove('hidden');
+			platformMsg.textContent = "Get the full app experience on your home screen.";
+		} else if (isAndroid) {
+			// On Android, provide a fallback message in case the prompt is slow to appear.
+			platformMsg.textContent = "Checking compatibility...";
+			setTimeout(() => {
+				if (!deferredPrompt) {
+					installBtn.textContent = 'How to Install';
+					installBtn.classList.remove('hidden');
+					platformMsg.textContent = "Use your browser's menu to 'Install app' or 'Add to Home Screen'.";
+				}
+			}, 3000); // Wait 3 seconds for the prompt event
+		} else {
+			// For desktop users
+			document.getElementById('installOptions').innerHTML = '<p class="text-lg text-emerald-400">Please open this page on your mobile phone to install the app.</p>';
+		}
 	</script>
 </body>
 
