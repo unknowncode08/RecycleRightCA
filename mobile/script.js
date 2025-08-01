@@ -93,6 +93,34 @@ document.getElementById('floatingScanBtn').addEventListener('click', async () =>
     }
 });
 
+/**
+ * Captures a photo from the video stream and sends it for analysis.
+ */
+document.getElementById('snapBtn').onclick = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext('2d').drawImage(video, 0, 0);
+    stream.getTracks().forEach(track => track.stop());
+    video.srcObject = null;
+    document.getElementById('camera').classList.add('hidden');
+    document.getElementById('loadingSpinner').classList.remove('hidden');
+    const base64 = canvas.toDataURL('image/jpeg').split(',')[1];
+    capturedBase64 = base64;
+    sendToGemini(base64);
+};
+
+/**
+ * Closes the camera view.
+ */
+document.getElementById('closeCamera').onclick = () => {
+    if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        stream = null; // Clear the stream
+    }
+    document.getElementById('camera').classList.add('hidden');
+};
+
 
 // --- AUTHENTICATION ---
 
