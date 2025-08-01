@@ -64,7 +64,11 @@ function switchTab(tabName) {
     document.getElementById('floatingScanBtn').style.display = (tabName === 'main') ? 'flex' : 'none';
 
     // Page-specific actions
-    if (tabName === 'main') loadDashboardStats();
+    // Page-specific actions
+    if (tabName === 'main') {
+        loadDashboardStats();
+        checkStreakReminder(); // <-- ADD THIS LINE
+    }
     if (tabName === 'map' && !mapReady) initMap();
     if (tabName === 'profile') refreshProfile();
     if (tabName === 'collection') refreshCollection();
@@ -190,8 +194,44 @@ async function refreshProfile() {
 // --- DATA & STATS ---
 
 /**
- * Loads and displays the main dashboard statistics.
+ * Checks if the user's streak is at risk and shows a reminder card if needed.
  */
+async function checkStreakReminder() {
+    const user = auth.currentUser;
+    const reminderCard = document.getElementById('streakReminderCard');
+    if (!user || !reminderCard) {
+        if (reminderCard) reminderCard.classList.add('hidden');
+        return;
+    }
+
+    const userDoc = await db.collection('users').doc(user.uid).get();
+    if (!userDoc.exists) return;
+
+    const lastScanDate = userDoc.data().lastScanDate; // e.g., "2025-08-01"
+    const currentStreak = userDoc.data().currentStreak || 0;
+
+    if (!lastScanDate || currentStreak === 0) {
+        reminderCard.classList.add('hidden');
+        return;
+    }
+
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+
+    const lastScan = new Date(lastScanDate);
+    // Adjust for timezone differences by comparing just the date part
+    const todayStr = today.toISOString().slice(0, 10);
+    const yesterdayStr = yesterday.toISOString().slice(0, 10);
+
+    // Show the reminder only if the last scan was yesterday (meaning today is the deadline)
+    if (lastScanDate === yesterdayStr && lastScanDate !== todayStr) {
+        reminderCard.classList.remove('hidden');
+    } else {
+        reminderCard.classList.add('hidden');
+    }
+}
+
 /**
  * Loads and displays the main dashboard statistics, including the last scanned item.
  */
@@ -651,37 +691,7 @@ function animateCount(elementId, endValue, duration = 800) {
 
 // --- NOTIFICATIONS & APP VERSION ---
 
-/**
- * Handles the "Enable Notifications" button click.
- */
-document.getElementById('enableNotificationsBtn').addEventListener('click', async () => {
-    if (!window.isSecureContext) {
-        alert('🚫 Security Error!\nThis feature requires a secure connection (HTTPS). Please use a local server.');
-        return;
-    }
-    if (!('Notification' in window) || !navigator.serviceWorker) {
-        alert('🚫 Browser Not Supported!\nYour browser does not support background notifications.');
-        return;
-    }
 
-    try {
-        const permissionResult = await Notification.requestPermission();
-        if (permissionResult !== 'granted') {
-            alert('⚠️ Permission Denied.\nYou must allow notifications to receive reminders.');
-            return;
-        }
-        alert('✅ Notification permission granted! Setting up background reminders...');
-
-        const registration = await navigator.serviceWorker.ready;
-        await registration.periodicSync.register('recycle-reminder', {
-            minInterval: 2 * 60 * 60 * 1000,
-        });
-        alert('✅ Success! Background reminders are now active.');
-    } catch (error) {
-        console.error('Notification Setup Failed:', error);
-        alert('❌ Could not set up background reminders.\nYour browser may not support this feature.');
-    }
-});
 
 /**
  * Compares local app version with the one on the server.
@@ -853,7 +863,7 @@ async function showResult(text) {
         titleColor = 'text-yellow-500';
         buttons = `<button onclick="switchTab('map'); closeResult();" class="w-full mt-4 py-3 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 font-semibold">Find Nearest Center</button>`;
     }
-    
+
     // Set the classes directly to create the overlay and bottom sheet
     resultDiv.className = 'fixed inset-0 z-[1000] bg-black/50 backdrop-blur-sm flex items-end';
     resultDiv.style.animation = 'fade-in 0.3s ease-out';
@@ -880,9 +890,9 @@ async function showResult(text) {
             await addPointsToUser(user.uid, type === 'crv' ? 10 : 5);
             await addToCollection(user.uid, item, type, capturedBase64);
             if (document.getElementById('page-main').offsetParent !== null) {
-               loadDashboardStats();
+                loadDashboardStats();
             }
-        } catch(e) {
+        } catch (e) {
             console.error("Error updating user data:", e);
         }
     }

@@ -21,41 +21,70 @@
   <link rel="icon" type="image/x-icon" href="./icons/icon-512.png">
   <style>
     :root {
-      --bg-color: #f0fdf4; --card-bg: rgba(255, 255, 255, 0.5); --text-color: #1f2937; --muted-text: #4b5563; --border-color: rgba(255, 255, 255, 0.7); --gradient-start: rgba(52, 211, 153, 0.3); --gradient-end: rgba(167, 243, 208, 0.2);
+      --bg-color: #f0fdf4;
+      --card-bg: rgba(255, 255, 255, 0.5);
+      --text-color: #1f2937;
+      --muted-text: #4b5563;
+      --border-color: rgba(255, 255, 255, 0.7);
+      --gradient-start: rgba(52, 211, 153, 0.3);
+      --gradient-end: rgba(167, 243, 208, 0.2);
     }
+
     .dark {
-      --bg-color: #0d2e20; --card-bg: rgba(16, 185, 129, 0.1); --text-color: #f9fafb; --muted-text: #9ca3af; --border-color: rgba(52, 211, 153, 0.2); --gradient-start: rgba(16, 185, 129, 0.4); --gradient-end: rgba(15, 25, 20, 0.2);
+      --bg-color: #0d2e20;
+      --card-bg: rgba(16, 185, 129, 0.1);
+      --text-color: #f9fafb;
+      --muted-text: #9ca3af;
+      --border-color: rgba(52, 211, 153, 0.2);
+      --gradient-start: rgba(16, 185, 129, 0.4);
+      --gradient-end: rgba(15, 25, 20, 0.2);
     }
+
     body {
       background-color: var(--bg-color);
       background-image: radial-gradient(circle at top, var(--gradient-start), transparent 70%),
-                        radial-gradient(circle at bottom, var(--gradient-end), transparent 60%);
+        radial-gradient(circle at bottom, var(--gradient-end), transparent 60%);
       background-attachment: fixed;
       color: var(--text-color);
       font-family: 'Inter', sans-serif;
     }
+
     .glass-card {
       background: var(--card-bg);
       backdrop-filter: blur(25px) saturate(120%);
       -webkit-backdrop-filter: blur(25px) saturate(120%);
       border: 1px solid var(--border-color);
     }
-    .text-muted { color: var(--muted-text); }
-    
+
+    .text-muted {
+      color: var(--muted-text);
+    }
+
     /* Animations for popups */
     @keyframes slide-up {
-      from { transform: translateY(100%); }
-      to { transform: translateY(0); }
+      from {
+        transform: translateY(100%);
+      }
+
+      to {
+        transform: translateY(0);
+      }
     }
+
     @keyframes fade-in {
-      from { opacity: 0; }
-      to { opacity: 1; }
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
     }
   </style>
 </head>
 
 <body class="h-full flex flex-col">
-  
+
   <header class="sticky top-0 z-20">
     <div class="h-16 px-6 bg-emerald-600 flex items-center shadow-lg">
       <h1 class="text-xl font-bold tracking-tight flex items-center gap-2 text-white">
@@ -67,52 +96,152 @@
 
   <main class="relative flex-1 overflow-y-auto pb-20 z-10" id="pages">
     <section id="page-main" class="p-6 space-y-6">
-      <div class="text-center"><h2 class="text-2xl font-bold">♻️ Welcome Back!</h2><p class="text-muted">Let's make a difference today.</p></div>
-      <div class="grid grid-cols-3 grid-rows-3 gap-4" id="dashboardDiv">
-        <div class="glass-card rounded-2xl p-4 shadow-lg col-span-2 row-span-2 flex flex-col justify-center items-center text-center"><p class="text-sm font-medium text-muted">Points</p><p class="text-5xl font-bold text-emerald-500" id="statPoints">--</p></div>
-        <div class="glass-card rounded-2xl p-4 shadow-md flex flex-col justify-center items-center text-center"><p class="text-sm text-muted">Scanned</p><p class="text-3xl font-bold text-emerald-600" id="statTotal">--</p></div>
-        <div class="glass-card rounded-2xl p-4 shadow-md flex flex-col justify-center items-center text-center"><p class="text-sm text-muted">CRV Items</p><p class="text-3xl font-bold text-yellow-500" id="statCRV">--</p></div>
-        <div class="glass-card rounded-2xl p-4 shadow-md col-span-3 flex flex-col justify-center space-y-2">
-          <div class="w-full flex justify-between items-end px-1"><p id="levelCountLabel" class="text-sm text-muted font-bold">Level: --</p><p id="percentLabel" class="text-xs text-muted">--%</p></div>
-          <div class="bg-black/10 dark:bg-white/10 h-3 rounded-full overflow-hidden shadow-inner"><div id="levelProgress" class="bg-gradient-to-r from-green-400 to-emerald-500 h-full transition-all duration-500 ease-out" style="width: 0%"></div></div>
+      <div class="text-center">
+        <h2 class="text-2xl font-bold">♻️ Welcome Back!</h2>
+        <p class="text-muted">Let's make a difference today.</p>
+        <div id="streakReminderCard"
+          class="hidden glass-card bg-yellow-500/20 border-yellow-500/50 rounded-2xl p-4 shadow-lg flex items-center gap-4 animate-float-in">
+          <span class="material-icons-outlined text-4xl text-yellow-500">warning</span>
+          <div>
+            <h3 class="font-bold text-yellow-200">Your Streak is at Risk!</h3>
+            <p class="text-sm text-yellow-300">Scan an item today to keep your streak alive. 🔥</p>
+          </div>
         </div>
       </div>
-      <div class="glass-card rounded-xl p-4 shadow-md space-y-2"><p class="font-semibold">🕒 Last Item Scanned</p><div id="lastItem"><span class="text-muted">None yet</span></div></div>
+      <div class="grid grid-cols-3 grid-rows-3 gap-4" id="dashboardDiv">
+        <div
+          class="glass-card rounded-2xl p-4 shadow-lg col-span-2 row-span-2 flex flex-col justify-center items-center text-center">
+          <p class="text-sm font-medium text-muted">Points</p>
+          <p class="text-5xl font-bold text-emerald-500" id="statPoints">--</p>
+        </div>
+        <div class="glass-card rounded-2xl p-4 shadow-md flex flex-col justify-center items-center text-center">
+          <p class="text-sm text-muted">Scanned</p>
+          <p class="text-3xl font-bold text-emerald-600" id="statTotal">--</p>
+        </div>
+        <div class="glass-card rounded-2xl p-4 shadow-md flex flex-col justify-center items-center text-center">
+          <p class="text-sm text-muted">CRV Items</p>
+          <p class="text-3xl font-bold text-yellow-500" id="statCRV">--</p>
+        </div>
+        <div class="glass-card rounded-2xl p-4 shadow-md col-span-3 flex flex-col justify-center space-y-2">
+          <div class="w-full flex justify-between items-end px-1">
+            <p id="levelCountLabel" class="text-sm text-muted font-bold">Level: --</p>
+            <p id="percentLabel" class="text-xs text-muted">--%</p>
+          </div>
+          <div class="bg-black/10 dark:bg-white/10 h-3 rounded-full overflow-hidden shadow-inner">
+            <div id="levelProgress"
+              class="bg-gradient-to-r from-green-400 to-emerald-500 h-full transition-all duration-500 ease-out"
+              style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+      <div class="glass-card rounded-xl p-4 shadow-md space-y-2">
+        <p class="font-semibold">🕒 Last Item Scanned</p>
+        <div id="lastItem"><span class="text-muted">None yet</span></div>
+      </div>
     </section>
-    
-    <section class="hidden h-full" id="page-map"><div class="w-full h-full" id="map"></div></section>
-    <section class="hidden p-6" id="page-collection"><div class="w-full grid gap-4" id="collectionList"></div></section>
-    <section class="hidden p-6" id="page-profile"><div class="glass-card p-6 rounded-2xl shadow-lg text-center space-y-4" id="profileContent"></div></section>
+
+    <section class="hidden h-full" id="page-map">
+      <div class="w-full h-full" id="map"></div>
+    </section>
+    <section class="hidden p-6" id="page-collection">
+      <div class="w-full grid gap-4" id="collectionList"></div>
+    </section>
+    <section class="hidden p-6" id="page-profile">
+      <div class="glass-card p-6 rounded-2xl shadow-lg text-center space-y-4" id="profileContent"></div>
+    </section>
     <section class="hidden p-6 space-y-6" id="page-settings">
       <h2 class="text-2xl font-bold">Settings</h2>
-      <div class="flex items-center justify-between glass-card px-4 py-3 rounded-xl shadow"><label class="text-lg font-medium flex items-center gap-2" for="darkModeToggle"><span class="material-icons-outlined">dark_mode</span>Dark Mode</label><input class="w-5 h-5" id="darkModeToggle" type="checkbox" /></div>
-      <div class="flex items-center justify-between glass-card px-4 py-3 rounded-xl shadow"><label class="text-lg font-medium flex items-center gap-2"><span class="material-icons-outlined">notifications</span>Enable Notifications</label><button id="enableNotificationsBtn" class="text-sm px-3 py-1 bg-emerald-600 text-white rounded-full hover:bg-emerald-700">Enable</button></div>
+      <div class="flex items-center justify-between glass-card px-4 py-3 rounded-xl shadow"><label
+          class="text-lg font-medium flex items-center gap-2" for="darkModeToggle"><span
+            class="material-icons-outlined">dark_mode</span>Dark Mode</label><input class="w-5 h-5" id="darkModeToggle"
+          type="checkbox" /></div>
       <p class="text-sm text-gray-500 pt-6 text-center">App Version: <span id="appVersionDisplay"></span></p>
     </section>
   </main>
 
-  <nav class="fixed bottom-4 inset-x-0 mx-auto h-16 w-[90%] max-w-sm glass-card rounded-2xl shadow-xl flex justify-around items-center text-sm z-30">
-    <button class="tab flex flex-col items-center text-green-500 gap-0.5" data-tab="main"><span class="material-icons-outlined text-2xl">home</span><span class="text-xs">Main</span></button>
-    <button class="tab flex flex-col items-center text-muted gap-0.5" data-tab="map"><span class="material-icons-outlined text-2xl">map</span><span class="text-xs">Map</span></button>
-    <button class="tab flex flex-col items-center text-muted gap-0.5" data-tab="collection"><span class="material-icons-outlined text-2xl">collections</span><span class="text-xs">Collection</span></button>
-    <button class="tab flex flex-col items-center text-muted gap-0.5" data-tab="profile"><span class="material-icons-outlined text-2xl">person</span><span class="text-xs">Profile</span></button>
-    <button class="tab flex flex-col items-center text-muted gap-0.5" data-tab="settings"><span class="material-icons-outlined text-2xl">settings</span><span class="text-xs">Settings</span></button>
+  <nav
+    class="fixed bottom-4 inset-x-0 mx-auto h-16 w-[90%] max-w-sm glass-card rounded-2xl shadow-xl flex justify-around items-center text-sm z-30">
+    <button class="tab flex flex-col items-center text-green-500 gap-0.5" data-tab="main"><span
+        class="material-icons-outlined text-2xl">home</span><span class="text-xs">Main</span></button>
+    <button class="tab flex flex-col items-center text-muted gap-0.5" data-tab="map"><span
+        class="material-icons-outlined text-2xl">map</span><span class="text-xs">Map</span></button>
+    <button class="tab flex flex-col items-center text-muted gap-0.5" data-tab="collection"><span
+        class="material-icons-outlined text-2xl">collections</span><span class="text-xs">Collection</span></button>
+    <button class="tab flex flex-col items-center text-muted gap-0.5" data-tab="profile"><span
+        class="material-icons-outlined text-2xl">person</span><span class="text-xs">Profile</span></button>
+    <button class="tab flex flex-col items-center text-muted gap-0.5" data-tab="settings"><span
+        class="material-icons-outlined text-2xl">settings</span><span class="text-xs">Settings</span></button>
   </nav>
 
-  <button id="floatingScanBtn" class="fixed bottom-24 right-6 bg-gradient-to-br from-green-500 to-emerald-600 text-white rounded-full w-20 h-20 flex items-center justify-center shadow-2xl hover:scale-105 transform transition-transform z-40" style="display: none;"><span class="material-icons-outlined text-4xl">photo_camera</span></button>
-  <button id="multiDeleteBtn" class="hidden fixed bottom-24 right-6 bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg z-50">Delete Selected</button>
+  <button id="floatingScanBtn"
+    class="fixed bottom-24 right-6 bg-gradient-to-br from-green-500 to-emerald-600 text-white rounded-full w-20 h-20 flex items-center justify-center shadow-2xl hover:scale-105 transform transition-transform z-40"
+    style="display: none;"><span class="material-icons-outlined text-4xl">photo_camera</span></button>
+  <button id="multiDeleteBtn"
+    class="hidden fixed bottom-24 right-6 bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg z-50">Delete
+    Selected</button>
 
-  <div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center hidden z-[100]" id="authPopup"><div class="bg-card rounded-2xl shadow-xl p-6 w-80 animate-pop relative text-center"><button class="absolute top-2 right-2 text-muted hover:text-gray-700 text-2xl" id="closeAuth">×</button><h2 class="text-xl font-bold mb-4" id="authTitle">Sign In</h2><input class="w-full mb-3 p-2 border rounded" id="emailInput" placeholder="Email" type="email" /><input class="w-full mb-4 p-2 border rounded" id="passwordInput" placeholder="Password" type="password" /><button class="w-full mb-3 px-4 py-2 bg-gradient-to-br from-green-500 to-emerald-600 text-white rounded hover:to-emerald-700" id="authMainBtn">Login</button><button class="w-full mb-3 px-4 py-2 border border-gray-300 rounded-md bg-white hover:bg-gray-100 flex items-center justify-center gap-3" id="googleBtn"><img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google logo" class="w-5 h-5" /><span id="googleBtnText" class="text-sm text-gray-700 font-medium">Sign in with Google</span></button><p class="text-sm mt-4 text-blue-600 cursor-pointer underline" id="switchAuthMode">Signup</p></div></div>
-  <div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center hidden z-[100]" id="collectionPopup"><div class="glass-card rounded-2xl shadow-xl p-6 w-80 text-center animate-pop relative"><button class="absolute top-2 right-2 text-muted hover:text-gray-700 text-2xl" id="closeCollectionPopup">×</button><img class="w-32 h-32 rounded-full mx-auto mb-4 object-cover shadow" id="popupImage" /><h2 class="text-xl font-bold mb-1" id="popupName"></h2><p class="text-muted mb-4" id="popupType"></p><button class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600" id="deleteItemBtn">Delete</button></div></div>
-  <div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center hidden z-[100]" id="howToPopup"><div class="glass-card rounded-2xl shadow-xl p-6 w-80 animate-pop relative text-center space-y-4"><h2 class="text-xl font-bold text-blue-500 flex items-center justify-center gap-2"><span class="material-icons-outlined">build</span>How To Recycle</h2><p class="text-muted text-left" id="howToText">Loading...</p><button class="absolute top-2 right-2 text-muted hover:text-gray-700 text-2xl" id="closeHowTo">×</button></div></div>
-  <div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center hidden z-[100]" id="whyPopup"><div class="glass-card rounded-2xl shadow-xl p-6 w-80 animate-pop relative text-center space-y-4"><h2 class="text-xl font-bold text-emerald-500 flex items-center justify-center gap-2"><span class="material-icons-outlined">eco</span>Why It Matters</h2><p class="text-muted text-left" id="whyText">Loading...</p><button class="absolute top-2 right-2 text-muted hover:text-gray-700 text-2xl" id="closeWhy">×</button></div></div>
-  
+  <div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center hidden z-[100]"
+    id="authPopup">
+    <div class="bg-card rounded-2xl shadow-xl p-6 w-80 animate-pop relative text-center"><button
+        class="absolute top-2 right-2 text-muted hover:text-gray-700 text-2xl" id="closeAuth">×</button>
+      <h2 class="text-xl font-bold mb-4" id="authTitle">Sign In</h2><input class="w-full mb-3 p-2 border rounded"
+        id="emailInput" placeholder="Email" type="email" /><input class="w-full mb-4 p-2 border rounded"
+        id="passwordInput" placeholder="Password" type="password" /><button
+        class="w-full mb-3 px-4 py-2 bg-gradient-to-br from-green-500 to-emerald-600 text-white rounded hover:to-emerald-700"
+        id="authMainBtn">Login</button><button
+        class="w-full mb-3 px-4 py-2 border border-gray-300 rounded-md bg-white hover:bg-gray-100 flex items-center justify-center gap-3"
+        id="googleBtn"><img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google logo"
+          class="w-5 h-5" /><span id="googleBtnText" class="text-sm text-gray-700 font-medium">Sign in with
+          Google</span></button>
+      <p class="text-sm mt-4 text-blue-600 cursor-pointer underline" id="switchAuthMode">Signup</p>
+    </div>
+  </div>
+  <div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center hidden z-[100]"
+    id="collectionPopup">
+    <div class="glass-card rounded-2xl shadow-xl p-6 w-80 text-center animate-pop relative"><button
+        class="absolute top-2 right-2 text-muted hover:text-gray-700 text-2xl" id="closeCollectionPopup">×</button><img
+        class="w-32 h-32 rounded-full mx-auto mb-4 object-cover shadow" id="popupImage" />
+      <h2 class="text-xl font-bold mb-1" id="popupName"></h2>
+      <p class="text-muted mb-4" id="popupType"></p><button
+        class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600" id="deleteItemBtn">Delete</button>
+    </div>
+  </div>
+  <div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center hidden z-[100]"
+    id="howToPopup">
+    <div class="glass-card rounded-2xl shadow-xl p-6 w-80 animate-pop relative text-center space-y-4">
+      <h2 class="text-xl font-bold text-blue-500 flex items-center justify-center gap-2"><span
+          class="material-icons-outlined">build</span>How To Recycle</h2>
+      <p class="text-muted text-left" id="howToText">Loading...</p><button
+        class="absolute top-2 right-2 text-muted hover:text-gray-700 text-2xl" id="closeHowTo">×</button>
+    </div>
+  </div>
+  <div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center hidden z-[100]" id="whyPopup">
+    <div class="glass-card rounded-2xl shadow-xl p-6 w-80 animate-pop relative text-center space-y-4">
+      <h2 class="text-xl font-bold text-emerald-500 flex items-center justify-center gap-2"><span
+          class="material-icons-outlined">eco</span>Why It Matters</h2>
+      <p class="text-muted text-left" id="whyText">Loading...</p><button
+        class="absolute top-2 right-2 text-muted hover:text-gray-700 text-2xl" id="closeWhy">×</button>
+    </div>
+  </div>
+
   <div class="hidden" id="result"></div>
-  <div class="fixed inset-0 bg-black/90 hidden z-[999] flex items-center justify-center" id="loadingSpinner"><p class="text-lg text-white">🔍 Analyzing image…</p></div>
-  <div class="fixed inset-0 bg-black/50 backdrop-blur-xl hidden z-[999] flex flex-col" id="camera"><button class="absolute top-5 right-5 w-10 h-10 flex items-center justify-center bg-black/30 rounded-full text-white/80 text-2xl font-light hover:bg-black/50 transition-colors" id="closeCamera"><span class="material-icons-outlined">close</span></button><video autoplay playsinline class="flex-1 object-cover w-full h-full" id="videoPreview"></video><div class="w-full flex justify-center py-6"><button class="w-20 h-20 rounded-full bg-transparent border-4 border-white shadow-2xl flex items-center justify-center group hover:border-white/80 transition" id="snapBtn"><div class="w-16 h-16 rounded-full bg-white group-hover:bg-white/80 transition"></div></button></div></div>
+  <div class="fixed inset-0 bg-black/90 hidden z-[999] flex items-center justify-center" id="loadingSpinner">
+    <p class="text-lg text-white">🔍 Analyzing image…</p>
+  </div>
+  <div class="fixed inset-0 bg-black/50 backdrop-blur-xl hidden z-[999] flex flex-col" id="camera"><button
+      class="absolute top-5 right-5 w-10 h-10 flex items-center justify-center bg-black/30 rounded-full text-white/80 text-2xl font-light hover:bg-black/50 transition-colors"
+      id="closeCamera"><span class="material-icons-outlined">close</span></button><video autoplay playsinline
+      class="flex-1 object-cover w-full h-full" id="videoPreview"></video>
+    <div class="w-full flex justify-center py-6"><button
+        class="w-20 h-20 rounded-full bg-transparent border-4 border-white shadow-2xl flex items-center justify-center group hover:border-white/80 transition"
+        id="snapBtn">
+        <div class="w-16 h-16 rounded-full bg-white group-hover:bg-white/80 transition"></div>
+      </button></div>
+  </div>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="script.js"></script>
 
 </body>
+
 </html>
