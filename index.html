@@ -263,7 +263,7 @@
 		});
 		function showInstallIfAndroid() { if (/Android/i.test(navigator.userAgent)) { document.getElementById('installBtn').classList.remove('hidden'); } }
 		if (isIOS || isAndroid) { installOptions.innerHTML = '<div class="glass p-4 rounded-2xl text-gray-200 text-sm">Add to Home Screen via the <span class="underline">Share</span> menu for an app‑like experience.</div>'; }
-		if (!isMobile) { installOptions.innerHTML = '<p class="text-gray-400 text-sm">Open this page on your phone to install.</p>'; }
+		if (!isMobile) { installOptions.innerHTML = '<p class="text-red-400 text-sm">Open this page on your phone to install.</p>'; }
 	</script>
 </body>
 

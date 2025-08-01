@@ -64,22 +64,53 @@ async function refreshProfile() {
         const points = streakData.pt;
         const {
             name: levelName, badge
-        }
-            = calculateLevel(points);
+        } = calculateLevel(points);
+
         let streakBadge = '';
         if (streakData.current >= 90) streakBadge = '🔥 90-Day Master';
         else if (streakData.current >= 30) streakBadge = '🏆 30-Day Legend';
         else if (streakData.current >= 7) streakBadge = '🥇 7-Day Champ';
-        profileContent.innerHTML = `<div class="space-y-6 flex flex-col items-center"><div class="rounded-full bg-green-100 w-32 h-32 flex items-center justify-center text-5xl shadow-inner animate-bounce">${badge}</div><div class="text-muted text-center"><p class="text-2xl font-bold mb-2">${user.email}</p><p class="text-lg">Points: <span id="pointsCount" class="text-green-700 font-semibold">${points}</span></p><p class="text-lg">Level: <span class="text-blue-700 font-semibold">${levelName}</span></p><p class="text-lg">🔥 Current Streak: <span class="font-semibold">${streakData.current}</span> days</p><p class="text-lg">🏆 Longest Streak: <span class="font-semibold">${streakData.longest}</span> days</p><p class="text-lg">❄️ Streak Freeze: <span class="font-semibold">${streakData.freeze ? 'Available' : 'None'}</span></p>${streakBadge ? `<p class="mt-2 text-green-600 font-bold">${streakBadge
-            }
-     </p>` : ''}<div id="freezeSection" class="mt-4"></div></div><button onclick="logout()" class="px-6 py-2 bg-gray-300 rounded-md hover:bg-gray-400">Sign Out</button></div>`;
-        if (!streakData.freeze) {
-            document.getElementById('freezeSection').innerHTML = `<button onclick="buyStreakFreeze()" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">Buy Streak Freeze (50 pts)</button>`
-        }
-    }
-    else {
-        profileContent.innerHTML = `<div class="space-y-6 flex flex-col items-center"><p class="text-muted text-lg">You are currently signed out.</p><button onclick="openAuthPopup()" class="px-6 py-2 bg-gradient-to-br from-green-500 to-emerald-600 text-white rounded-md hover:to-emerald-700">Sign In</button></div>`;
 
+        profileContent.innerHTML = `
+        <div class="w-full space-y-6 flex flex-col items-center">
+            <div class="flex flex-col items-center text-center">
+                <div class="rounded-full bg-emerald-100/30 w-28 h-28 flex items-center justify-center text-5xl shadow-inner mb-4">${badge}</div>
+                <p class="text-2xl font-bold">${levelName}</p>
+                <p class="text-sm text-muted">${user.email}</p>
+                ${streakBadge ? `<p class="mt-2 text-sm font-semibold text-emerald-500">${streakBadge}</p>` : ''}
+            </div>
+
+            <div class="w-full grid grid-cols-2 gap-4 text-center">
+                <div class="glass-card rounded-xl p-3">
+                    <p class="text-sm text-muted">Points</p>
+                    <p class="text-2xl font-semibold text-blue-500">${points}</p>
+                </div>
+                <div class="glass-card rounded-xl p-3">
+                    <p class="text-sm text-muted">Current Streak</p>
+                    <p class="text-2xl font-semibold">${streakData.current} days</p>
+                </div>
+                <div class="glass-card rounded-xl p-3">
+                    <p class="text-sm text-muted">Longest Streak</p>
+                    <p class="text-2xl font-semibold">${streakData.longest} days</p>
+                </div>
+                <div class="glass-card rounded-xl p-3">
+                    <p class="text-sm text-muted">Streak Freeze</p>
+                    <p class="text-2xl font-semibold">${streakData.freeze ? '❄️' : 'None'}</p>
+                </div>
+            </div>
+
+            <div id="freezeSection" class="w-full pt-2"></div>
+            
+            <button onclick="logout()" class="w-full px-6 py-3 bg-red-500/10 dark:bg-red-500/20 text-red-500 font-semibold rounded-lg hover:bg-red-500/20 dark:hover:bg-red-500/30">
+                Sign Out
+            </button>
+        </div>`;
+
+        if (!streakData.freeze) {
+            document.getElementById('freezeSection').innerHTML = `<button onclick="buyStreakFreeze()" class="w-full px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600">Buy Streak Freeze (50 pts)</button>`
+        }
+    } else {
+        profileContent.innerHTML = `<div class="space-y-6 flex flex-col items-center"><p class="text-lg text-muted">You are currently signed out.</p><button onclick="openAuthPopup()" class="px-6 py-2 bg-gradient-to-br from-green-500 to-emerald-600 text-white rounded-md hover:to-emerald-700">Sign In</button></div>`;
     }
 }
 
@@ -483,16 +514,16 @@ function switchTab(tab) {
         stream = null;
         const videoElement = document.getElementById('videoPreview');
         if (videoElement) videoElement.srcObject = null;
-
     }
+
     tabs.forEach(t => {
         const active = t.dataset.tab === tab;
-        t.classList.toggle('text-green-600', active);
-        t.classList.toggle('text-gray-500', !active);
+        // FIX: Using the correct 'text-green-500' for active and 'text-muted' for inactive states.
+        t.classList.toggle('text-green-500', active);
+        t.classList.toggle('text-muted', !active);
         document.getElementById(pages[t.dataset.tab]).classList.toggle('hidden', !active);
+    });
 
-    }
-    );
     if (tab === 'map' && !mapReady) initMap();
     if (tab === 'profile') refreshProfile();
     if (tab === 'collection') {
@@ -1013,116 +1044,109 @@ function calculateLevel(points) {
 
 const darkModeToggle = document.getElementById('darkModeToggle');
 if (localStorage.getItem('dark_mode') === 'true') {
-    document.body.classList.add('dark');
+    // FIX: Targeting the root <html> element for the dark class
+    document.documentElement.classList.add('dark');
     darkModeToggle.checked = true;
-
 }
+
 darkModeToggle.addEventListener('change', () => {
     const enabled = darkModeToggle.checked;
-    document.body.classList.toggle('dark', enabled);
+    // FIX: Targeting the root <html> element for the dark class
+    document.documentElement.classList.toggle('dark', enabled);
     localStorage.setItem('dark_mode', enabled);
-
-}
-);
+});
 
 
-  document.getElementById('enableNotificationsBtn').addEventListener('click', async () => {
-    if (!('Notification' in window)) {
-      alert('Notifications are not supported in this browser.');
-      return;
-    }
+// --- BACKGROUND NOTIFICATIONS & SERVICE WORKER ---
 
-    const permission = await Notification.requestPermission();
-    if (permission === 'granted') {
-      console.log('🔔 Notifications enabled!');
-      alert('Notifications have been enabled!');
-      scheduleDailyReminder(); // Call your scheduling function here
-    } else if (permission === 'denied') {
-      alert('You have denied notifications. You may need to change browser settings to enable them.');
-    }
-  });
-
-  // Example stub to avoid errors if scheduleDailyReminder doesn't exist yet
-  function scheduleDailyReminder() {
-    // You can replace this with your real scheduling logic
-    console.log('🗓️ Reminder would be scheduled here.');
-  }
-
-
-function scheduleDailyReminder() {
-    const now = new Date();
-    const targetHour = 18; // 6:00 PM daily
-    const targetMinute = 0;
-
-    const target = new Date();
-    target.setHours(targetHour, targetMinute, 0, 0);
-
-    if (target < now) {
-        target.setDate(target.getDate() + 1); // schedule for tomorrow if already past
-    }
-
-    const delay = target - now;
-    console.log(`Next notification in ${(delay / 1000 / 60).toFixed(1)} minutes.`);
-
-    setTimeout(() => {
-        sendRecycleReminder();
-        setInterval(sendRecycleReminder, 24 * 60 * 60 * 1000); // daily from then on
-    }, delay);
-}
-
-function sendRecycleReminder() {
-    if (Notification.permission === 'granted') {
-        new Notification('♻️ Reminder', {
-            body: 'Don’t forget to recycle something today!',
-            icon: '../icons/icon-192.png'
-        });
-    }
-}
-
+// Register the service worker when the page loads
+// A single, consolidated function to run when the page has loaded
 window.addEventListener('load', async () => {
-    /*
-    if ('Notification' in window && Notification.permission !== 'granted') {
-        Notification.requestPermission().then(permission => {
-            if (permission === 'granted') {
-                console.log('🔔 Notifications enabled!');
-                scheduleDailyReminder();
-            }
-        });
-    } else if (Notification.permission === 'granted') {
-        scheduleDailyReminder(); // Already granted
-    */
+    // 1. Register the Service Worker for background tasks
+    if ('serviceWorker' in navigator) {
+        try {
+            await navigator.serviceWorker.register('sw.js');
+            console.log('Service Worker registered successfully.');
+        } catch (e) {
+            console.error('Service Worker registration failed:', e);
+        }
+    }
 
+    // 2. Check the app version against the server
     const metaRef = firebase.firestore().collection('meta').doc('appVersion');
-    const doc = await metaRef.get();
-    let serverVersion = doc.exists ? doc.data().version : null;
+    try {
+        const doc = await metaRef.get();
+        const serverVersion = doc.exists ? doc.data().version : null;
 
-    if (serverVersion) {
-        const compare = compareVersions(LOCAL_APP_VERSION, serverVersion);
+        if (serverVersion) {
+            const compare = compareVersions(LOCAL_APP_VERSION, serverVersion);
+            if (compare < 0) {
+                // If the app is outdated, show the update message and stop further execution
+                document.body.innerHTML = `
+                <div class="min-h-screen flex items-center justify-center bg-gray-100 text-center px-4">
+                  <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-2xl font-bold mb-4">Update Required</h2>
+                    <p class="mb-4">A newer version of the app is available. Please refresh or reinstall to continue.</p>
+                    <button onclick="location.reload()" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Refresh</button>
+                  </div>
+                </div>`;
+                return; // Stop the function here
+            }
+            if (compare > 0) {
+                await metaRef.set({ version: LOCAL_APP_VERSION }, { merge: true });
+            }
+        } else {
+            await metaRef.set({ version: LOCAL_APP_VERSION });
+        }
+    } catch (e) {
+        console.error("Could not verify app version:", e);
+    }
 
-        if (compare < 0) {
-            // 🔒 Client version is older → block use
-            document.body.innerHTML = `
-        <div class="min-h-screen flex items-center justify-center bg-gray-100 text-center px-4">
-          <div class="bg-white p-6 rounded-lg shadow-md">
-            <h2 class="text-2xl font-bold mb-4">Update Required</h2>
-            <p class="mb-4">A newer version of the app is available. Please refresh or reinstall to continue.</p>
-            <button onclick="location.reload()" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Refresh</button>
-          </div>
-        </div>
-      `;
+    // 3. Display the app version in the settings page
+    const versionDisplay = document.getElementById('appVersionDisplay');
+    if (versionDisplay) {
+        versionDisplay.textContent = LOCAL_APP_VERSION;
+    }
+});
+
+document.getElementById('enableNotificationsBtn').addEventListener('click', async () => {
+    // Check for secure context (HTTPS/localhost) which is required
+    if (!window.isSecureContext) {
+        alert('🚫 This feature requires a secure connection (HTTPS).');
+        return;
+    }
+
+    try {
+        // Step 1: Request permission from the user to show notifications.
+        // This is the prompt the user will see.
+        const permissionResult = await Notification.requestPermission();
+
+        if (permissionResult !== 'granted') {
+            alert('⚠️ You must allow notifications to receive reminders.');
             return;
         }
 
-        if (compare > 0) {
-            // 🚀 Local version is newer → auto-update Firestore
-            await metaRef.set({ version: LOCAL_APP_VERSION }, { merge: true });
-        }
-    } else {
-        // 🔧 Firestore version doesn't exist → set initial
-        await metaRef.set({ version: LOCAL_APP_VERSION });
-    }
+        console.log('Notification permission granted.');
+        alert('✅ Notification permission granted!');
 
-    document.getElementById('appVersionDisplay').textContent = LOCAL_APP_VERSION;
+        // Step 2: Set up the background sync.
+        console.log('Setting up background reminders...');
+        const registration = await navigator.serviceWorker.ready;
+
+        // The Periodic Sync API allows the browser to schedule the task to save battery.
+        // It might not run *exactly* every 2 hours, but the browser will manage it.
+        await registration.periodicSync.register('recycle-reminder', {
+            minInterval: 2 * 60 * 60 * 1000, // 2 hours
+        });
+
+        alert('✅ Success! Background reminders are now active.');
+        console.log('Periodic background sync registered!');
+
+    } catch (error) {
+        console.error('Notification Setup Failed:', error);
+        // This error often happens if Periodic Sync isn't supported or is disabled by the user.
+        alert('❌ Could not set up background reminders.\n\nYour browser may not support this feature, or it might be disabled in your settings.');
+    }
 });
 
 async function loadDashboardStats() {

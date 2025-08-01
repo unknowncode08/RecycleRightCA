@@ -30,17 +30,73 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <link rel="apple-touch-icon" href="./icons/icon-192.png" />
   <link rel="icon" type="image/x-icon" href="./icons/icon-512.png">
+
+  <style>
+    :root {
+      --bg-color: #f0fdf4;
+      /* A very light green background */
+      --card-bg: rgba(255, 255, 255, 0.5);
+      --text-color: #1f2937;
+      --muted-text: #4b5563;
+      --border-color: rgba(255, 255, 255, 0.7);
+      /* A more vibrant but light green gradient */
+      --gradient-start: rgba(52, 211, 153, 0.3);
+      /* Emerald-400 */
+      --gradient-end: rgba(167, 243, 208, 0.2);
+      /* Emerald-200 */
+    }
+
+    .dark {
+      --bg-color: #0d2e20;
+      /* Dark green background */
+      --card-bg: rgba(16, 185, 129, 0.1);
+      /* Translucent emerald */
+      --text-color: #f9fafb;
+      --muted-text: #9ca3af;
+      --border-color: rgba(52, 211, 153, 0.2);
+      /* Emerald-400 border */
+      --gradient-start: rgba(16, 185, 129, 0.4);
+      --gradient-end: rgba(13, 46, 32, 0.3);
+    }
+
+    body {
+      background-color: var(--bg-color);
+      /* Updated Green Tint Gradient */
+      background-image: radial-gradient(circle at top, var(--gradient-start), transparent 70%),
+        radial-gradient(circle at bottom, var(--gradient-end), transparent 60%);
+      background-attachment: fixed;
+      color: var(--text-color);
+    }
+
+    .glass-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(25px) saturate(120%);
+      -webkit-backdrop-filter: blur(25px) saturate(120%);
+      border: 1px solid var(--border-color);
+      color: var(--text-color);
+      transition: all 0.2s ease-in-out;
+    }
+
+    .glass-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    .text-muted {
+      color: var(--muted-text);
+    }
+  </style>
 </head>
 
 <body class="h-full flex flex-col">
   <!-- ----------  HEADER  ---------- -->
-  <header class="relative z-20 shadow-sm">
-    <div class="h-16 bg-gradient-to-br from-green-600 to-emerald-500 flex items-center justify-center text-white">
-      <h1 class="text-2xl font-semibold tracking-tight animate-fade flex items-center gap-2">
-        <span class="material-icons-outlined text-3xl">
+  <header class="sticky top-0 z-20">
+    <div class="h-16 px-6 bg-emerald-600 dark:bg-emerald-700 flex items-center shadow-lg">
+      <h1 class="text-xl font-bold tracking-tight flex items-center gap-2 text-white">
+        <span class="material-icons-outlined text-2xl">
           recycling
         </span>
-        RecycleRight CA
+        RecycleRight CA
       </h1>
     </div>
   </header>
@@ -49,61 +105,54 @@
     <!-- bottom padding so nav doesn't overlap -->
     <!-- Home  -->
     <section id="page-main" class="p-6 space-y-6">
-      <div class="bg-card rounded-xl p-4 shadow-md space-y-2 text-center">
-        <h2 class="text-xl font-bold">♻️ Welcome Back!</h2>
-        <p class="text-muted">Keep making an impact—every item counts.</p>
+      <div class="text-center">
+        <h2 class="text-2xl font-bold">♻️ Welcome Back!</h2>
+        <p class="text-muted">Let's make a difference today.</p>
       </div>
 
-      <div class="grid grid-cols-2 gap-4" id="dashboardDiv">
-        <div class="bg-card rounded-lg p-4 text-center shadow">
-          <p class="text-sm text-muted">Total Scanned</p>
-          <p class="text-2xl font-bold text-green-700" id="statTotal">--</p>
+      <div class="grid grid-cols-3 grid-rows-3 gap-4" id="dashboardDiv">
+
+        <div
+          class="glass-card rounded-2xl p-4 shadow-lg col-span-2 row-span-2 flex flex-col justify-center items-center text-center">
+          <p class="text-sm font-medium text-muted">Points</p>
+          <p class="text-5xl font-bold text-emerald-500" id="statPoints">--</p>
         </div>
-        <div class="bg-card rounded-lg p-4 text-center shadow">
+
+        <div class="glass-card rounded-2xl p-4 shadow-md flex flex-col justify-center items-center text-center">
+          <p class="text-sm text-muted">Scanned</p>
+          <p class="text-3xl font-bold text-emerald-600" id="statTotal">--</p>
+        </div>
+
+        <div class="glass-card rounded-2xl p-4 shadow-md flex flex-col justify-center items-center text-center">
           <p class="text-sm text-muted">CRV Items</p>
-          <p class="text-2xl font-bold text-yellow-500" id="statCRV">--</p>
+          <p class="text-3xl font-bold text-yellow-500" id="statCRV">--</p>
         </div>
-        <div class="bg-card rounded-lg p-4 text-center shadow col-span-2">
-          <p class="text-sm text-muted">Points</p>
-          <p class="text-2xl font-bold text-blue-600" id="statPoints">--</p>
-        </div>
-        <div class="col-span-2 bg-gray-200 h-3 rounded-full overflow-hidden shadow-inner">
-          <div id="levelProgress" class="bg-green-500 h-full transition-all duration-500 ease-out" style="width: 100%">
+
+        <div class="glass-card rounded-2xl p-4 shadow-md col-span-3 flex flex-col justify-center space-y-2">
+          <div class="w-full flex justify-between items-end px-1">
+            <p id="levelCountLabel" class="text-sm text-muted font-bold">Level: --</p>
+            <p id="percentLabel" class="text-xs text-muted">--%</p>
+          </div>
+          <div class="bg-black/10 dark:bg-white/10 h-3 rounded-full overflow-hidden shadow-inner">
+            <div id="levelProgress"
+              class="bg-gradient-to-r from-green-400 to-emerald-500 h-full transition-all duration-500 ease-out"
+              style="width: 0%">
+            </div>
           </div>
         </div>
-        <div class="w-full flex justify-center col-span-2" style="margin-top: 2px; margin-bottom: 2px;">
-          <p id="percentLabel" class="text-sm text-gray-500 text-center" style="margin-top: 2px; margin-bottom: 2px;">
-          </p>
-        </div>
-        <div class="w-full flex justify-center">
-          <p id="levelCountLabel" class="text-sm text-gray-500 mt-1 text-center font-bold"></p>
-        </div>
-        <div class="w-full flex justify-center">
-          <p id="levelLabel" class="text-sm text-gray-500 mt-1 text-center"></p>
-        </div>
       </div>
 
-      <div class="bg-card rounded-lg p-4 shadow space-y-2">
+      <div class="glass-card rounded-xl p-4 shadow-md space-y-2">
         <p class="font-semibold">📌 Daily Challenge</p>
         <p class="text-muted">Try recycling one plastic bottle today!</p>
       </div>
 
-      <div class="bg-card rounded-lg p-4 shadow space-y-2">
+      <div class="glass-card rounded-xl p-4 shadow-md space-y-2">
         <p class="font-semibold">🕒 Last Item Scanned</p>
         <div id="lastItem" class="text-muted">None yet</div>
       </div>
 
-      <div class="w-full space-y-4 flex flex-col items-center">
-        <button
-          class="hidden relative ripple w-full max-w-xs flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-br from-green-500 to-emerald-600 text-white rounded-2xl shadow-lg hover:from-green-600 hover:to-emerald-700 transition-all text-lg font-medium"
-          id="scanBtn">
-          <span class="material-icons-outlined">
-            photo_camera
-          </span>
-          Snap Item
-        </button>
-      </div>
-      <section class="hidden w-full bg-card rounded-2xl shadow-lg animate-pop" id="result">
+      <section class="hidden w-full glass-card rounded-2xl shadow-lg animate-pop" id="result">
       </section>
     </section>
     <!-- Camera Overlay  -->
@@ -138,24 +187,24 @@
       <div class="max-w-x1 mx-auto px-6">
 
         <nav
-        class = "fixed top-16 left-1/2 -translate-x-1/2 w-96 h-16  bg-white border p-4 shadow rounded z-50 flex justify-around items-center">
-        <button class="tab flex flex-col items-center" data-tab="collection">
-          <span>
-            Items
-          </span>
-        </button>
-        <button class="tab flex flex-col items-center" data-tab="collection">
-          <span>
-            Museum
-          </span>
-        </button>
-          <div class="absolute bottom-0 h-0.5 bg-green"
-        </nav>
-        <div class=" mt-6 grid gap-4" id="collectionList">
-        </div>
-      </div>
+          class="fixed top-16 left-1/2 -translate-x-1/2 w-96 h-16  bg-white border p-4 shadow rounded z-50 flex justify-around items-center">
+          <button class="tab flex flex-col items-center" data-tab="collection">
+            <span>
+              Items
+            </span>
+          </button>
+          <button class="tab flex flex-col items-center" data-tab="collection">
+            <span>
+              Museum
+            </span>
+          </button>
+          <div class="absolute bottom-0 h-0.5 bg-green" </nav>
+            <div class=" mt-6 grid gap-4" id="collectionList">
+            </div>
+          </div>
     </section>
-    <button id="multiDeleteBtn" class="hidden fixed bottom-20 right-6 bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg z-50">
+    <button id="multiDeleteBtn"
+      class="hidden fixed bottom-20 right-6 bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg z-50">
       🗑️ Delete Selected
     </button>
     <!-- Profile -->
@@ -181,60 +230,61 @@
         <input class="w-5 h-5" id="darkModeToggle" type="checkbox" />
       </div>
       <div class="flex items-center justify-between bg-card px-4 py-3 rounded-xl shadow">
-  <label class="text-lg font-medium flex items-center gap-2">
-    <span class="material-icons-outlined">
-      notifications
-    </span>
-    Enable Notifications
-  </label>
-  <button id="enableNotificationsBtn" class="text-sm px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700">
-    Enable
-  </button>
-</div>
+        <label class="text-lg font-medium flex items-center gap-2">
+          <span class="material-icons-outlined">
+            notifications
+          </span>
+          Enable Notifications
+        </label>
+        <button id="enableNotificationsBtn"
+          class="text-sm px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700">
+          Enable
+        </button>
+      </div>
 
       <p class="text-sm text-gray-500 mt-6 text-center">App Version: <span id="appVersionDisplay"></span></p>
     </section>
   </main>
   <!-- ----------  BOTTOM NAV  ---------- -->
   <nav
-    class="fixed bottom-0 inset-x-0 h-16 bg-white/80 backdrop-blur border-t border-gray-200 shadow-inner flex justify-around items-center text-sm z-30">
-    <button class="tab flex flex-col items-center text-green-600 gap-0.5" data-tab="main">
+    class="fixed bottom-4 inset-x-0 mx-auto h-16 w-[90%] max-w-sm glass-card rounded-2xl shadow-xl flex justify-around items-center text-sm z-30">
+    <button class="tab flex flex-col items-center text-green-500 gap-0.5" data-tab="main">
       <span class="material-icons-outlined text-2xl">
         home
       </span>
-      <span>
+      <span class="text-xs">
         Main
       </span>
     </button>
-    <button class="tab flex flex-col items-center text-gray-500 gap-0.5" data-tab="map">
+    <button class="tab flex flex-col items-center text-muted gap-0.5" data-tab="map">
       <span class="material-icons-outlined text-2xl">
         map
       </span>
-      <span>
+      <span class="text-xs">
         Map
       </span>
     </button>
-    <button class="tab flex flex-col items-center text-gray-500 gap-0.5" data-tab="collection">
+    <button class="tab flex flex-col items-center text-muted gap-0.5" data-tab="collection">
       <span class="material-icons-outlined text-2xl">
         collections
       </span>
-      <span>
+      <span class="text-xs">
         Collection
       </span>
     </button>
-    <button class="tab flex flex-col items-center text-gray-500 gap-0.5" data-tab="profile">
+    <button class="tab flex flex-col items-center text-muted gap-0.5" data-tab="profile">
       <span class="material-icons-outlined text-2xl">
         person
       </span>
-      <span>
+      <span class="text-xs">
         Profile
       </span>
     </button>
-    <button class="tab flex flex-col items-center text-gray-500 gap-0.5" data-tab="settings">
+    <button class="tab flex flex-col items-center text-muted gap-0.5" data-tab="settings">
       <span class="material-icons-outlined text-2xl">
         settings
       </span>
-      <span>
+      <span class="text-xs">
         Settings
       </span>
     </button>
@@ -330,9 +380,9 @@
   </div>
   <!-- Floating action button (only on main page) -->
   <button id="floatingScanBtn"
-    class="fixed bottom-20 right-4 bg-gradient-to-br from-green-500 to-emerald-600 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-xl hover:bg-green-700 z-40"
+    class="fixed bottom-24 right-6 bg-gradient-to-br from-green-500 to-emerald-600 text-white rounded-full w-20 h-20 flex items-center justify-center shadow-2xl hover:scale-105 transform transition-transform z-40"
     style="display: none;">
-    <span class="material-icons-outlined text-3xl">
+    <span class="material-icons-outlined text-4xl">
       photo_camera
     </span>
   </button>
