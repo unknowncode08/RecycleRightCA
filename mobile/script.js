@@ -438,7 +438,7 @@ async function refreshMuseum() {
         trophyCard.className = 'glass-card rounded-2xl p-4 text-center space-y-2';
         trophyCard.innerHTML = `
             <img src="${trophy.art}" class="w-full h-32 object-cover rounded-lg shadow-md" alt="${trophy.name}">
-            <p class="font-semibold text-slate-800 dark:text-white text-sm">${trophy.name}</p>
+            <p class="font-semibold text-slate-800 dark:text-black text-sm">${trophy.name}</p>
         `;
         museumGrid.appendChild(trophyCard);
     });
