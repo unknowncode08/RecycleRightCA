@@ -34,9 +34,9 @@ const pages = { main: 'page-main', map: 'page-map', profile: 'page-profile', set
 // "name" is the official title of the trophy.
 // "art" is the path to your custom image for the trophy.
 const specialItems = {
-    "Coca Cola": { id: "coke_trophy", name: "Classic Cola", art: "images/trophies/coke.png" },
-    "Pepsi": { id: "pepsi_trophy", name: "The Challenger", art: "images/trophies/pepsi.png" },
-    "Starbucks": { id: "starbucks_trophy", name: "Morning Ritual", art: "images/trophies/starbucks.png" },
+    "coca-cola": { id: "coke_trophy", name: "Classic Cola", art: "images/trophies/coke.png" },
+    "pepsi": { id: "pepsi_trophy", name: "The Challenger", art: "images/trophies/pepsi.png" },
+    "starbucks": { id: "starbucks_trophy", name: "Morning Ritual", art: "images/trophies/starbucks.png" },
     // Add more special items here! For example:
     // "arizona": { id: "arizona_trophy", name: "Green Tea Giant", art: "images/trophies/arizona.png" },
 };
