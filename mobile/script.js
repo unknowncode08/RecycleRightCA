@@ -29,6 +29,17 @@ let suppressNextClick = false;
 const selectedItems = new Set();
 const pages = { main: 'page-main', map: 'page-map', profile: 'page-profile', settings: 'page-settings', collection: 'page-collection' };
 
+// This is your customizable list of special items.
+// The "key" (e.g., "coca-cola") is what the script looks for in the AI's response.
+// "name" is the official title of the trophy.
+// "art" is the path to your custom image for the trophy.
+const specialItems = {
+    "Coca Cola": { id: "coke_trophy", name: "Classic Cola", art: "images/trophies/coke.png" },
+    "Pepsi": { id: "pepsi_trophy", name: "The Challenger", art: "images/trophies/pepsi.png" },
+    "Starbucks": { id: "starbucks_trophy", name: "Morning Ritual", art: "images/trophies/starbucks.png" },
+    // Add more special items here! For example:
+    // "arizona": { id: "arizona_trophy", name: "Green Tea Giant", art: "images/trophies/arizona.png" },
+};
 
 // --- PRIMARY UI & NAVIGATION ---
 
@@ -71,7 +82,11 @@ function switchTab(tabName) {
     }
     if (tabName === 'map' && !mapReady) initMap();
     if (tabName === 'profile') refreshProfile();
-    if (tabName === 'collection') refreshCollection();
+    if (tabName === 'collection') {
+        // Default to the items tab view
+        document.getElementById('itemsTab').click();
+        refreshCollection();
+    }
     if (isMultiSelectMode) exitMultiSelectMode();
 }
 
@@ -80,6 +95,21 @@ function switchTab(tabName) {
  */
 document.querySelectorAll('.tab').forEach(t => {
     t.addEventListener('click', () => switchTab(t.dataset.tab));
+});
+
+document.getElementById('itemsTab').addEventListener('click', () => {
+    document.getElementById('collectionList').classList.remove('hidden');
+    document.getElementById('museumGrid').classList.add('hidden');
+    document.getElementById('itemsTab').classList.add('bg-emerald-500', 'text-white');
+    document.getElementById('museumTab').classList.remove('bg-emerald-500', 'text-white');
+});
+
+document.getElementById('museumTab').addEventListener('click', () => {
+    document.getElementById('collectionList').classList.add('hidden');
+    document.getElementById('museumGrid').classList.remove('hidden');
+    document.getElementById('museumTab').classList.add('bg-emerald-500', 'text-white');
+    document.getElementById('itemsTab').classList.remove('bg-emerald-500', 'text-white');
+    refreshMuseum();
 });
 
 /**
@@ -332,11 +362,87 @@ function calculateLevel(points) {
     return { name: 'Beginner', badge: '🎯' };
 }
 
-// NOTE: All your other data functions are needed here.
-// For example: fetchStreak, updateStreak, addPointsToUser, buyStreakFreeze,
-// addToCollection, refreshCollection, and the multi-delete logic.
-// Please ensure they are present in your file. I have omitted them here to avoid
-// redundancy from the previous turn, but they are essential.
+// --- MUSEUM & ACHIEVEMENTS ---
+
+/**
+ * Checks if a scanned item is a special item and unlocks an achievement if so.
+ * @param {string} itemName - The name of the item detected by the AI.
+ */
+async function checkForSpecialItem(itemName) {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const lowerCaseItemName = itemName.toLowerCase();
+
+    for (const key in specialItems) {
+        if (lowerCaseItemName.includes(key)) {
+            const trophy = specialItems[key];
+            await unlockAchievement(user.uid, trophy);
+            break; // Stop after finding the first match
+        }
+    }
+}
+
+/**
+ * Saves a new trophy to the user's museum and shows the unlock popup.
+ * @param {string} userId - The user's unique ID.
+ * @param {object} trophy - The trophy object from the specialItems list.
+ */
+async function unlockAchievement(userId, trophy) {
+    const museumRef = db.collection('users').doc(userId).collection('museum');
+    const trophyDoc = await museumRef.doc(trophy.id).get();
+
+    // Only unlock it if the user doesn't already have it
+    if (!trophyDoc.exists) {
+        await museumRef.doc(trophy.id).set({
+            name: trophy.name,
+            art: trophy.art,
+            unlockedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        // Show the "Trophy Unlocked!" popup
+        document.getElementById('trophyArt').src = trophy.art;
+        document.getElementById('trophyName').textContent = trophy.name;
+        const popup = document.getElementById('trophyPopup');
+        popup.classList.remove('hidden');
+
+        // Hide the popup after a few seconds
+        setTimeout(() => {
+            popup.classList.add('hidden');
+        }, 3500);
+    }
+}
+
+/**
+ * Fetches and displays the user's unlocked trophies in the Museum tab.
+ */
+async function refreshMuseum() {
+    const museumGrid = document.getElementById('museumGrid');
+    museumGrid.innerHTML = '<p class="text-muted text-center col-span-full">Loading your museum...</p>';
+    const user = auth.currentUser;
+    if (!user) {
+        museumGrid.innerHTML = '<p class="text-muted text-center col-span-full">Sign in to view your museum.</p>';
+        return;
+    }
+
+    const snapshot = await db.collection('users').doc(user.uid).collection('museum').orderBy('unlockedAt', 'desc').get();
+    if (snapshot.empty) {
+        museumGrid.innerHTML = '<p class="text-muted text-center col-span-full">No trophies unlocked yet. Start scanning to find special items!</p>';
+        return;
+    }
+
+    museumGrid.innerHTML = '';
+    snapshot.forEach(doc => {
+        const trophy = doc.data();
+        const trophyCard = document.createElement('div');
+        trophyCard.className = 'glass-card rounded-2xl p-4 text-center space-y-2';
+        trophyCard.innerHTML = `
+            <img src="${trophy.art}" class="w-full h-32 object-cover rounded-lg shadow-md" alt="${trophy.name}">
+            <p class="font-semibold text-white text-sm">${trophy.name}</p>
+        `;
+        museumGrid.appendChild(trophyCard);
+    });
+}
 
 async function addToCollection(userId, name, type, base64img) {
     const collectionRef = db.collection('users').doc(userId).collection('collection');
@@ -774,50 +880,56 @@ window.addEventListener('load', async () => {
 // for the app to fully function. Please ensure they are copied over.
 
 /* ---------------------------  GEMINI  --------------------------- */
+/**
+ * Sends the captured image to the Gemini API for analysis.
+ * @param {string} base64img - The base64-encoded image string.
+ */
 async function sendToGemini(base64img) {
     const body = {
         generationConfig: {
-            temperature: 0.2  // 👈 Makes AI output more stable
+            temperature: 0.2
         },
         contents: {
             parts: [{
                 inline_data: {
-                    mime_type: 'image/jpeg', data: base64img
+                    mime_type: 'image/jpeg',
+                    data: base64img
                 }
+            }, {
+                text: `Analyze this item. Detect the item and whether it is recyclable or not.
 
-            }
-                , {
-                text: `Analyze this item. Detect the item, detect whether it is recyclable or not.\nIf the item is recyclable, determine if it most likely is CRV. If it is, estimate return amount money.\nHere is a list of items usually listed as CRV:\n  - Glass Beer and other malt bottles\n  - Glass wine coolers\n  - Plastic Soda bottles and aluminum cans\n  - Plastic water bottles\n  - Plastic sports drinks bottles\n  - Tea and coffee drinks\n  - Juice cans and bottles (100% juice containers need to be less than 46 ounces)\n  - Vegetable juice (less than 16 ounces)\n\nPLEASE ONLY RESPOND WITH ONE OF THESE:\n[RECYCABLE, (ITEM NAME)]\n[NON-R, (ITEM NAME)]\n[CRV, (ESTIMATED-MONEY), (ITEM NAME)]\n\nExample:\n[RECYCABLE, Plastic Lid]\n[NON-R, Metal Water Bottle]\n[CRV, $0.20, Plastic Water Bottle]`
-            }
-            ]
+When identifying the item, be as specific as possible. Include brand names (e.g., 'Coca-Cola', 'Starbucks', 'Pepsi') and the material/type of object (e.g., 'Aluminum Can', 'Plastic Cup', 'Glass Bottle') if you can identify them.
+
+If the item is recyclable, determine if it is a CRV item. If it is, estimate the return amount.
+
+PLEASE ONLY RESPOND WITH ONE OF THESE THREE FORMATS:
+[RECYCABLE, (BRAND AND ITEM NAME)]
+[NON-R, (BRAND AND ITEM NAME)]
+[CRV, (ESTIMATED-MONEY), (BRAND AND ITEM NAME)]
+
+Examples:
+[RECYCABLE, Starbucks Plastic Lid]
+[NON-R, Chipped Ceramic Mug]
+[CRV, $0.05, Coca-Cola Can]`
+            }]
         }
-
     };
+
     try {
         const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`, {
-            method: 'POST', headers: {
-                'Content-Type': 'application/json'
-            }
-            , body: JSON.stringify(body)
-        }
-        );
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
         const data = await res.json();
         const text = data.candidates[0]?.content?.parts[0]?.text.trim();
         showResult(text);
-
-    }
-    catch (err) {
+    } catch (err) {
         console.error('Gemini error:', err);
-        const resultDiv = document.getElementById('result');
-        resultDiv.innerHTML = '⚠️ Error analyzing image.';
-        resultDiv.classList.remove('hidden');
-
-    }
-    finally {
+        showResult('ERROR'); // Let showResult handle the error display
+    } finally {
         document.getElementById('loadingSpinner').classList.add('hidden');
-
     }
-
 }
 
 
@@ -883,6 +995,7 @@ async function showResult(text) {
     `;
 
     // Handle user data updates after showing the result
+    await checkForSpecialItem(item); // <-- ADD THIS LINE
     const user = auth.currentUser;
     if (user && type !== 'unknown') {
         try {
