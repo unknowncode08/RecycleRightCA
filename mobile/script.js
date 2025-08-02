@@ -438,7 +438,7 @@ async function refreshMuseum() {
         trophyCard.className = 'glass-card rounded-2xl p-4 text-center space-y-2';
         trophyCard.innerHTML = `
             <img src="${trophy.art}" class="w-full h-32 object-cover rounded-lg shadow-md" alt="${trophy.name}">
-            <p class="font-semibold text-slate-800 dark:text-black text-sm">${trophy.name}</p>
+            <p class="font-semibold text-slate-800 dark:text-white text-sm">${trophy.name}</p>
         `;
         museumGrid.appendChild(trophyCard);
     });
@@ -642,6 +642,115 @@ document.getElementById('closeCollectionPopup').onclick = () => {
     document.getElementById('collectionPopup').classList.add('hidden');
 
 };
+
+// --- SETTINGS PAGE LOGIC ---
+
+// --- Simple Toggles & Links ---
+document.getElementById('soundEffectsToggle').addEventListener('change', (e) => {
+    localStorage.setItem('soundEffectsEnabled', e.target.checked);
+});
+document.getElementById('hapticsToggle').addEventListener('change', (e) => {
+    localStorage.setItem('hapticsEnabled', e.target.checked);
+});
+
+// Initialize toggles from localStorage
+document.getElementById('soundEffectsToggle').checked = localStorage.getItem('soundEffectsEnabled') === 'true';
+document.getElementById('hapticsToggle').checked = localStorage.getItem('hapticsEnabled') === 'true';
+
+document.getElementById('aboutBtn').addEventListener('click', () => {
+    document.getElementById('aboutPopup').classList.remove('hidden');
+});
+document.getElementById('closeAboutPopup').addEventListener('click', () => {
+    document.getElementById('aboutPopup').classList.add('hidden');
+});
+document.getElementById('feedbackBtn').addEventListener('click', () => {
+    window.location.href = "mailto:youremail@example.com?subject=RecycleRight CA Feedback";
+});
+
+// --- Confirmation Modal Logic ---
+const confirmPopup = document.getElementById('confirmPopup');
+const confirmTitle = document.getElementById('confirmTitle');
+const confirmMessage = document.getElementById('confirmMessage');
+const confirmActionBtn = document.getElementById('confirmActionBtn');
+const confirmCancelBtn = document.getElementById('confirmCancelBtn');
+
+function showConfirmation(title, message, onConfirm) {
+    confirmTitle.textContent = title;
+    confirmMessage.textContent = message;
+    confirmPopup.classList.remove('hidden');
+
+    // Clone and replace the button to remove old event listeners
+    const newActionBtn = confirmActionBtn.cloneNode(true);
+    confirmActionBtn.parentNode.replaceChild(newActionBtn, confirmActionBtn);
+
+    newActionBtn.addEventListener('click', () => {
+        onConfirm();
+        confirmPopup.classList.add('hidden');
+    });
+}
+confirmCancelBtn.addEventListener('click', () => confirmPopup.classList.add('hidden'));
+
+// --- Data Management Functions ---
+
+// Clear Collection History
+document.getElementById('clearCollectionBtn').addEventListener('click', () => {
+    showConfirmation("Clear History?", "This will permanently delete all your scanned items. This action cannot be undone.", async () => {
+        const user = auth.currentUser;
+        if (!user) return;
+        const collectionRef = db.collection('users').doc(user.uid).collection('collection');
+        const snapshot = await collectionRef.get();
+        const batch = db.batch();
+        snapshot.docs.forEach(doc => batch.delete(doc.ref));
+        await batch.commit();
+        alert("Collection history cleared.");
+        if (document.getElementById('page-collection').offsetParent !== null) {
+            refreshCollection();
+        }
+    });
+});
+
+// Export Data
+document.getElementById('exportDataBtn').addEventListener('click', async () => {
+    const user = auth.currentUser;
+    if (!user) {
+        alert("Please sign in to export your data.");
+        return;
+    }
+    const snapshot = await db.collection('users').doc(user.uid).collection('collection').orderBy('timestamp', 'desc').get();
+    if (snapshot.empty) {
+        alert("No items to export.");
+        return;
+    }
+
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += "Name,Type,ScannedAt\r\n"; // CSV Header
+
+    snapshot.forEach(doc => {
+        const item = doc.data();
+        const date = item.timestamp ? item.timestamp.toDate().toLocaleString() : "N/A";
+        csvContent += `"${item.name}","${item.type}","${date}"\r\n`;
+    });
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "my_collection.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+});
+
+// Delete Account
+document.getElementById('deleteAccountBtn').addEventListener('click', () => {
+    showConfirmation("DELETE ACCOUNT?", "This is permanent. All your data, points, and streaks will be erased forever.", () => {
+        // Here you would call a Cloud Function to delete user data securely.
+        // As a placeholder, we'll just sign the user out.
+        // To implement this fully, you need the Cloud Function from the next step.
+        alert("Account deletion initiated. This is a placeholder. To fully enable, deploy the Cloud Function.");
+        // const deleteUser = firebase.functions().httpsCallable('deleteUserAccount');
+        // deleteUser().then(() => alert("Account deleted.")).catch(e => alert(e.message));
+    });
+});
 
 /* ---------------------------  STREAKS & POINTS (unchanged) --------------------------- */
 async function buyStreakFreeze() {

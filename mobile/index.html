@@ -164,10 +164,58 @@
     </section>
     <section class="hidden p-6 space-y-6" id="page-settings">
       <h2 class="text-2xl font-bold">Settings</h2>
-      <div class="flex items-center justify-between glass-card px-4 py-3 rounded-xl shadow"><label
-          class="text-lg font-medium flex items-center gap-2" for="darkModeToggle"><span
-            class="material-icons-outlined">dark_mode</span>Dark Mode</label><input class="w-5 h-5" id="darkModeToggle"
-          type="checkbox" /></div>
+
+      <div class="space-y-2">
+        <p class="text-sm font-semibold text-muted px-2">BEHAVIOR</p>
+        <div class="glass-card rounded-xl shadow divide-y divide-white/10 dark:divide-white/5">
+          <div class="flex items-center justify-between p-4"><label class="font-medium flex items-center gap-3"
+              for="darkModeToggle"><span class="material-icons-outlined">dark_mode</span>Dark Mode</label><input
+              class="w-5 h-5" id="darkModeToggle" type="checkbox" /></div>
+          <div class="flex items-center justify-between p-4"><label class="font-medium flex items-center gap-3"
+              for="soundEffectsToggle"><span class="material-icons-outlined">volume_up</span>Sound Effects</label><input
+              class="w-5 h-5" id="soundEffectsToggle" type="checkbox" /></div>
+          <div class="flex items-center justify-between p-4"><label class="font-medium flex items-center gap-3"
+              for="hapticsToggle"><span class="material-icons-outlined">vibration</span>Haptic Feedback</label><input
+              class="w-5 h-5" id="hapticsToggle" type="checkbox" /></div>
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <p class="text-sm font-semibold text-muted px-2">DATA & PRIVACY</p>
+        <div class="glass-card rounded-xl shadow divide-y divide-white/10 dark:divide-white/5">
+          <button id="clearCollectionBtn" class="w-full text-left flex items-center justify-between p-4"><span
+              class="font-medium flex items-center gap-3 text-blue-600 dark:text-blue-400"><span
+                class="material-icons-outlined">history</span>Clear Collection History</span><span
+              class="material-icons-outlined text-muted">chevron_right</span></button>
+          <button id="exportDataBtn" class="w-full text-left flex items-center justify-between p-4"><span
+              class="font-medium flex items-center gap-3 text-blue-600 dark:text-blue-400"><span
+                class="material-icons-outlined">download</span>Export My Data</span><span
+              class="material-icons-outlined text-muted">chevron_right</span></button>
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <p class="text-sm font-semibold text-muted px-2">SUPPORT</p>
+        <div class="glass-card rounded-xl shadow divide-y divide-white/10 dark:divide-white/5">
+          <button id="aboutBtn" class="w-full text-left flex items-center justify-between p-4"><span
+              class="font-medium flex items-center gap-3"><span class="material-icons-outlined">info</span>About This
+              App</span><span class="material-icons-outlined text-muted">chevron_right</span></button>
+          <button id="feedbackBtn" class="w-full text-left flex items-center justify-between p-4"><span
+              class="font-medium flex items-center gap-3"><span class="material-icons-outlined">chat</span>Send
+              Feedback</span><span class="material-icons-outlined text-muted">chevron_right</span></button>
+        </div>
+      </div>
+
+      <div class="pt-8 space-y-2">
+        <p class="text-sm font-semibold text-red-500/80 px-2">DANGER ZONE</p>
+        <div class="glass-card rounded-xl shadow">
+          <button id="deleteAccountBtn" class="w-full text-left flex items-center justify-between p-4"><span
+              class="font-medium flex items-center gap-3 text-red-500"><span
+                class="material-icons-outlined">delete_forever</span>Delete Account</span><span
+              class="material-icons-outlined text-red-500">chevron_right</span></button>
+        </div>
+      </div>
+
       <p class="text-sm text-gray-500 pt-6 text-center">App Version: <span id="appVersionDisplay"></span></p>
     </section>
   </main>
@@ -215,6 +263,30 @@
       <p class="text-yellow-300 font-bold text-lg">🏆 Trophy Unlocked! 🏆</p>
       <img id="trophyArt" src="" class="w-40 h-40 mx-auto rounded-xl shadow-lg object-cover" />
       <h3 id="trophyName" class="text-2xl font-bold text-white"></h3>
+    </div>
+  </div>
+  <div class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-[100] p-4 flex items-center justify-center"
+    id="aboutPopup">
+    <div class="glass-card rounded-2xl shadow-xl p-6 w-full max-w-sm animate-pop relative text-center space-y-4">
+      <h2 class="text-xl font-bold flex items-center justify-center gap-2"><span
+          class="material-icons-outlined">info</span>About RecycleRight CA</h2>
+      <p class="text-muted text-sm">This app was designed and developed for the Congressional App Challenge. It uses AI
+        to help make recycling in California easier and more rewarding.</p>
+      <button class="absolute top-2 right-2 text-muted hover:text-gray-700 text-2xl" id="closeAboutPopup">×</button>
+    </div>
+  </div>
+
+  <div class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-[200] p-4 flex items-center justify-center"
+    id="confirmPopup">
+    <div class="glass-card rounded-2xl shadow-xl p-6 w-full max-w-sm animate-pop relative text-center space-y-4">
+      <h2 class="text-xl font-bold" id="confirmTitle">Are you sure?</h2>
+      <p class="text-muted" id="confirmMessage">This action cannot be undone.</p>
+      <div class="flex gap-4 pt-2">
+        <button id="confirmCancelBtn"
+          class="w-full px-4 py-2 bg-gray-500/20 text-muted rounded-lg hover:bg-gray-500/30">Cancel</button>
+        <button id="confirmActionBtn"
+          class="w-full px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">Confirm</button>
+      </div>
     </div>
   </div>
   <div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center hidden z-[100]"
