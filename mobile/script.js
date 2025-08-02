@@ -390,6 +390,10 @@ async function checkForSpecialItem(itemName) {
  */
 async function unlockAchievement(userId, trophy) {
     const museumRef = db.collection('users').doc(userId).collection('museum');
+
+    playSound('sounds/trophy_success.mp3');
+    triggerHaptic();
+
     const trophyDoc = await museumRef.doc(trophy.id).get();
 
     // Only unlock it if the user doesn't already have it
@@ -438,7 +442,7 @@ async function refreshMuseum() {
         trophyCard.className = 'glass-card rounded-2xl p-4 text-center space-y-2';
         trophyCard.innerHTML = `
             <img src="${trophy.art}" class="w-full h-32 object-cover rounded-lg shadow-md" alt="${trophy.name}">
-            <p class="font-semibold text-slate-800 dark:text-white text-sm">${trophy.name}</p>
+            <p class="font-semibold text-slate-800 text-black text-sm">${trophy.name}</p>
         `;
         museumGrid.appendChild(trophyCard);
     });
@@ -1049,6 +1053,10 @@ Examples:
  */
 async function showResult(text) {
     const resultDiv = document.getElementById('result');
+
+    playSound('sounds/success_effect.mp3');
+    triggerHaptic();
+
     let icon = '❓';
     let title = 'Unknown';
     let subtitle = 'Could not recognize the item clearly.';
@@ -1127,6 +1135,28 @@ function closeResult() {
     const resultDiv = document.getElementById('result');
     resultDiv.className = 'hidden'; // Simply hide the div
     resultDiv.innerHTML = '';
+}
+
+// --- HELPERS ---
+
+/**
+ * Plays a sound effect if sounds are enabled in settings.
+ * @param {string} soundFile - The path to the sound file to play.
+ */
+function playSound(soundFile) {
+    if (localStorage.getItem('soundEffectsEnabled') === 'true') {
+        const audio = new Audio(soundFile);
+        audio.play();
+    }
+}
+
+/**
+ * Triggers haptic feedback (vibration) if enabled in settings.
+ */
+function triggerHaptic() {
+    if (localStorage.getItem('hapticsEnabled') === 'true' && navigator.vibrate) {
+        navigator.vibrate(50); // Vibrate for 50 milliseconds
+    }
 }
 
 
