@@ -457,7 +457,7 @@ async function refreshMuseum() {
         trophyCard.className = 'glass-card rounded-2xl p-4 text-center space-y-2';
         trophyCard.innerHTML = `
             <img src="${trophy.art}" class="w-full h-32 object-cover rounded-lg shadow-md" alt="${trophy.name}">
-            <p class="font-semibold text-slate-800 text-black text-sm">${trophy.name}</p>
+            <p class="font-semibold text-sm">${trophy.name}</p>
         `;
         museumGrid.appendChild(trophyCard);
     });
@@ -668,13 +668,9 @@ document.getElementById('closeCollectionPopup').onclick = () => {
 document.getElementById('soundEffectsToggle').addEventListener('change', (e) => {
     localStorage.setItem('soundEffectsEnabled', e.target.checked);
 });
-document.getElementById('hapticsToggle').addEventListener('change', (e) => {
-    localStorage.setItem('hapticsEnabled', e.target.checked);
-});
 
 // Initialize toggles from localStorage
 document.getElementById('soundEffectsToggle').checked = localStorage.getItem('soundEffectsEnabled') === 'true';
-document.getElementById('hapticsToggle').checked = localStorage.getItem('hapticsEnabled') === 'true';
 
 document.getElementById('aboutBtn').addEventListener('click', () => {
     document.getElementById('aboutPopup').classList.remove('hidden');
