@@ -47,6 +47,15 @@ const specialItems = {
  * Switches the visible page and updates the active tab in the navigation bar.
  * @param {string} tabName - The identifier for the tab to switch to (e.g., 'main', 'map').
  */
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const tabName = tab.dataset.tab;
+      switchTab(tabName);
+    });
+  });
+});
+
 function switchTab(tabName) {
     const mainContainer = document.getElementById('pages');
     const allTabs = document.querySelectorAll('.tab');
@@ -93,24 +102,30 @@ function switchTab(tabName) {
 /**
  * Attaches click listeners to all main navigation tabs.
  */
-document.querySelectorAll('.tab').forEach(t => {
-    t.addEventListener('click', () => switchTab(t.dataset.tab));
+const tabWrapper = document.getElementById('tabWrapper');
+const collectionTab = document.getElementById('itemsTab');
+const museumTab = document.getElementById('museumTab');
+
+collectionTab.addEventListener('click', () => {
+    // Slide to show the Items tab (left side)
+    tabWrapper.style.transform = 'translateX(0%)';
+
+    // Update tab styles
+    collectionTab.classList.add('bg-emerald-500', 'text-white');
+    museumTab.classList.remove('bg-emerald-500', 'text-white');
 });
 
-document.getElementById('itemsTab').addEventListener('click', () => {
-    document.getElementById('collectionList').classList.remove('hidden');
-    document.getElementById('museumGrid').classList.add('hidden');
-    document.getElementById('itemsTab').classList.add('bg-emerald-500', 'text-white');
-    document.getElementById('museumTab').classList.remove('bg-emerald-500', 'text-white');
-});
+museumTab.addEventListener('click', () => {
+    // Slide to show the Museum tab (right side)
+    tabWrapper.style.transform = 'translateX(-50%)';
 
-document.getElementById('museumTab').addEventListener('click', () => {
-    document.getElementById('collectionList').classList.add('hidden');
-    document.getElementById('museumGrid').classList.remove('hidden');
-    document.getElementById('museumTab').classList.add('bg-emerald-500', 'text-white');
-    document.getElementById('itemsTab').classList.remove('bg-emerald-500', 'text-white');
+    // Update tab styles
+    museumTab.classList.add('bg-emerald-500', 'text-white');
+    collectionTab.classList.remove('bg-emerald-500', 'text-white');
+
     refreshMuseum();
 });
+
 
 /**
  * Opens the device camera to scan an item.

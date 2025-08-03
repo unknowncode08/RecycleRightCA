@@ -143,7 +143,7 @@
     <section class="hidden h-full" id="page-map">
       <div class="w-full h-full" id="map"></div>
     </section>
-    <section class="hidden p-6 space-y-4" id="page-collection">
+    <section class="hidden flex flex-col p-6 space-y-4 h-full" id="page-collection">
       <div class="w-full flex justify-center">
         <div class="glass-card p-1 rounded-full flex items-center space-x-1">
           <button id="itemsTab"
@@ -153,11 +153,21 @@
         </div>
       </div>
 
-      <div class="w-full grid gap-4" id="collectionList">
-      </div>
+    <div class="relative overflow-hidden w-full" style="min-height: 400px;">
+      <div id="tabWrapper" class="flex transition-transform duration-500 w-[200%]">
+        <!-- Left panel: collection -->
+        <div id="collectionList" class="w-full grid gap-4 px-2">
+          <!-- Item cards go here -->
+        </div>
 
-      <div class="w-full grid grid-cols-2 sm:grid-cols-3 gap-4 hidden" id="museumGrid">
+        <!-- Right panel: museum -->
+        <div id="museumGrid" class="w-full grid grid-cols-2 sm:grid-cols-3 gap-4 px-2">
+          <!-- Museum items go here -->
+        </div>
       </div>
+    </div>
+
+
     </section>
     <section class="hidden p-6" id="page-profile">
       <div class="glass-card p-6 rounded-2xl shadow-lg text-center space-y-4" id="profileContent"></div>
