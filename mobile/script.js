@@ -524,6 +524,7 @@ async function refreshCollection() {
           </div>
         `;
 
+        let longPressTimer;
         let longPressed = false;
 
         itemDiv.addEventListener('mousedown', () => {
