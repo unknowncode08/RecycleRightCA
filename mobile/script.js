@@ -1323,53 +1323,49 @@ function initMap() {
 }
 
 function loadSitesFilteredByCity(userCity) {
-    fetch('data/crv_centers_address_only.json').then(res => res.json()).then(data => {
-        let matches = data.filter(site => site.city.toLowerCase() === userCity.toLowerCase());
-        if (matches.length === 0 && userCity) {
-            const grouped = data.reduce((acc, site) => {
-                acc[site.city] = acc[site.city] || [];
-                acc[site.city].push(site);
-                return acc;
-
+    return fetch('data/crv_centers_address_only.json')
+        .then(res => res.json())
+        .then(data => {
+            let matches = data.filter(site => site.city.toLowerCase() === userCity.toLowerCase());
+            if (matches.length === 0 && userCity) {
+                const grouped = data.reduce((acc, site) => {
+                    acc[site.city] = acc[site.city] || [];
+                    acc[site.city].push(site);
+                    return acc;
+                }, {});
+                const fallbackCity = Object.keys(grouped).find(c => c.toLowerCase().includes(userCity.toLowerCase().slice(0, 3)));
+                matches = grouped[fallbackCity] || [];
             }
-                , {
 
-                }
-            );
-            const fallbackCity = Object.keys(grouped).find(c => c.toLowerCase().includes(userCity.toLowerCase().slice(0, 3)));
-            matches = grouped[fallbackCity] || [];
+            const recycleIcon = L.icon({
+                iconUrl: 'https://cdn-icons-png.flaticon.com/512/1327/1327264.png',
+                iconSize: [28, 28],
+                iconAnchor: [14, 28],
+                popupAnchor: [0, -28]
+            });
 
-        }
-        const recycleIcon = L.icon({
-            iconUrl: 'https://cdn-icons-png.flaticon.com/512/1327/1327264.png', iconSize: [28, 28], iconAnchor: [14, 28], popupAnchor: [0, -28]
-        }
-        );
-        matches.forEach(site => {
-            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(site.full_address)}`).then(res => res.json()).then(loc => {
-                if (loc && loc.length > 0) {
-                    const lat = parseFloat(loc[0].lat);
-                    const lon = parseFloat(loc[0].lon);
-                    const marker = L.marker([lat, lon], {
-                        icon: recycleIcon
-                    }
-                    ).addTo(map);
-                    marker.bindPopup(`<strong>${site.name}</strong><br>${site.address}<br><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(site.full_address)}" target="_blank">Open in Maps</a>`);
-                    marker._icon.style.animation = "bounce 0.8s";
+            const markerPromises = matches.map(site => {
+                return fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(site.full_address)}`)
+                    .then(res => res.json())
+                    .then(loc => {
+                        if (loc && loc.length > 0) {
+                            const lat = parseFloat(loc[0].lat);
+                            const lon = parseFloat(loc[0].lon);
+                            const marker = L.marker([lat, lon], { icon: recycleIcon }).addTo(map);
+                            marker.bindPopup(`<strong>${site.name}</strong><br>${site.address}<br><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(site.full_address)}" target="_blank">Open in Maps</a>`);
+                            marker._icon.style.animation = "bounce 0.8s";
+                        }
+                    });
+            });
 
-                }
-
-            }
-            );
-
-        }
-        );
-
-    }
-    );
-    const loadingElement = document.getElementById('mapLoading');
-    if (loadingElement) loadingElement.remove();
-
+            return Promise.all(markerPromises);
+        })
+        .finally(() => {
+            const loadingElement = document.getElementById('mapLoading');
+            if (loadingElement) loadingElement.remove();
+        });
 }
+
 
 async function highlightNearestRecycleCenter() {
     const res = await fetch('data/crv_centers_address_only.json');
