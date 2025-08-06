@@ -511,7 +511,7 @@ async function refreshCollection() {
         const data = doc.data();
         const emoji = data.type === 'rec' ? '♻️' : data.type === 'nrec' ? '❌' : '💵';
         const itemDiv = document.createElement('div');
-        itemDiv.className = 'collection-item bg-card p-4 rounded-xl shadow flex items-center gap-4 cursor-pointer transition relative';
+        itemDiv.className = 'collection-item select-none bg-card p-4 rounded-xl shadow flex items-center gap-4 cursor-pointer transition relative';
         itemDiv.dataset.docId = doc.id;
 
         const minusIcon = `<div class="minus-icon absolute top-0 right-0 m-2 hidden text-red-600 text-lg bg-white rounded-full w-6 h-6 flex items-center justify-center shadow">−</div>`;
