@@ -777,16 +777,75 @@ document.getElementById('exportDataBtn').addEventListener('click', async () => {
 
 // Delete Account
 document.getElementById('deleteAccountBtn').addEventListener('click', () => {
-    showConfirmation("DELETE ACCOUNT?", "This is permanent. All your data, points, and streaks will be erased forever.", () => {
-        // Here you would call a Cloud Function to delete user data securely.
-        // As a placeholder, we'll just sign the user out.
-        // To implement this fully, you need the Cloud Function from the next step.
-        alert("Account deletion initiated. This is a placeholder. To fully enable, deploy the Cloud Function.");
-        // const deleteUser = firebase.functions().httpsCallable('deleteUserAccount');
-        // deleteUser().then(() => alert("Account deleted.")).catch(e => alert(e.message));
-    });
+    showConfirmation(
+        "DELETE ACCOUNT?", 
+        "This is permanent. All your data, points, and streaks will be erased forever.", 
+        () => {
+            // This now calls our new, detailed client-side function
+            deleteUserAccountClientSide();
+        }
+    );
 });
 
+/**
+ * Handles the full client-side deletion of a user's account and all their data.
+ * This is a complex, multi-step process.
+ */
+async function deleteUserAccountClientSide() {
+    const user = auth.currentUser;
+    if (!user) {
+        alert("No user is currently signed in.");
+        return;
+    }
+
+    try {
+        console.log("Starting account deletion process for user:", user.uid);
+        // Step 1: Delete all sub-collections (e.g., 'collection' and 'museum')
+        const collectionRef = db.collection('users').doc(user.uid).collection('collection');
+        const museumRef = db.collection('users').doc(user.uid).collection('museum');
+
+        // Delete documents in batches for efficiency
+        const deleteCollectionBatch = async (querySnapshot) => {
+            const batch = db.batch();
+            querySnapshot.docs.forEach(doc => {
+                batch.delete(doc.ref);
+            });
+            await batch.commit();
+        };
+
+        const collectionSnapshot = await collectionRef.get();
+        if (!collectionSnapshot.empty) {
+            console.log(`Deleting ${collectionSnapshot.size} items from collection...`);
+            await deleteCollectionBatch(collectionSnapshot);
+        }
+
+        const museumSnapshot = await museumRef.get();
+        if (!museumSnapshot.empty) {
+            console.log(`Deleting ${museumSnapshot.size} items from museum...`);
+            await deleteCollectionBatch(museumSnapshot);
+        }
+
+        // Step 2: Delete the main user document
+        console.log("Deleting user document from Firestore...");
+        await db.collection('users').doc(user.uid).delete();
+
+        // Step 3: Delete the user from Firebase Authentication
+        console.log("Deleting user from Firebase Auth...");
+        await user.delete();
+
+        alert("Your account and all associated data have been permanently deleted.");
+        console.log("Account deletion successful.");
+        logout();
+
+    } catch (error) {
+        console.error("Error deleting account:", error);
+        if (error.code === 'auth/requires-recent-login') {
+            alert("This is a sensitive operation and requires you to have logged in recently. Please sign out and sign back in to delete your account.");
+        } else {
+            alert("An error occurred while deleting your account. Please check the console for details.");
+        }
+    }
+}
 /* ---------------------------  STREAKS & POINTS (unchanged) --------------------------- */
 async function buyStreakFreeze() {
     const user = auth.currentUser;
