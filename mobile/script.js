@@ -48,12 +48,12 @@ const specialItems = {
  * @param {string} tabName - The identifier for the tab to switch to (e.g., 'main', 'map').
  */
 document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('.tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      const tabName = tab.dataset.tab;
-      switchTab(tabName);
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            const tabName = tab.dataset.tab;
+            switchTab(tabName);
+        });
     });
-  });
 });
 
 function switchTab(tabName) {
@@ -511,8 +511,10 @@ async function refreshCollection() {
         const data = doc.data();
         const emoji = data.type === 'rec' ? '♻️' : data.type === 'nrec' ? '❌' : '💵';
         const itemDiv = document.createElement('div');
-        itemDiv.className = 'collection-item select-none bg-card p-4 rounded-xl shadow flex items-center gap-4 cursor-pointer transition relative';
+        itemDiv.className = 'collection-item select-none glass-card p-4 rounded-xl shadow flex items-center gap-4 cursor-pointer transition relative';
         itemDiv.dataset.docId = doc.id;
+        // Add the item name to a data attribute for easy searching
+        itemDiv.dataset.name = data.name.toLowerCase();
 
         const minusIcon = `<div class="minus-icon absolute top-0 right-0 m-2 hidden text-red-600 text-lg bg-white rounded-full w-6 h-6 flex items-center justify-center shadow">−</div>`;
         itemDiv.innerHTML = `
@@ -565,8 +567,7 @@ async function refreshCollection() {
         });
 
         itemDiv.addEventListener('click', () => {
-            if (longPressed || suppressNextClick) return;
-
+            if (suppressNextClick) return;
             if (isMultiSelectMode) {
                 selectItem(itemDiv);
             } else {
@@ -642,6 +643,24 @@ document.getElementById('multiDeleteBtn').onclick = async () => {
         alert("Failed to delete items: " + e.message);
     }
 };
+
+/**
+ * Handles real-time searching in the collection list.
+ */
+document.getElementById('collectionSearchInput').addEventListener('input', (e) => {
+    const searchTerm = e.target.value.toLowerCase().trim();
+    const allItems = document.querySelectorAll('#collectionList .collection-item');
+
+    allItems.forEach(item => {
+        const itemName = item.dataset.name || '';
+        if (itemName.includes(searchTerm)) {
+            // Use 'grid' for grid items instead of 'flex'
+            item.style.display = '';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+});
 
 function openCollectionPopup(name, image, type, docId) {
     document.getElementById('popupImage').src = image;
@@ -1444,7 +1463,6 @@ document.getElementById('authMainBtn').onclick = () => {
             }
             );
             document.getElementById('authPopup').classList.add('hidden');
-            scheduleDailyReminder();
             refreshProfile();
             loadDashboardStats();
         }
@@ -1467,7 +1485,6 @@ document.getElementById('authMainBtn').onclick = () => {
             }
             );
             document.getElementById('authPopup').classList.add('hidden');
-            scheduleDailyReminder();
             refreshProfile();
             loadDashboardStats();
         }
@@ -1481,7 +1498,6 @@ document.getElementById('googleBtn').onclick = async () => {
     try {
         await auth.signInWithPopup(provider);
         document.getElementById('authPopup').classList.add('hidden');
-        scheduleDailyReminder();
         refreshProfile();
         loadDashboardStats();
     }

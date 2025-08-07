@@ -184,14 +184,22 @@
       <div class="relative overflow-hidden w-full flex-1">
         <div id="tabWrapper" class="flex h-full transition-transform duration-300 w-[200%]">
 
-          <div id="collectionList" class="w-1/2 h-full overflow-y-auto grid gap-4 px-2">
+          <div class="w-1/2 h-full flex flex-col space-y-4">
+            <div class="relative px-2">
+              <input type="search" id="collectionSearchInput" placeholder="Search your collection..."
+                class="w-full glass-card rounded-full p-3 pl-10 text-sm border-none focus:ring-2 focus:ring-emerald-500">
+              <span class="material-icons-outlined absolute left-5 top-1/2 -translate-y-1/2 text-muted">search</span>
+            </div>
+            <div id="collectionList" class="flex-1 overflow-y-auto grid gap-4 px-2 content-start">
+            </div>
           </div>
 
           <div id="museumGrid"
             class="w-1/2 h-full overflow-y-auto grid grid-cols-2 sm:grid-cols-3 gap-4 px-2 items-start">
-
           </div>
+
         </div>
+      </div>
     </section>
     <section class="hidden p-6" id="page-profile">
       <div class="glass-card p-6 rounded-2xl shadow-lg text-center space-y-4" id="profileContent"></div>
