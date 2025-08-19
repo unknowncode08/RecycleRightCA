@@ -37,8 +37,24 @@ const specialItems = {
     "coca-cola": { id: "coke_trophy", name: "Classic Cola", art: "images/trophies/coke.png" },
     "pepsi": { id: "pepsi_trophy", name: "The Challenger", art: "images/trophies/pepsi.png" },
     "starbucks": { id: "starbucks_trophy", name: "Morning Ritual", art: "images/trophies/starbucks.png" },
-    // Add more special items here! For example:
-    // "arizona": { id: "arizona_trophy", name: "Green Tea Giant", art: "images/trophies/arizona.png" },
+    "arizona": { id: "arizona_trophy", name: "Green Tea Giant", art: "images/trophies/arizona.png" },
+    "water bottle": { id: "water_bottle_trophy", name: "Hydration Hero", art: "images/trophies/waterbottle.png" },
+    "milk jug": { id: "milk_jug_trophy", name: "Dairy Defender", art: "images/trophies/milk.png" },
+    "wine bottle": { id: "wine_trophy", name: "Vineyard Valor", art: "images/trophies/wine.png" },
+    "beer can": { id: "beer_can_trophy", name: "Brew Master", art: "images/trophies/beer.png" },
+    "sprite": { id: "sprite_trophy", name: "Sparkling Spirit", art: "images/trophies/sprite.png" },
+    "dr pepper": { id: "drpepper_trophy", name: "PhD in Flavor", art: "images/trophies/drpepper.png" },
+    "mountain dew": { id: "mountaindew_trophy", name: "Dew Dropper", art: "images/trophies/mountaindew.png" },
+    "gatorade": { id: "gatorade_trophy", name: "Electrolyte Enthusiast", art: "images/trophies/gatorade.png" },
+    "tropicana": { id: "tropicana_trophy", name: "Citrus Collector", art: "images/trophies/tropicana.png" },
+    "lays": { id: "lays_trophy", name: "Chip Champion", art: "images/trophies/lays.png" },
+    "pringles": { id: "pringles_trophy", name: "Tube Treasure", art: "images/trophies/pringles.png" },
+    "oreos": { id: "oreos_trophy", name: "Cookie Conqueror", art: "images/trophies/oreos.png" },
+    "plastic bag": { id: "plastic_bag_trophy", name: "Bag Banisher", art: "images/trophies/plasticbag.png" },
+    "cardboard box": { id: "cardboard_trophy", name: "Box Boss", art: "images/trophies/cardboard.png" },
+    "newspaper": { id: "newspaper_trophy", name: "Print Protector", art: "images/trophies/newspaper.png" },
+    "glass jar": { id: "glass_jar_trophy", name: "Jar Jackpot", art: "images/trophies/glassjar.png" },
+    "aluminum foil": { id: "foil_trophy", name: "Foil Finder", art: "images/trophies/foil.png" },
 };
 
 // --- PRIMARY UI & NAVIGATION ---
