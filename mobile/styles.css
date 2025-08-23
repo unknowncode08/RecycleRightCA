@@ -143,3 +143,22 @@ body.dark .text-muted {
     scrollbar-width: thin;
     scrollbar-color: #a5b4fc #e5e7eb;
 }
+
+/*animation for loading screen*/
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.8s ease-out forwards;
+}
+
+.fade-out {
+  animation: fadeOut 0.8s ease-out forwards;
+}

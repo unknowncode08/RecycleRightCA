@@ -99,10 +99,39 @@
     .shake {
       animation: shake 0.3s infinite;
     }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  @keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.8s ease-out forwards;
+  }
+
+  .fade-out {
+    animation: fadeOut 0.8s ease-out forwards;
+  }
+
   </style>
+
+  
 </head>
 
 <body class="h-full flex flex-col">
+
+  <div id="splashScreen" class="fixed inset-0 bg-emerald-600 flex items-center justify-center z-[3000]">
+  <div class="text-center animate-fade-in">
+    <span class="material-icons-outlined text-white text-6xl">recycling</span>
+    <h1 class="text-3xl font-bold text-white mt-4">RecycleRight CA</h1>
+  </div>
+</div>
+
 
   <header class="sticky top-0 z-20">
     <div class="h-16 px-6 bg-emerald-600 flex items-center shadow-lg">
@@ -364,6 +393,17 @@
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="script.js"></script>
+
+<script>
+  window.addEventListener("load", () => {
+    const splash = document.getElementById("splashScreen");
+    setTimeout(() => {
+      splash.classList.add("fade-out");
+      splash.addEventListener("animationend", () => splash.remove());
+    }, 1500); // 1.5s splash duration
+  });
+</script>
+
 
 </body>
 
