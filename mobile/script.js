@@ -449,7 +449,8 @@ async function unlockAchievement(userId, trophy) {
 }
 
 /**
- * Fetches and displays the user's unlocked trophies in the Museum tab.
+ * Fetches and displays all possible trophies, showing which are unlocked and which are locked.
+ * Unlocked trophies are displayed first. Uses a fallback image if custom art is missing.
  */
 async function refreshMuseum() {
     const museumGrid = document.getElementById('museumGrid');
@@ -460,23 +461,48 @@ async function refreshMuseum() {
         return;
     }
 
-    const snapshot = await db.collection('users').doc(user.uid).collection('museum').orderBy('unlockedAt', 'desc').get();
-    if (snapshot.empty) {
-        museumGrid.innerHTML = '<p class="text-muted text-center col-span-full">No trophies unlocked yet. Start scanning to find special items!</p>';
-        return;
+    // 1. Get a list of all trophy IDs the user has unlocked.
+    const unlockedSnapshot = await db.collection('users').doc(user.uid).collection('museum').get();
+    const unlockedTrophyIds = new Set(unlockedSnapshot.docs.map(doc => doc.id));
+
+    // 2. Prepare two separate arrays for sorting.
+    const unlockedHtml = [];
+    const lockedHtml = [];
+
+    // 3. Loop through ALL possible trophies defined in the `specialItems` list.
+    for (const key in specialItems) {
+        const trophy = specialItems[key];
+        const fallbackImage = "'images/trophies/lock.png'"; // Define the fallback image path
+
+        // 4. Check if the user has unlocked the current trophy.
+        if (unlockedTrophyIds.has(trophy.id)) {
+            // If UNLOCKED, create the normal, full-color card.
+            unlockedHtml.push(`
+                <div class="glass-card rounded-2xl p-6 text-center space-y-2">
+                    <img src="${trophy.art}" onerror="this.src=${fallbackImage}" class="w-full h-32 object-cover rounded-lg shadow-md" alt="${trophy.name}">
+                    <p class="font-semibold text-slate-800 dark:text-white text-sm">${trophy.name}</p>
+                </div>
+            `);
+        } else {
+            // If LOCKED, create the blacked-out card with "???".
+            lockedHtml.push(`
+                <div class="glass-card rounded-2xl p-6 text-center space-y-2 opacity-60">
+                    <img src="${trophy.art}" onerror="this.src=${fallbackImage}" class="w-full h-32 object-cover rounded-lg shadow-md trophy-locked" alt="Locked Trophy">
+                    <p class="font-semibold text-slate-500 dark:text-gray-400 text-sm">???</p>
+                </div>
+            `);
+        }
     }
 
-    museumGrid.innerHTML = '';
-    snapshot.forEach(doc => {
-        const trophy = doc.data();
-        const trophyCard = document.createElement('div');
-        trophyCard.className = 'glass-card rounded-2xl p-4 text-center space-y-2';
-        trophyCard.innerHTML = `
-            <img src="${trophy.art}" class="w-full h-32 object-cover rounded-lg shadow-md" alt="${trophy.name}">
-            <p class="font-semibold text-sm">${trophy.name}</p>
-        `;
-        museumGrid.appendChild(trophyCard);
-    });
+    // 5. Combine the arrays (unlocked first) and display them.
+    const finalHtml = unlockedHtml.join('') + lockedHtml.join('');
+
+    if (finalHtml) {
+        museumGrid.innerHTML = finalHtml;
+    } else {
+        // This message will show if your specialItems list is empty.
+        museumGrid.innerHTML = '<p class="text-muted text-center col-span-full">No trophies have been defined in the app yet.</p>';
+    }
 }
 
 async function addToCollection(userId, name, type, base64img) {
@@ -794,8 +820,8 @@ document.getElementById('exportDataBtn').addEventListener('click', async () => {
 // Delete Account
 document.getElementById('deleteAccountBtn').addEventListener('click', () => {
     showConfirmation(
-        "DELETE ACCOUNT?", 
-        "This is permanent. All your data, points, and streaks will be erased forever.", 
+        "DELETE ACCOUNT?",
+        "This is permanent. All your data, points, and streaks will be erased forever.",
         () => {
             // This now calls our new, detailed client-side function
             deleteUserAccountClientSide();
