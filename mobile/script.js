@@ -16,7 +16,7 @@ const db = firebase.firestore();
 
 // Global Variables
 const GEMINI_API_KEY = "AIzaSyAimHcH5pgj99Za5Ievq1UNfFbh9mfsEL8";
-const LOCAL_APP_VERSION = "0.0.1.12";
+const LOCAL_APP_VERSION = "0.0.1.13";
 
 const videoPreviewEl = document.getElementById('videoPreview'); // <-- ADD THIS LINE
 let stream = null;
@@ -1055,7 +1055,7 @@ async function checkAppVersion() {
             const serverVersion = doc.data().version;
             // Assumes compareVersions function exists
             if (compareVersions(LOCAL_APP_VERSION, serverVersion) < 0) {
-                document.body.innerHTML = `<div style="padding: 20px; text-align: center;"><h2>Update Required</h2><p>A newer version is available. Please refresh.</p><button onclick="location.reload()">Refresh</button></div>`;
+                document.body.innerHTML = `<div style="padding: 20px; text-align: center;"><h2>Update Required</h2><p>A newer version is available. Please refresh.</p><button onclick="location.reload()" class="px-6 py-2 bg-gradient-to-br from-green-500 to-emerald-600 text-white rounded-md hover:to-emerald-700">Refresh</button></div>`;
                 return false; // Stop app initialization
             }
         }
