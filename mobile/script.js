@@ -16,7 +16,7 @@ const db = firebase.firestore();
 
 // Global Variables
 const GEMINI_API_KEY = "AIzaSyAimHcH5pgj99Za5Ievq1UNfFbh9mfsEL8";
-const LOCAL_APP_VERSION = "0.0.1.11";
+const LOCAL_APP_VERSION = "0.0.1.12";
 
 const videoPreviewEl = document.getElementById('videoPreview'); // <-- ADD THIS LINE
 let stream = null;
