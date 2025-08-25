@@ -37,7 +37,7 @@ const specialItems = {
     "coca-cola": { id: "coke_trophy", name: "Classic Cola", art: "images/trophies/coke.png" },
     "pepsi": { id: "pepsi_trophy", name: "The Challenger", art: "images/trophies/pepsi.png" },
     "starbucks": { id: "starbucks_trophy", name: "Morning Ritual", art: "images/trophies/starbucks.png" },
-    "lays": { id: "lays_trophy", name: "Chip Champion", art: "images/trophies/lays.png" },
+    "lay's": { id: "lays_trophy", name: "Chip Champion", art: "images/trophies/lays.png" },
     "arizona": { id: "arizona_trophy", name: "Green Tea Giant", art: "images/trophies/arizona.png" },
     "water bottle": { id: "water_bottle_trophy", name: "Hydration Hero", art: "images/trophies/waterbottle.png" },
     "milk jug": { id: "milk_jug_trophy", name: "Dairy Defender", art: "images/trophies/milk.png" },
