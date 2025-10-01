@@ -1,0 +1,10 @@
+const FIREBASE_CONFIG = {
+    apiKey: "PLACEHOLDER",
+    authDomain: "PLACEHOLDER",
+    projectId: "PLACEHOLDER",
+    appId: "1PLACEHOLDER",
+    storageBucket: "PLACEHOLDER",
+    messagingSenderId: "PLACEHOLDER"
+};
+
+const GEMINI_API_KEY = "PLACEHOLDER";

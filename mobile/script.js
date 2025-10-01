@@ -1,13 +1,6 @@
 // --- CONFIGURATION & INITIALIZATION ---
 
-const firebaseConfig = {
-    apiKey: "AIzaSyB9dQshTk_TtTHH3yi1Oj72TcinxuAYbEg",
-    authDomain: "recyclerightca.firebaseapp.com",
-    projectId: "recyclerightca",
-    appId: "1:680884147195:web:b1e0036607dd514908b15e",
-    storageBucket: "recyclerightca.firebasestorage.app",
-    messagingSenderId: "680884147195"
-};
+const firebaseConfig = FIREBASE_CONFIG;
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
@@ -15,7 +8,7 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 
 // Global Variables
-const GEMINI_API_KEY = "AIzaSyAimHcH5pgj99Za5Ievq1UNfFbh9mfsEL8";
+const API_KEY = GEMINI_API_KEY;
 const LOCAL_APP_VERSION = "0.0.1.13";
 
 const videoPreviewEl = document.getElementById('videoPreview'); // <-- ADD THIS LINE
@@ -1161,7 +1154,7 @@ Examples:
     };
 
     try {
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`, {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body)
@@ -1321,7 +1314,7 @@ async function askWhyExplanation(itemName, type) {
     };
 
     try {
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`, {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body)
@@ -1350,7 +1343,7 @@ function askHowToRecycle(itemName, type) {
         }
         ]
     };
-    fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`, {
+    fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`, {
         method: 'POST', headers: {
             'Content-Type': 'application/json'
         }
