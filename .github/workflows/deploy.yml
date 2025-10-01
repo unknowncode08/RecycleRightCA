@@ -1,0 +1,29 @@
+name: Deploy to GitHub Pages
+
+on:
+  # Runs on pushes to the main branch
+  push:
+    branches: [ "main" ]
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Allow this job to clone the repo and create a page deployment
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create config.js from Secrets
+        run: |
+          echo "const firebaseConfig = ${{ secrets.FIREBASE_CONFIG }};" > mobile/config.js
+          echo "const GEMINI_API_KEY = '${{ secrets.GEMINI_API_KEY }}';" >> mobile/config.js
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
