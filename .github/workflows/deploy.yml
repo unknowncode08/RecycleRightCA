@@ -24,7 +24,7 @@ jobs:
       - name: Create config.js from Secrets
         run: |
           # This command still correctly places the config file inside the mobile folder
-          echo "const firebaseConfig = ${{ secrets.FIREBASE_CONFIG }};" > mobile/config.js
+          echo "const FIREBASE_CONFIG = ${{ secrets.FIREBASE_CONFIG }};" > mobile/config.js
           echo "const GEMINI_API_KEY = '${{ secrets.GEMINI_API_KEY }}';" >> mobile/config.js
 
       - name: Setup Pages
