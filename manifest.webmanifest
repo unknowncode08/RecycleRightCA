@@ -1,7 +1,7 @@
 {
   "name": "RecycleRight CA",
   "short_name": "RecycleRight",
-  "start_url": "/mobile/",
+  "start_url": "RecycleRightCA/mobile/",
   "display": "standalone",
   "background_color": "#0d2e20",
   "theme_color": "#10b981",
