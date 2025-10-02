@@ -1154,7 +1154,7 @@ Examples:
     };
 
     try {
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest?key=${API_KEY}`, {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash?key=${API_KEY}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body)
@@ -1314,7 +1314,7 @@ async function askWhyExplanation(itemName, type) {
     };
 
     try {
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest?key=${API_KEY}`, {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash?key=${API_KEY}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body)
@@ -1343,7 +1343,7 @@ function askHowToRecycle(itemName, type) {
         }
         ]
     };
-    fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest?key=${API_KEY}`, {
+    fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash?key=${API_KEY}`, {
         method: 'POST', headers: {
             'Content-Type': 'application/json'
         }
