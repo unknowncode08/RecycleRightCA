@@ -1113,9 +1113,6 @@ window.addEventListener('load', async () => {
     switchTab('main');
 });
 
-// NOTE: All your other functions like initMap, sendToGemini, popup handlers, etc.,
-// need to be in this file. I have omitted them for clarity, but they are required
-// for the app to fully function. Please ensure they are copied over.
 
 /* ---------------------------  GEMINI  --------------------------- */
 /**
@@ -1183,8 +1180,8 @@ async function showResult(text) {
     triggerHaptic();
 
     let icon = '❓';
-    let title = 'Unknown';
-    let subtitle = 'Could not recognize the item clearly.';
+    let title = 'Server Not Available';
+    let subtitle = 'Sorry. We are currently experiencing some difficulties right now.';
     let titleColor = 'text-gray-800 dark:text-gray-200'; // Default text color
     let item = 'Unknown Item';
     let type = 'unknown';
