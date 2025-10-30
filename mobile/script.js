@@ -1151,6 +1151,7 @@ Examples:
     };
 
     try {
+        alert('pls work0');
         const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -1158,6 +1159,7 @@ Examples:
         });
         const data = await res.json();
         const text = data.candidates[0]?.content?.parts[0]?.text.trim();
+        alert('it works?');
         showResult(text);
     } catch (err) {
         alert('Gemini error:' + err);
