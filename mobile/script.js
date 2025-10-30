@@ -1158,6 +1158,7 @@ Examples:
             body: JSON.stringify(body)
         });
         const data = await res.json();
+        alert(data.candidates);
         const text = data.candidates[0]?.content?.parts[0]?.text.trim();
         alert('it works?');
         showResult(text);
