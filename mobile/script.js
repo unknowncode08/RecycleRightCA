@@ -1160,7 +1160,7 @@ Examples:
         const text = data.candidates[0]?.content?.parts[0]?.text.trim();
         showResult(text);
     } catch (err) {
-        console.error('Gemini error:', err);
+        alert('Gemini error:' + err);
         showResult('ERROR'); // Let showResult handle the error display
     } finally {
         document.getElementById('loadingSpinner').classList.add('hidden');
