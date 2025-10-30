@@ -1151,7 +1151,7 @@ Examples:
     };
 
     try {
-        alert('pls work0');
+        alert('pls work');
         const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`, {
             method: 'POST',
             mode: 'cors',
