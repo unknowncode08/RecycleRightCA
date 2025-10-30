@@ -1124,7 +1124,7 @@ async function sendToGemini(base64img) {
         generationConfig: {
             temperature: 0.2
         },
-        contents: {
+        contents: [{
             parts: [{
                 inline_data: {
                     mime_type: 'image/jpeg',
@@ -1147,7 +1147,7 @@ Examples:
 [NON-R, Chipped Ceramic Mug]
 [CRV, $0.05, Coca-Cola Can]`
             }]
-        }
+        }]
     };
 
     try {
@@ -1157,7 +1157,6 @@ Examples:
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body)
         });
-        alert(res);
         const data = await res.json();
         const text = data.candidates[0].content.parts[0].text.trim();
         alert('it works?');
