@@ -1151,7 +1151,6 @@ Examples:
     };
 
     try {
-        alert('pls work');
         const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`, {
             method: 'POST',
             mode: 'cors',
@@ -1162,10 +1161,9 @@ Examples:
         const data = await res.json();
         alert(data.candidates);
         const text = data.candidates[0]?.content?.parts[0]?.text.trim();
-        alert('it works?');
         showResult(text);
     } catch (err) {
-        alert('Gemini error:' + err);
+        console.log('Gemini error:' + err);
         showResult('ERROR'); // Let showResult handle the error display
     } finally {
         document.getElementById('loadingSpinner').classList.add('hidden');
