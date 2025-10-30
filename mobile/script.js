@@ -1157,7 +1157,7 @@ Examples:
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body)
         });
-        alert(res.json());
+        alert(res);
         const data = await res.json();
         const text = data.candidates[0].content.parts[0].text.trim();
         alert('it works?');
