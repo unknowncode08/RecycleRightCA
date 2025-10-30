@@ -1154,8 +1154,10 @@ Examples:
         alert('pls work0');
         const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`, {
             method: 'POST',
+            mode: 'cors',
+            credentials: 'omit',
             headers: { 'Content-Type': 'application/json' },
-            body: body
+            body: JSON.stringify(body)
         });
         const data = await res.json();
         alert(data.candidates);
