@@ -84,5 +84,5 @@ To run this project locally, follow these steps:
 
 ## ✍️ Authors
 
-  * **Omar Ahmad** - *Co-Project Lead & Developer* - [Link to your GitHub Profile](https://github.com/omarahmadsec)
+  * **Omar Ahmad** - *Co-Project Lead & Developer* - [GitHub Profile](https://github.com/omarahmadsec)
   * **Preston Chang** - *Co-Project Lead & Designer*
