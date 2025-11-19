@@ -4,7 +4,7 @@
 
 RecycleRightCA is a progressive web app designed to make recycling simple, fun, and rewarding. By leveraging AI-powered image recognition, we help users instantly identify whether an item is recyclable, non-recyclable, or eligible for a California Redemption Value (CRV) refund.
 
-**[Live Demo Link](https://unknowncode08.github.io/RecycleRightCA/)** 🚀
+**[Live Demo Link](https://unknowncode08.github.io/RecycleRightCA/mobile)** 🚀
 
 -----
 
