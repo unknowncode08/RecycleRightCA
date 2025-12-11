@@ -1,3 +1,5 @@
+/* Authors: Omar Ahmad, Preston Chang */
+
 // --- CONFIGURATION & INITIALIZATION ---
 
 const firebaseConfig = FIREBASE_CONFIG;
