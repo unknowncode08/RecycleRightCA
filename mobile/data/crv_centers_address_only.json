@@ -9917,5 +9917,355 @@
     "city": "Bakersfield",
     "zip": "93307",
     "full_address": "730 E California Ave, Bakersfield, CA 93307"
+  },
+  {
+    "name": "Fort Totten Transfer Station",
+    "address": "4900 John McCormack Rd NE",
+    "city": "Washington",
+    "zip": "20011",
+    "full_address": "4900 John McCormack Rd NE, Washington, DC 20011"
+  },
+  {
+    "name": "RFK Special Waste Collection Site",
+    "address": "2500 Independence Ave SE",
+    "city": "Washington",
+    "zip": "20003",
+    "full_address": "2500 Independence Ave SE, Washington, DC 20003"
+  },
+  {
+    "name": "Food Waste Smart Bin - Sacred Heart Way",
+    "address": "3211 Sacred Heart Way NW",
+    "city": "Washington",
+    "zip": "20010",
+    "full_address": "3211 Sacred Heart Way NW, Washington, DC 20010"
+  },
+  {
+    "name": "Food Waste Smart Bin - Marie Reed Recreation Center",
+    "address": "2200 18th St NW",
+    "city": "Washington",
+    "zip": "20009",
+    "full_address": "2200 18th St NW, Washington, DC 20009"
+  },
+  {
+    "name": "Food Waste Smart Bin - Adams Morgan",
+    "address": "1700 Kalorama Rd NW",
+    "city": "Washington",
+    "zip": "20009",
+    "full_address": "1700 Kalorama Rd NW, Washington, DC 20009"
+  },
+  {
+    "name": "Food Waste Smart Bin - 14th & U Street",
+    "address": "1400 U St NW",
+    "city": "Washington",
+    "zip": "20009",
+    "full_address": "1400 U St NW, Washington, DC 20009"
+  },
+  {
+    "name": "Food Waste Smart Bin - Kogan Plaza at GWU",
+    "address": "2121 H St NW",
+    "city": "Washington",
+    "zip": "20052",
+    "full_address": "2121 H St NW, Washington, DC 20052"
+  },
+  {
+    "name": "Food Waste Smart Bin - MLK Jr Memorial Library",
+    "address": "901 G St NW",
+    "city": "Washington",
+    "zip": "20001",
+    "full_address": "901 G St NW, Washington, DC 20001"
+  },
+  {
+    "name": "Food Waste Smart Bin - Stead Park",
+    "address": "1625 P St NW",
+    "city": "Washington",
+    "zip": "20036",
+    "full_address": "1625 P St NW, Washington, DC 20036"
+  },
+  {
+    "name": "Food Waste Smart Bin - Shaw Neighborhood Library",
+    "address": "630 R St NW",
+    "city": "Washington",
+    "zip": "20001",
+    "full_address": "630 R St NW, Washington, DC 20001"
+  },
+  {
+    "name": "Food Waste Smart Bin - Chevy Chase Library",
+    "address": "5601 Connecticut Ave NW",
+    "city": "Washington",
+    "zip": "20015",
+    "full_address": "5601 Connecticut Ave NW, Washington, DC 20015"
+  },
+  {
+    "name": "Food Waste Smart Bin - Tenley-Friendship Library",
+    "address": "4450 Wisconsin Ave NW",
+    "city": "Washington",
+    "zip": "20016",
+    "full_address": "4450 Wisconsin Ave NW, Washington, DC 20016"
+  },
+  {
+    "name": "Food Waste Smart Bin - Stoddert Elementary",
+    "address": "4001 Calvert St NW",
+    "city": "Washington",
+    "zip": "20007",
+    "full_address": "4001 Calvert St NW, Washington, DC 20007"
+  },
+  {
+    "name": "Food Waste Smart Bin - Georgia Ave & Van Buren",
+    "address": "6514 Georgia Ave NW",
+    "city": "Washington",
+    "zip": "20012",
+    "full_address": "6514 Georgia Ave NW, Washington, DC 20012"
+  },
+  {
+    "name": "Food Waste Smart Bin - Takoma Library",
+    "address": "416 Cedar St NW",
+    "city": "Washington",
+    "zip": "20012",
+    "full_address": "416 Cedar St NW, Washington, DC 20012"
+  },
+  {
+    "name": "Food Waste Smart Bin - Brightwood",
+    "address": "130 Kennedy St NW",
+    "city": "Washington",
+    "zip": "20011",
+    "full_address": "130 Kennedy St NW, Washington, DC 20011"
+  },
+  {
+    "name": "Food Waste Smart Bin - Petworth Library",
+    "address": "4199 Kansas Ave NW",
+    "city": "Washington",
+    "zip": "20011",
+    "full_address": "4199 Kansas Ave NW, Washington, DC 20011"
+  },
+  {
+    "name": "Food Waste Smart Bin - Alethia Tanner Park",
+    "address": "227 Harry Thomas Way NE",
+    "city": "Washington",
+    "zip": "20002",
+    "full_address": "227 Harry Thomas Way NE, Washington, DC 20002"
+  },
+  {
+    "name": "Food Waste Smart Bin - Edgewood Recreation Center",
+    "address": "300 Evarts St NE",
+    "city": "Washington",
+    "zip": "20017",
+    "full_address": "300 Evarts St NE, Washington, DC 20017"
+  },
+  {
+    "name": "Food Waste Smart Bin - Union Market",
+    "address": "1309 5th St NE",
+    "city": "Washington",
+    "zip": "20002",
+    "full_address": "1309 5th St NE, Washington, DC 20002"
+  },
+  {
+    "name": "Food Waste Smart Bin - Bloomingdale",
+    "address": "100 R St NW",
+    "city": "Washington",
+    "zip": "20001",
+    "full_address": "100 R St NW, Washington, DC 20001"
+  },
+  {
+    "name": "Food Waste Smart Bin - Swampoodle Terrace",
+    "address": "1102 3rd St NE",
+    "city": "Washington",
+    "zip": "20002",
+    "full_address": "1102 3rd St NE, Washington, DC 20002"
+  },
+  {
+    "name": "Food Waste Smart Bin - Northwest One Library",
+    "address": "155 L St NW",
+    "city": "Washington",
+    "zip": "20001",
+    "full_address": "155 L St NW, Washington, DC 20001"
+  },
+  {
+    "name": "Food Waste Smart Bin - Pennsylvania Ave & 13th St SE",
+    "address": "700 13th St SE",
+    "city": "Washington",
+    "zip": "20003",
+    "full_address": "700 13th St SE, Washington, DC 20003"
+  },
+  {
+    "name": "Food Waste Smart Bin - Navy Yard",
+    "address": "200 M St SE",
+    "city": "Washington",
+    "zip": "20003",
+    "full_address": "200 M St SE, Washington, DC 20003"
+  },
+  {
+    "name": "Food Waste Smart Bin - East Capitol & Benning Rd",
+    "address": "4510 East Capitol St NE",
+    "city": "Washington",
+    "zip": "20019",
+    "full_address": "4510 East Capitol St NE, Washington, DC 20019"
+  },
+  {
+    "name": "Food Waste Smart Bin - Kenilworth Recreation Center",
+    "address": "4321 Ord St NE",
+    "city": "Washington",
+    "zip": "20019",
+    "full_address": "4321 Ord St NE, Washington, DC 20019"
+  },
+  {
+    "name": "Food Waste Smart Bin - Eastern High School",
+    "address": "1700 East Capitol St NE",
+    "city": "Washington",
+    "zip": "20003",
+    "full_address": "1700 East Capitol St NE, Washington, DC 20003"
+  },
+  {
+    "name": "Food Waste Smart Bin - Twining Square",
+    "address": "2324 Pennsylvania Ave SE",
+    "city": "Washington",
+    "zip": "20020",
+    "full_address": "2324 Pennsylvania Ave SE, Washington, DC 20020"
+  },
+  {
+    "name": "Food Waste Smart Bin - Anacostia Library",
+    "address": "1800 Marion Barry Ave SE",
+    "city": "Washington",
+    "zip": "20020",
+    "full_address": "1800 Marion Barry Ave SE, Washington, DC 20020"
+  },
+  {
+    "name": "Food Waste Smart Bin - Covenant House",
+    "address": "2001 Mississippi Ave SE",
+    "city": "Washington",
+    "zip": "20020",
+    "full_address": "2001 Mississippi Ave SE, Washington, DC 20020"
+  },
+  {
+    "name": "Food Waste Smart Bin - Skyland Town Center",
+    "address": "2728 Marion Barry Ave SE",
+    "city": "Washington",
+    "zip": "20020",
+    "full_address": "2728 Marion Barry Ave SE, Washington, DC 20020"
+  },
+  {
+    "name": "Food Waste Smart Bin - Bellevue Neighborhood Library",
+    "address": "115 Atlantic Ave SW",
+    "city": "Washington",
+    "zip": "20032",
+    "full_address": "115 Atlantic Ave SW, Washington, DC 20032"
+  },
+  {
+    "name": "Food Waste Drop-off - Columbia Heights Farmers Market",
+    "address": "1400 Kenyon St NW",
+    "city": "Washington",
+    "zip": "20010",
+    "full_address": "1400 Kenyon St NW, Washington, DC 20010"
+  },
+  {
+    "name": "Food Waste Drop-off - Mount Pleasant Farmers Market",
+    "address": "3200 Mt Pleasant St NW",
+    "city": "Washington",
+    "zip": "20010",
+    "full_address": "3200 Mt Pleasant St NW, Washington, DC 20010"
+  },
+  {
+    "name": "Food Waste Drop-off - Dupont Circle Farmers Market",
+    "address": "1500 Connecticut Ave NW",
+    "city": "Washington",
+    "zip": "20036",
+    "full_address": "1500 Connecticut Ave NW, Washington, DC 20036"
+  },
+  {
+    "name": "Food Waste Drop-off - Cleveland Park Farmers Market",
+    "address": "3430 Connecticut Ave NW",
+    "city": "Washington",
+    "zip": "20008",
+    "full_address": "3430 Connecticut Ave NW, Washington, DC 20008"
+  },
+  {
+    "name": "Food Waste Drop-off - UDC Farmers Market",
+    "address": "4340 Connecticut Ave NW",
+    "city": "Washington",
+    "zip": "20008",
+    "full_address": "4340 Connecticut Ave NW, Washington, DC 20008"
+  },
+  {
+    "name": "Food Waste Drop-off - Palisades Farmers Market",
+    "address": "4600 MacArthur Blvd NW",
+    "city": "Washington",
+    "zip": "20007",
+    "full_address": "4600 MacArthur Blvd NW, Washington, DC 20007"
+  },
+  {
+    "name": "Food Waste Drop-off - Uptown Farmers Market",
+    "address": "1400 Kennedy St NW",
+    "city": "Washington",
+    "zip": "20011",
+    "full_address": "1400 Kennedy St NW, Washington, DC 20011"
+  },
+  {
+    "name": "Food Waste Drop-off - Monroe Street Farmers Market",
+    "address": "716 Monroe St NE",
+    "city": "Washington",
+    "zip": "20017",
+    "full_address": "716 Monroe St NE, Washington, DC 20017"
+  },
+  {
+    "name": "Food Waste Drop-off - Trinidad Farmers Market",
+    "address": "1299 Neal St NE",
+    "city": "Washington",
+    "zip": "20002",
+    "full_address": "1299 Neal St NE, Washington, DC 20002"
+  },
+  {
+    "name": "Food Waste Drop-off - Bloomingdale Farmers Market",
+    "address": "100 R St NW",
+    "city": "Washington",
+    "zip": "20001",
+    "full_address": "100 R St NW, Washington, DC 20001"
+  },
+  {
+    "name": "Food Waste Drop-off - Eastern Market",
+    "address": "635 North Carolina Ave SE",
+    "city": "Washington",
+    "zip": "20003",
+    "full_address": "635 North Carolina Ave SE, Washington, DC 20003"
+  },
+  {
+    "name": "Food Waste Drop-off - Farmers Market SW at DC Wharf",
+    "address": "605 Wharf St SW",
+    "city": "Washington",
+    "zip": "20024",
+    "full_address": "605 Wharf St SW, Washington, DC 20024"
+  },
+  {
+    "name": "Food Waste Drop-off - First Baptist Church of Deanwood",
+    "address": "4408 Sheriff Rd NE",
+    "city": "Washington",
+    "zip": "20019",
+    "full_address": "4408 Sheriff Rd NE, Washington, DC 20019"
+  },
+  {
+    "name": "Food Waste Drop-off - Historic Anacostia",
+    "address": "1303 Marion Barry Ave SE",
+    "city": "Washington",
+    "zip": "20020",
+    "full_address": "1303 Marion Barry Ave SE, Washington, DC 20020"
+  },
+  {
+    "name": "Best Buy Electronics Recycling - Columbia Heights",
+    "address": "3100 14th St NW",
+    "city": "Washington",
+    "zip": "20010",
+    "full_address": "3100 14th St NW, Washington, DC 20010"
+  },
+  {
+    "name": "Best Buy Electronics Recycling - Tenleytown",
+    "address": "4500 Wisconsin Ave NW",
+    "city": "Washington",
+    "zip": "20016",
+    "full_address": "4500 Wisconsin Ave NW, Washington, DC 20016"
+  },
+  {
+    "name": "Best Buy Electronics Recycling - Anacostia",
+    "address": "1227 Good Hope Rd SE",
+    "city": "Washington",
+    "zip": "20020",
+    "full_address": "1227 Good Hope Rd SE, Washington, DC 20020"
   }
 ]
