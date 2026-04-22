@@ -1199,7 +1199,7 @@ async function showResult(text) {
         title = 'Recyclable';
         subtitle = `Detected: <strong>${item}</strong>`;
         titleColor = 'text-emerald-500';
-        buttons = `<button onclick="askHowToRecycle('${item}','RECYCABLE')" class="w-full mt-4 px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 font-semibold">How To Recycle</button>`;
+        buttons = `<button onclick="askHowToRecycle('${item}','RECYCABLE'); closeResult();" class="w-full mt-4 px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 font-semibold">How To Recycle</button>`;
     } else if (text.startsWith('[NON-R')) {
         item = text.split(',')[1].replace(']', '').trim();
         type = 'nrec';
@@ -1207,7 +1207,7 @@ async function showResult(text) {
         title = 'Not Recyclable';
         subtitle = `Detected: <strong>${item}</strong>`;
         titleColor = 'text-red-500';
-        buttons = `<button onclick="askWhyExplanation('${item}','NON-R')" class="w-full mt-4 px-4 py-3 bg-yellow-500 text-black rounded-lg hover:bg-yellow-600 font-semibold">Learn Why</button>`;
+        buttons = `<button onclick="askWhyExplanation('${item}','NON-R'); closeResult();" class="w-full mt-4 px-4 py-3 bg-yellow-500 text-black rounded-lg hover:bg-yellow-600 font-semibold">Learn Why</button>`;
     } else if (text.startsWith('[CRV')) {
         const refund = text.split(',')[1].trim();
         item = text.split(',')[2].replace(']', '').trim();
